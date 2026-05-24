@@ -35,62 +35,44 @@ def url_to_pil(url: str) -> Image.Image:
 # Keys are English (used internally); Korean labels are shown in the Radio UI.
 
 MODE_CONFIGS = {
+    # Layout-only briefs. Style/texture comes entirely from build_doodle_prompt().
+    # Do NOT add style words here — they contaminate the texture anchor.
     "Full Character Sheet": {
         "brief": (
-            "Create a CHAOTIC DOODLE COLLAGE CHARACTER SHEET. "
-            "Cram 8-10 versions of the character across the page — overlapping, rotated, "
-            "deliberately asymmetric, no grid. "
-            "Mix render quality: some fully colored, some rough pencil sketches, some half-finished "
-            "with visible construction lines and stray marks. "
-            "Include at least 2 chibi super-deformed versions, one large close-up face with "
-            "exaggerated emotion, and one tiny full-body silhouette doodle in a corner. "
-            "Add messy handwritten labels with small arrows pointing at outfit details: "
-            "'her fav!!', 'so soft~', 'notice me senpai!!', 'iconic look'. "
-            "Scrawl the character name in bubbly handwritten font. Include a dialogue bubble. "
-            "Fill every empty gap densely with: ★ hearts ♡ sparkle bursts ✦ double exclamation marks !! "
-            "tiny clouds small flowers washi tape strips. "
-            "Add one small mascot animal doodle (cat, bunny, or ghost). "
-            "Use a slightly off-white aged sketchbook paper background with faint ruled lines. "
-            "Mixed media feel: flat pastel fills + loose watercolor washes + rough ink outlines + "
-            "colored pencil hatching. MS Paint-adjacent roughness in some elements."
+            "multiple loose sketches of the same character scattered across the page, "
+            "different poses and expressions, some unfinished and half-drawn, "
+            "chibi versions included, messy overlapping layout, "
+            "handwritten notes and arrows around the sketches, "
+            "hearts ♡ stars ★ !! scribbled in gaps"
         ),
     },
     "Portrait Doodle": {
         "brief": (
-            "Create a SINGLE FRONT-FACING PORTRAIT DOODLE. Upper body only, centered composition. "
-            "Large expressive anime eyes, detailed face, cute messy doodle linework. "
-            "Simple white background. Focus entirely on the face expression and outfit top. "
-            "Frame with light doodle decorations: small stars ★ hearts ♡ sparkle bursts ✦ "
-            "loosely scattered around the portrait edges. "
-            "Add a handwritten nickname or affectionate label near the character."
+            "single upper-body portrait centered on page, "
+            "expressive face close-up, "
+            "small star and heart doodles loosely framing the drawing, "
+            "handwritten nickname or label nearby"
         ),
     },
     "Upper Body Character": {
         "brief": (
-            "Create an UPPER BODY CHARACTER ILLUSTRATION, waist-up, centered on the page. "
-            "Detailed and precise outfit rendering — every clothing piece clearly visible "
-            "with accurate color blocking that matches the character's palette. "
-            "Soft pastel anime illustration style with clean confident linework. "
-            "Subtle doodle frame decorations at the page edges only. "
-            "Gentle pastel gradient background wash. Polished and portfolio-ready."
+            "waist-up character sketch centered on page, "
+            "outfit clearly visible, "
+            "a few tiny doodle accents at the edges"
         ),
     },
     "Chibi Sticker": {
         "brief": (
-            "Create a CHIBI STICKER SHEET with 4-6 super-deformed versions of the character. "
-            "Each chibi: bold black outline, flat pastel color fill, exaggerated cute expression. "
-            "Arrange them loosely like stickers — not in a strict grid, slight overlap and rotation. "
-            "Scatter kawaii doodle decorations between stickers: tiny stars, hearts, sparkles, flowers. "
-            "Clean white background. Bold, bouncy, and instantly shareable."
+            "3 to 5 chibi doodles of the character, "
+            "scattered loosely like stickers, not in a grid, "
+            "small hearts and stars scribbled between them"
         ),
     },
     "Simple Clean Portrait": {
         "brief": (
-            "Create a SINGLE CLEAN PORTRAIT. Minimal centered composition, one character, "
-            "soft refined anime illustration style. Clean white background. "
-            "Elegant confident linework. Only the subtlest doodle accents: "
-            "a few tiny stars or small hearts near one corner — nothing more. "
-            "Let the character's design speak. No clutter, no chaos."
+            "single character sketch centered on page, "
+            "minimal layout, "
+            "one or two tiny star or heart doodles nearby, nothing more"
         ),
     },
 }
@@ -136,7 +118,7 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
 
 
 def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> str:
-    """GPT-4o: craft a gpt-image-1 prompt tailored to the selected generation mode."""
+    """GPT-4o: write a short texture-first prompt that produces raw sketchbook doodles."""
     brief = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
     resp = client.chat.completions.create(
@@ -145,32 +127,36 @@ def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> str:
             {
                 "role": "system",
                 "content": (
-                    "You are a world-class anime illustrator and prompt engineer. "
-                    "You write precise, stylistically confident image generation prompts "
-                    "that produce portfolio-quality kawaii character art. "
-                    "Your prompts adapt perfectly to any requested style — "
-                    "from chaotic doodle collages to clean minimal portraits. "
-                    "Every word you write appears in the final image. No vagueness."
+                    "You write short image prompts that produce raw anime sketchbook doodles. "
+                    "NOT polished illustrations. NOT professional art. NOT rendered artwork.\n"
+                    "Rules you must follow:\n"
+                    "- Always open with physical media words: "
+                    "'rough ballpoint pen sketch', 'cheap copic marker scribbles', "
+                    "'scratchy ink doodles', 'white notebook paper'\n"
+                    "- Keep the total prompt under 90 words\n"
+                    "- Never use these words: polished, rendered, detailed, cinematic, "
+                    "professional, refined, masterpiece, high quality, artstation, "
+                    "glossy, elegant, portfolio, illustration, digital art"
                 ),
             },
             {
                 "role": "user",
                 "content": (
-                    f"CHARACTER REFERENCE DATA:\n{analysis}\n\n"
-                    f"GENERATION MODE: {mode}\n\n"
-                    f"VISUAL BRIEF:\n{brief}\n\n"
-                    "CHARACTER FIDELITY (non-negotiable):\n"
-                    "Every version of the character must have the EXACT same hairstyle, "
-                    "hair color, eye color, outfit, and accessories as described above. "
-                    "The character must be instantly recognizable.\n\n"
-                    "Write ONE image generation prompt as a single dense paragraph. "
-                    "No bullet points, no headers. 150 to 220 words. "
-                    "Be specific about colors, style, composition, and decorative elements. "
-                    "Write as if briefing a professional illustrator with zero room for interpretation."
+                    f"CHARACTER: {analysis}\n\n"
+                    f"LAYOUT: {brief}\n\n"
+                    "Write ONE image prompt. Follow this exact structure:\n"
+                    "1. Media anchor (first phrase): rough ballpoint pen sketch / "
+                    "cheap marker coloring / white notebook paper / scratchy unfinished lines\n"
+                    "2. Character (one sentence): exact hair color and style, "
+                    "eye color, outfit — taken from CHARACTER above\n"
+                    "3. Layout (1-2 short phrases): taken from LAYOUT above\n"
+                    "4. Texture closer (last phrase): messy fanart energy, "
+                    "amateur sketchbook feel, scanned notebook page\n"
+                    "Total: under 90 words. One paragraph. No headers."
                 ),
             },
         ],
-        max_tokens=400,
+        max_tokens=180,
     )
     return resp.choices[0].message.content.strip()
 
