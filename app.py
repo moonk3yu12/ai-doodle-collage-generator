@@ -183,7 +183,6 @@ with gr.Blocks(
     css=CSS,
 ) as demo:
 
-    # Header
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
             "# ✨ AI Doodle Character Sheet Generator\n"
@@ -192,7 +191,6 @@ with gr.Blocks(
 
     gr.Markdown("---")
 
-    # Main row: input | output
     with gr.Row(equal_height=True):
 
         with gr.Column(scale=1):
@@ -209,7 +207,7 @@ with gr.Blocks(
             )
             gr.Markdown(
                 "**Tips:** Clear front-facing photos work best.  \n"
-                "Anime/game characters, OCs, and real people all work!",
+                "Anime / game characters, OCs, and real people all work!",
                 elem_classes="tip-box",
             )
 
@@ -222,7 +220,6 @@ with gr.Blocks(
                 show_download_button=True,
             )
 
-    # Collapsible details accordion
     with gr.Accordion("📋 Analysis & Prompt Details", open=False):
         with gr.Row():
             analysis_out = gr.Textbox(
@@ -238,7 +235,6 @@ with gr.Blocks(
                 placeholder="Generated prompt will appear here…",
             )
 
-    # How it works
     gr.Markdown("---\n### 💡 How It Works")
     with gr.Row():
         gr.Markdown(
@@ -262,10 +258,9 @@ with gr.Blocks(
         "*Built with [Gradio](https://gradio.app) · "
         "[OpenAI GPT-4o](https://platform.openai.com) · "
         "[DALL-E 3](https://platform.openai.com/docs/guides/images) · "
-        "Deploy on [Hugging Face Spaces](https://huggingface.co/spaces)*"
+        "Hosted on [Hugging Face Spaces](https://huggingface.co/spaces)*"
     )
 
-    # Wire events
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input],
@@ -273,5 +268,5 @@ with gr.Blocks(
     )
 
 
-if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+# Docker / HF Spaces: bind to 0.0.0.0 on port 7860
+demo.launch(server_name="0.0.0.0", server_port=7860)
