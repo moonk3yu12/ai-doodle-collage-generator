@@ -33,7 +33,7 @@ def url_to_pil(url: str) -> Image.Image:
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
 def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
-    """GPT-4o Vision: extract visual traits from the uploaded image."""
+    """GPT-4o Vision: extract rich, structured visual traits for doodle collage generation."""
     b64 = pil_to_base64(image)
     resp = client.chat.completions.create(
         model="gpt-4o",
@@ -43,11 +43,20 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
                 {
                     "type": "text",
                     "text": (
-                        "Describe this character or person in detail for use in image generation.\n"
-                        "Cover every visual trait: hair (color, length, style), eye color and shape, "
-                        "skin tone, clothing style and colors, accessories, overall aesthetic, "
-                        "personality vibe, and dominant color palette.\n"
-                        "Be specific and descriptive."
+                        "You are a professional character designer preparing a reference brief.\n"
+                        "Analyze this image and extract every visual detail. Be extremely specific — "
+                        "vague descriptions produce bad illustrations.\n\n"
+                        "Structure your answer in these sections:\n"
+                        "HAIR: exact color with adjective (e.g. 'bubblegum pink with bleached tips'), "
+                        "length, and style (twin tails, messy bob, etc.)\n"
+                        "EYES: exact color, shape, notable features (e.g. star pupils, thick lashes)\n"
+                        "SKIN: tone in plain words\n"
+                        "OUTFIT: every piece — top, bottom, shoes, layers — with colors and any patterns\n"
+                        "ACCESSORIES: every item present (hair clips, ribbons, bags, jewelry, etc.)\n"
+                        "SIGNATURE DETAILS: 2-3 things that make this character instantly recognizable\n"
+                        "COLOR PALETTE: 5 dominant color names (e.g. 'dusty rose', 'warm cream', 'cobalt blue')\n"
+                        "PERSONALITY VIBE: 3 adjectives describing their energy\n\n"
+                        "Do not add commentary. Just the structured facts."
                     ),
                 },
                 {
@@ -56,46 +65,86 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
                 },
             ],
         }],
-        max_tokens=450,
+        max_tokens=600,
     )
     return resp.choices[0].message.content.strip()
 
 
 def build_doodle_prompt(client: openai.OpenAI, analysis: str) -> str:
-    """GPT-4o: craft a DALL-E 3 prompt for a doodle-collage character sheet."""
+    """GPT-4o: craft a gpt-image-1 prompt for a chaotic doodle collage character sheet."""
     resp = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Character description:\n{analysis}\n\n"
-                "Write a single image-generation prompt (no headers, no bullets, one paragraph) "
-                "for a cute kawaii doodle-collage character sheet. Requirements:\n"
-                "- Hand-drawn doodle / sketch illustration style\n"
-                "- 6 to 8 mini poses and expressions of the SAME character arranged like a sticker sheet\n"
-                "- Soft pastel colors matching the character's palette\n"
-                "- Small decorative doodles between poses: stars, hearts, tiny flowers, sparkles\n"
-                "- Clean white or very light background\n"
-                "- Anime-inspired but with a hand-drawn illustration twist\n"
-                "- Chibi proportions encouraged\n"
-                "Keep the prompt under 180 words."
-            ),
-        }],
-        max_tokens=250,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a world-class anime illustrator and prompt engineer. "
+                    "You specialize in chaotic kawaii doodle collage art — messy, dense, adorable, "
+                    "and visually overwhelming. Your image prompts always produce outputs that look like "
+                    "a famous anime artist's personal sketchbook page: crammed with poses, handwritten "
+                    "notes, tiny mascot doodles, arrows, symbols, and layered decorations. "
+                    "You never write clean, minimal, or sterile prompts. "
+                    "Every prompt you write produces something social-media-worthy and portfolio-quality."
+                ),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"CHARACTER REFERENCE DATA:\n{analysis}\n\n"
+                    "Write ONE image generation prompt for a CHAOTIC DOODLE COLLAGE CHARACTER SHEET.\n\n"
+                    "The prompt MUST describe all of the following elements:\n\n"
+                    "COMPOSITION:\n"
+                    "- 8 to 10 versions of the character crammed across the page — overlapping, rotated, "
+                    "no grid, deliberately asymmetric and messy\n"
+                    "- Mix of render styles: some fully colored, some rough pencil sketches, some "
+                    "half-finished with visible construction lines and stray marks\n"
+                    "- At least 2 super-deformed chibi versions\n"
+                    "- One large expressive close-up face with exaggerated emotion\n"
+                    "- One tiny full-body silhouette doodle in a corner\n\n"
+                    "ANNOTATIONS AND TEXT:\n"
+                    "- Messy handwritten labels pointing at outfit details with small arrows: "
+                    "'her fav!!', 'so soft~', 'notice me senpai!!', 'iconic look'\n"
+                    "- Character name or nickname scrawled in bubbly handwritten font somewhere visible\n"
+                    "- At least one dialogue bubble or thought cloud with a short phrase\n\n"
+                    "DECORATIONS (scattered densely across every empty space):\n"
+                    "- Bold outlined stars ★, doodled hearts ♡, sparkle bursts ✦, "
+                    "double exclamation marks !!, tiny clouds, small flowers, asterisks *\n"
+                    "- One small mascot animal or creature doodle (cat, bunny, or ghost)\n"
+                    "- Sticker-like elements overlapping the art: small stamps, tiny icons, "
+                    "washi tape strips\n"
+                    "- Repeating tiny pattern filling gaps (dots, x marks, tiny stars)\n\n"
+                    "STYLE AND TEXTURE:\n"
+                    "- Slightly off-white aged sketchbook paper background with faint ruled lines or "
+                    "watercolor paper texture\n"
+                    "- Mixed media feel: flat pastel fills, loose watercolor washes, rough ink outlines, "
+                    "colored pencil hatching\n"
+                    "- MS Paint-adjacent roughness in some elements — wobbly lines, uneven fills\n"
+                    "- Overall palette matches the character's colors; soft pastels dominate\n\n"
+                    "CHARACTER FIDELITY (non-negotiable):\n"
+                    "- Every single version of the character must have the EXACT same hairstyle, "
+                    "hair color, eye color, outfit, and accessories as described in the reference\n"
+                    "- The character must be instantly recognizable across all poses and styles\n\n"
+                    "FORMAT: One dense paragraph, no bullet points, no headers. "
+                    "200 to 250 words. Be aggressive and specific. "
+                    "Write as if briefing a professional anime illustrator with no room for interpretation."
+                ),
+            },
+        ],
+        max_tokens=450,
     )
     return resp.choices[0].message.content.strip()
 
 
 def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
-    """DALL-E 3: generate the character sheet image."""
+    """gpt-image-1: generate the character sheet (returns base64, no URL download needed)."""
     resp = client.images.generate(
-        model="dall-e-3",
+        model="gpt-image-1",
         prompt=prompt,
         size="1024x1024",
-        quality="standard",
-        n=1,
+        quality="high",
     )
-    return url_to_pil(resp.data[0].url)
+    image_bytes = base64.b64decode(resp.data[0].b64_json)
+    return Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
 
 # ── Gradio handler ─────────────────────────────────────────────────────────────
@@ -224,7 +273,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 placeholder="Analysis will appear here after generation…",
             )
             prompt_out = gr.Textbox(
-                label="✍️ DALL-E 3 Prompt",
+                label="✍️ gpt-image-1 Prompt",
                 lines=7,
                 interactive=False,
                 placeholder="Generated prompt will appear here…",
@@ -243,8 +292,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**3 · Generate**  \nDALL-E 3 creates a sticker-sheet style character sheet with "
-            "6–8 poses, expressions, and cute doodle decorations.",
+            "**3 · Generate**  \ngpt-image-1 renders a chaotic doodle collage with 8–10 poses, "
+            "handwritten annotations, mascot doodles, and layered decorations.",
             elem_classes="step-box",
         )
 
@@ -252,7 +301,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
         "---\n"
         "*Built with [Gradio](https://gradio.app) · "
         "[OpenAI GPT-4o](https://platform.openai.com) · "
-        "[DALL-E 3](https://platform.openai.com/docs/guides/images) · "
+        "[gpt-image-1](https://platform.openai.com/docs/guides/images) · "
         "Hosted on [Hugging Face Spaces](https://huggingface.co/spaces)*"
     )
 
