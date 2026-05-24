@@ -30,6 +30,71 @@ def url_to_pil(url: str) -> Image.Image:
     return Image.open(io.BytesIO(resp.content)).convert("RGB")
 
 
+# ── Generation mode configs ────────────────────────────────────────────────────
+# Each entry defines the visual brief injected into build_doodle_prompt().
+# Keys are English (used internally); Korean labels are shown in the Radio UI.
+
+MODE_CONFIGS = {
+    "Full Character Sheet": {
+        "brief": (
+            "Create a CHAOTIC DOODLE COLLAGE CHARACTER SHEET. "
+            "Cram 8-10 versions of the character across the page — overlapping, rotated, "
+            "deliberately asymmetric, no grid. "
+            "Mix render quality: some fully colored, some rough pencil sketches, some half-finished "
+            "with visible construction lines and stray marks. "
+            "Include at least 2 chibi super-deformed versions, one large close-up face with "
+            "exaggerated emotion, and one tiny full-body silhouette doodle in a corner. "
+            "Add messy handwritten labels with small arrows pointing at outfit details: "
+            "'her fav!!', 'so soft~', 'notice me senpai!!', 'iconic look'. "
+            "Scrawl the character name in bubbly handwritten font. Include a dialogue bubble. "
+            "Fill every empty gap densely with: ★ hearts ♡ sparkle bursts ✦ double exclamation marks !! "
+            "tiny clouds small flowers washi tape strips. "
+            "Add one small mascot animal doodle (cat, bunny, or ghost). "
+            "Use a slightly off-white aged sketchbook paper background with faint ruled lines. "
+            "Mixed media feel: flat pastel fills + loose watercolor washes + rough ink outlines + "
+            "colored pencil hatching. MS Paint-adjacent roughness in some elements."
+        ),
+    },
+    "Portrait Doodle": {
+        "brief": (
+            "Create a SINGLE FRONT-FACING PORTRAIT DOODLE. Upper body only, centered composition. "
+            "Large expressive anime eyes, detailed face, cute messy doodle linework. "
+            "Simple white background. Focus entirely on the face expression and outfit top. "
+            "Frame with light doodle decorations: small stars ★ hearts ♡ sparkle bursts ✦ "
+            "loosely scattered around the portrait edges. "
+            "Add a handwritten nickname or affectionate label near the character."
+        ),
+    },
+    "Upper Body Character": {
+        "brief": (
+            "Create an UPPER BODY CHARACTER ILLUSTRATION, waist-up, centered on the page. "
+            "Detailed and precise outfit rendering — every clothing piece clearly visible "
+            "with accurate color blocking that matches the character's palette. "
+            "Soft pastel anime illustration style with clean confident linework. "
+            "Subtle doodle frame decorations at the page edges only. "
+            "Gentle pastel gradient background wash. Polished and portfolio-ready."
+        ),
+    },
+    "Chibi Sticker": {
+        "brief": (
+            "Create a CHIBI STICKER SHEET with 4-6 super-deformed versions of the character. "
+            "Each chibi: bold black outline, flat pastel color fill, exaggerated cute expression. "
+            "Arrange them loosely like stickers — not in a strict grid, slight overlap and rotation. "
+            "Scatter kawaii doodle decorations between stickers: tiny stars, hearts, sparkles, flowers. "
+            "Clean white background. Bold, bouncy, and instantly shareable."
+        ),
+    },
+    "Simple Clean Portrait": {
+        "brief": (
+            "Create a SINGLE CLEAN PORTRAIT. Minimal centered composition, one character, "
+            "soft refined anime illustration style. Clean white background. "
+            "Elegant confident linework. Only the subtlest doodle accents: "
+            "a few tiny stars or small hearts near one corner — nothing more. "
+            "Let the character's design speak. No clutter, no chaos."
+        ),
+    },
+}
+
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
 def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
@@ -70,8 +135,10 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
     return resp.choices[0].message.content.strip()
 
 
-def build_doodle_prompt(client: openai.OpenAI, analysis: str) -> str:
-    """GPT-4o: craft a gpt-image-1 prompt for a chaotic doodle collage character sheet."""
+def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> str:
+    """GPT-4o: craft a gpt-image-1 prompt tailored to the selected generation mode."""
+    brief = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
+
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -79,58 +146,31 @@ def build_doodle_prompt(client: openai.OpenAI, analysis: str) -> str:
                 "role": "system",
                 "content": (
                     "You are a world-class anime illustrator and prompt engineer. "
-                    "You specialize in chaotic kawaii doodle collage art — messy, dense, adorable, "
-                    "and visually overwhelming. Your image prompts always produce outputs that look like "
-                    "a famous anime artist's personal sketchbook page: crammed with poses, handwritten "
-                    "notes, tiny mascot doodles, arrows, symbols, and layered decorations. "
-                    "You never write clean, minimal, or sterile prompts. "
-                    "Every prompt you write produces something social-media-worthy and portfolio-quality."
+                    "You write precise, stylistically confident image generation prompts "
+                    "that produce portfolio-quality kawaii character art. "
+                    "Your prompts adapt perfectly to any requested style — "
+                    "from chaotic doodle collages to clean minimal portraits. "
+                    "Every word you write appears in the final image. No vagueness."
                 ),
             },
             {
                 "role": "user",
                 "content": (
                     f"CHARACTER REFERENCE DATA:\n{analysis}\n\n"
-                    "Write ONE image generation prompt for a CHAOTIC DOODLE COLLAGE CHARACTER SHEET.\n\n"
-                    "The prompt MUST describe all of the following elements:\n\n"
-                    "COMPOSITION:\n"
-                    "- 8 to 10 versions of the character crammed across the page — overlapping, rotated, "
-                    "no grid, deliberately asymmetric and messy\n"
-                    "- Mix of render styles: some fully colored, some rough pencil sketches, some "
-                    "half-finished with visible construction lines and stray marks\n"
-                    "- At least 2 super-deformed chibi versions\n"
-                    "- One large expressive close-up face with exaggerated emotion\n"
-                    "- One tiny full-body silhouette doodle in a corner\n\n"
-                    "ANNOTATIONS AND TEXT:\n"
-                    "- Messy handwritten labels pointing at outfit details with small arrows: "
-                    "'her fav!!', 'so soft~', 'notice me senpai!!', 'iconic look'\n"
-                    "- Character name or nickname scrawled in bubbly handwritten font somewhere visible\n"
-                    "- At least one dialogue bubble or thought cloud with a short phrase\n\n"
-                    "DECORATIONS (scattered densely across every empty space):\n"
-                    "- Bold outlined stars ★, doodled hearts ♡, sparkle bursts ✦, "
-                    "double exclamation marks !!, tiny clouds, small flowers, asterisks *\n"
-                    "- One small mascot animal or creature doodle (cat, bunny, or ghost)\n"
-                    "- Sticker-like elements overlapping the art: small stamps, tiny icons, "
-                    "washi tape strips\n"
-                    "- Repeating tiny pattern filling gaps (dots, x marks, tiny stars)\n\n"
-                    "STYLE AND TEXTURE:\n"
-                    "- Slightly off-white aged sketchbook paper background with faint ruled lines or "
-                    "watercolor paper texture\n"
-                    "- Mixed media feel: flat pastel fills, loose watercolor washes, rough ink outlines, "
-                    "colored pencil hatching\n"
-                    "- MS Paint-adjacent roughness in some elements — wobbly lines, uneven fills\n"
-                    "- Overall palette matches the character's colors; soft pastels dominate\n\n"
+                    f"GENERATION MODE: {mode}\n\n"
+                    f"VISUAL BRIEF:\n{brief}\n\n"
                     "CHARACTER FIDELITY (non-negotiable):\n"
-                    "- Every single version of the character must have the EXACT same hairstyle, "
-                    "hair color, eye color, outfit, and accessories as described in the reference\n"
-                    "- The character must be instantly recognizable across all poses and styles\n\n"
-                    "FORMAT: One dense paragraph, no bullet points, no headers. "
-                    "200 to 250 words. Be aggressive and specific. "
-                    "Write as if briefing a professional anime illustrator with no room for interpretation."
+                    "Every version of the character must have the EXACT same hairstyle, "
+                    "hair color, eye color, outfit, and accessories as described above. "
+                    "The character must be instantly recognizable.\n\n"
+                    "Write ONE image generation prompt as a single dense paragraph. "
+                    "No bullet points, no headers. 150 to 220 words. "
+                    "Be specific about colors, style, composition, and decorative elements. "
+                    "Write as if briefing a professional illustrator with zero room for interpretation."
                 ),
             },
         ],
-        max_tokens=450,
+        max_tokens=400,
     )
     return resp.choices[0].message.content.strip()
 
@@ -149,9 +189,9 @@ def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
 
 # ── Gradio handler ─────────────────────────────────────────────────────────────
 
-def run_pipeline(image: Image.Image, progress=gr.Progress()):
+def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
     if image is None:
-        raise gr.Error("Please upload a character image first.")
+        raise gr.Error("이미지를 먼저 업로드해주세요.")
 
     try:
         client = get_client()
@@ -159,26 +199,26 @@ def run_pipeline(image: Image.Image, progress=gr.Progress()):
         raise gr.Error(str(e))
 
     try:
-        progress(0.10, desc="Analyzing character features...")
+        progress(0.10, desc="캐릭터 특징 분석 중...")
         analysis = analyze_character(client, image)
 
-        progress(0.45, desc="Crafting doodle prompt...")
-        prompt = build_doodle_prompt(client, analysis)
+        progress(0.45, desc="이미지 생성 프롬프트 작성 중...")
+        prompt = build_doodle_prompt(client, analysis, mode)
 
-        progress(0.70, desc="Generating character sheet...")
+        progress(0.70, desc="캐릭터 시트 생성 중...")
         sheet = generate_sheet(client, prompt)
 
-        progress(1.00, desc="Done!")
+        progress(1.00, desc="완료!")
         return sheet, analysis, prompt
 
     except openai.AuthenticationError:
-        raise gr.Error("Invalid OpenAI API key. Double-check your OPENAI_API_KEY secret.")
+        raise gr.Error("OpenAI API 키가 올바르지 않습니다. OPENAI_API_KEY 시크릿을 확인해주세요.")
     except openai.RateLimitError:
-        raise gr.Error("OpenAI rate limit hit. Please wait a moment and try again.")
+        raise gr.Error("OpenAI 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.")
     except openai.BadRequestError as e:
-        raise gr.Error(f"OpenAI rejected the request: {e}. Try a different image.")
+        raise gr.Error(f"OpenAI가 요청을 거부했습니다: {e}. 다른 이미지로 시도해보세요.")
     except Exception as e:
-        raise gr.Error(f"Unexpected error: {e}")
+        raise gr.Error(f"예기치 않은 오류가 발생했습니다: {e}")
 
 
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
@@ -226,12 +266,12 @@ CSS = """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
+with gr.Blocks(title="AI 두들 캐릭터 시트 생성기") as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# ✨ AI Doodle Character Sheet Generator\n"
-            "Upload any character or person photo → get a kawaii doodle collage character sheet"
+            "# ✨ AI 두들 캐릭터 시트 생성기\n"
+            "캐릭터나 인물 사진을 업로드하면 → 카와이 두들 콜라주 캐릭터 시트를 자동으로 만들어드려요"
         )
 
     gr.Markdown("---")
@@ -239,75 +279,86 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     with gr.Row(equal_height=True):
 
         with gr.Column(scale=1):
-            gr.Markdown("### 📸 Upload Image")
+            gr.Markdown("### 📸 이미지 업로드")
             image_input = gr.Image(
                 type="pil",
-                label="Character or Person Photo",
-                height=340,
+                label="캐릭터 또는 인물 사진",
+                height=300,
+            )
+            mode_selector = gr.Radio(
+                choices=[
+                    ("🎨 전체 캐릭터 시트", "Full Character Sheet"),
+                    ("🖼️ 포트레이트 낙서", "Portrait Doodle"),
+                    ("👗 상반신 캐릭터", "Upper Body Character"),
+                    ("🌟 치비 스티커", "Chibi Sticker"),
+                    ("✨ 심플 클린 초상화", "Simple Clean Portrait"),
+                ],
+                value="Full Character Sheet",
+                label="🎭 생성 모드 선택",
             )
             generate_btn = gr.Button(
-                "🎨  Generate Character Sheet",
+                "🎨  캐릭터 시트 생성",
                 variant="primary",
                 elem_id="generate-btn",
             )
             gr.Markdown(
-                "**Tips:** Clear front-facing photos work best.  \n"
-                "Anime / game characters, OCs, and real people all work!",
+                "**Tip:** 정면 사진일수록 결과가 좋아요.  \n"
+                "애니 캐릭터, 게임 캐릭터, 오리지널 캐릭터, 실사 인물 모두 가능해요!",
                 elem_classes="tip-box",
             )
 
         with gr.Column(scale=1):
-            gr.Markdown("### 🖼️ Character Sheet")
+            gr.Markdown("### 🖼️ 생성된 캐릭터 시트")
             image_output = gr.Image(
                 type="pil",
-                label="Generated Character Sheet",
-                height=340,
+                label="생성된 캐릭터 시트",
+                height=460,
             )
 
-    with gr.Accordion("📋 Analysis & Prompt Details", open=False):
+    with gr.Accordion("📋 분석 결과 및 프롬프트", open=False):
         with gr.Row():
             analysis_out = gr.Textbox(
-                label="🔍 Character Analysis  (GPT-4o Vision)",
+                label="🔍 캐릭터 분석 (GPT-4o Vision)",
                 lines=7,
                 interactive=False,
-                placeholder="Analysis will appear here after generation…",
+                placeholder="생성 후 분석 결과가 여기에 표시됩니다…",
             )
             prompt_out = gr.Textbox(
-                label="✍️ gpt-image-1 Prompt",
+                label="✍️ 이미지 생성 프롬프트 (gpt-image-1)",
                 lines=7,
                 interactive=False,
-                placeholder="Generated prompt will appear here…",
+                placeholder="생성된 프롬프트가 여기에 표시됩니다…",
             )
 
-    gr.Markdown("---\n### 💡 How It Works")
+    gr.Markdown("---\n### 💡 작동 방식")
     with gr.Row():
         gr.Markdown(
-            "**1 · Analyze**  \nGPT-4o Vision reads your photo and extracts every visual detail: "
-            "hair, eyes, outfit, color palette, and vibe.",
+            "**1 · 분석**  \nGPT-4o Vision이 사진에서 헤어, 눈, 의상, "
+            "색상 팔레트 등 모든 시각적 특징을 구조화하여 추출합니다.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**2 · Prompt**  \nGPT-4o converts the analysis into a rich kawaii doodle-collage "
-            "image generation prompt.",
+            "**2 · 프롬프트**  \nGPT-4o가 분석 결과와 선택한 생성 모드를 바탕으로 "
+            "최적화된 이미지 생성 프롬프트를 작성합니다.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**3 · Generate**  \ngpt-image-1 renders a chaotic doodle collage with 8–10 poses, "
-            "handwritten annotations, mascot doodles, and layered decorations.",
+            "**3 · 생성**  \ngpt-image-1이 선택한 모드에 맞춰 "
+            "포즈, 손글씨 주석, 낙서 장식이 가득한 캐릭터 시트를 렌더링합니다.",
             elem_classes="step-box",
         )
 
     gr.Markdown(
         "---\n"
-        "*Built with [Gradio](https://gradio.app) · "
+        "*[Gradio](https://gradio.app) · "
         "[OpenAI GPT-4o](https://platform.openai.com) · "
         "[gpt-image-1](https://platform.openai.com/docs/guides/images) · "
-        "Hosted on [Hugging Face Spaces](https://huggingface.co/spaces)*"
+        "[Hugging Face Spaces](https://huggingface.co/spaces) 에서 호스팅*"
     )
 
     generate_btn.click(
         fn=run_pipeline,
-        inputs=[image_input],
+        inputs=[image_input, mode_selector],
         outputs=[image_output, analysis_out, prompt_out],
     )
 
