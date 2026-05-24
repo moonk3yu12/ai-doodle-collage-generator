@@ -177,7 +177,7 @@ def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
 
 def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
     if image is None:
-        raise gr.Error("이미지를 먼저 업로드해주세요.")
+        raise gr.Error("Please upload an image first.")
 
     try:
         client = get_client()
@@ -185,26 +185,26 @@ def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
         raise gr.Error(str(e))
 
     try:
-        progress(0.10, desc="캐릭터 특징 분석 중...")
+        progress(0.10, desc="Analyzing character features...")
         analysis = analyze_character(client, image)
 
-        progress(0.45, desc="이미지 생성 프롬프트 작성 중...")
+        progress(0.45, desc="Writing image prompt...")
         prompt = build_doodle_prompt(client, analysis, mode)
 
-        progress(0.70, desc="캐릭터 시트 생성 중...")
+        progress(0.70, desc="Generating character sheet...")
         sheet = generate_sheet(client, prompt)
 
-        progress(1.00, desc="완료!")
+        progress(1.00, desc="Done!")
         return sheet, analysis, prompt
 
     except openai.AuthenticationError:
-        raise gr.Error("OpenAI API 키가 올바르지 않습니다. OPENAI_API_KEY 시크릿을 확인해주세요.")
+        raise gr.Error("Invalid OpenAI API key. Check your OPENAI_API_KEY secret.")
     except openai.RateLimitError:
-        raise gr.Error("OpenAI 요청 한도에 도달했습니다. 잠시 후 다시 시도해주세요.")
+        raise gr.Error("OpenAI rate limit hit. Please wait and try again.")
     except openai.BadRequestError as e:
-        raise gr.Error(f"OpenAI가 요청을 거부했습니다: {e}. 다른 이미지로 시도해보세요.")
+        raise gr.Error(f"OpenAI rejected the request: {e}. Try a different image.")
     except Exception as e:
-        raise gr.Error(f"예기치 않은 오류가 발생했습니다: {e}")
+        raise gr.Error(f"Unexpected error: {e}")
 
 
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
@@ -252,12 +252,12 @@ CSS = """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="AI 두들 캐릭터 시트 생성기") as demo:
+with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# ✨ AI 두들 캐릭터 시트 생성기\n"
-            "캐릭터나 인물 사진을 업로드하면 → 카와이 두들 콜라주 캐릭터 시트를 자동으로 만들어드려요"
+            "# ✨ AI Doodle Character Sheet Generator\n"
+            "Upload any character or person photo → get a kawaii doodle collage character sheet"
         )
 
     gr.Markdown("---")
@@ -265,81 +265,81 @@ with gr.Blocks(title="AI 두들 캐릭터 시트 생성기") as demo:
     with gr.Row(equal_height=True):
 
         with gr.Column(scale=1):
-            gr.Markdown("### 📸 이미지 업로드")
+            gr.Markdown("### 📸 Upload Image")
             image_input = gr.Image(
                 type="pil",
-                label="캐릭터 또는 인물 사진",
+                label="Character or Person Photo",
                 height=300,
             )
             mode_selector = gr.Radio(
                 choices=[
-                    ("🎨 전체 캐릭터 시트", "Full Character Sheet"),
-                    ("🖼️ 포트레이트 낙서", "Portrait Doodle"),
-                    ("👗 상반신 캐릭터", "Upper Body Character"),
-                    ("🌟 치비 스티커", "Chibi Sticker"),
-                    ("✨ 심플 클린 초상화", "Simple Clean Portrait"),
+                    ("🎨 Full Character Sheet", "Full Character Sheet"),
+                    ("🖼️ Portrait Doodle", "Portrait Doodle"),
+                    ("👗 Upper Body Character", "Upper Body Character"),
+                    ("🌟 Chibi Sticker", "Chibi Sticker"),
+                    ("✨ Simple Clean Portrait", "Simple Clean Portrait"),
                 ],
                 value="Full Character Sheet",
-                label="🎭 생성 모드 선택",
+                label="🎭 Generation Mode",
             )
             generate_btn = gr.Button(
-                "🎨  캐릭터 시트 생성",
+                "🎨  Generate Character Sheet",
                 variant="primary",
                 elem_id="generate-btn",
             )
             gr.Markdown(
-                "**Tip:** 정면 사진일수록 결과가 좋아요.  \n"
-                "애니 캐릭터, 게임 캐릭터, 오리지널 캐릭터, 실사 인물 모두 가능해요!",
+                "**Tip:** Clear front-facing photos work best.  \n"
+                "Anime / game characters, OCs, and real people all work!",
                 elem_classes="tip-box",
             )
 
         with gr.Column(scale=1):
-            gr.Markdown("### 🖼️ 생성된 캐릭터 시트")
+            gr.Markdown("### 🖼️ Generated Character Sheet")
             image_output = gr.Image(
                 type="pil",
-                label="생성된 캐릭터 시트",
+                label="Generated Character Sheet",
                 height=460,
             )
 
-    with gr.Accordion("📋 분석 결과 및 프롬프트", open=False):
+    with gr.Accordion("📋 Analysis & Prompt Details", open=False):
         with gr.Row():
             analysis_out = gr.Textbox(
-                label="🔍 캐릭터 분석 (GPT-4o Vision)",
+                label="🔍 Character Analysis (GPT-4o Vision)",
                 lines=7,
                 interactive=False,
-                placeholder="생성 후 분석 결과가 여기에 표시됩니다…",
+                placeholder="Analysis will appear here after generation…",
             )
             prompt_out = gr.Textbox(
-                label="✍️ 이미지 생성 프롬프트 (gpt-image-1)",
+                label="✍️ Image Generation Prompt (gpt-image-1)",
                 lines=7,
                 interactive=False,
-                placeholder="생성된 프롬프트가 여기에 표시됩니다…",
+                placeholder="Generated prompt will appear here…",
             )
 
-    gr.Markdown("---\n### 💡 작동 방식")
+    gr.Markdown("---\n### 💡 How It Works")
     with gr.Row():
         gr.Markdown(
-            "**1 · 분석**  \nGPT-4o Vision이 사진에서 헤어, 눈, 의상, "
-            "색상 팔레트 등 모든 시각적 특징을 구조화하여 추출합니다.",
+            "**1 · Analyze**  \nGPT-4o Vision extracts hair, eyes, outfit, "
+            "color palette, and every visual trait from your photo.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**2 · 프롬프트**  \nGPT-4o가 분석 결과와 선택한 생성 모드를 바탕으로 "
-            "최적화된 이미지 생성 프롬프트를 작성합니다.",
+            "**2 · Prompt**  \nGPT-4o writes a short texture-first prompt "
+            "tuned to the selected generation mode.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**3 · 생성**  \ngpt-image-1이 선택한 모드에 맞춰 "
-            "포즈, 손글씨 주석, 낙서 장식이 가득한 캐릭터 시트를 렌더링합니다.",
+            "**3 · Generate**  \ngpt-image-1 renders a raw sketchbook doodle — "
+            "rough pen lines, cheap marker coloring, messy fanart energy.",
             elem_classes="step-box",
         )
 
     gr.Markdown(
         "---\n"
-        "*[Gradio](https://gradio.app) · "
+        "*Built with [Gradio](https://gradio.app) · "
         "[OpenAI GPT-4o](https://platform.openai.com) · "
         "[gpt-image-1](https://platform.openai.com/docs/guides/images) · "
-        "[Hugging Face Spaces](https://huggingface.co/spaces) 에서 호스팅*"
+        "Hosted on [Hugging Face Spaces](https://huggingface.co/spaces)*"
     )
 
     generate_btn.click(
