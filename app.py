@@ -177,11 +177,7 @@ CSS = """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(
-    title="AI Doodle Character Sheet Generator",
-    theme=gr.themes.Soft(primary_hue="pink", secondary_hue="purple"),
-    css=CSS,
-) as demo:
+with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
@@ -217,7 +213,6 @@ with gr.Blocks(
                 type="pil",
                 label="Generated Character Sheet",
                 height=340,
-                show_download_button=True,
             )
 
     with gr.Accordion("📋 Analysis & Prompt Details", open=False):
@@ -269,4 +264,9 @@ with gr.Blocks(
 
 
 # Docker / HF Spaces: bind to 0.0.0.0 on port 7860
-demo.launch(server_name="0.0.0.0", server_port=7860)
+demo.launch(
+    server_name="0.0.0.0",
+    server_port=7860,
+    theme=gr.themes.Soft(primary_hue="pink", secondary_hue="purple"),
+    css=CSS,
+)
