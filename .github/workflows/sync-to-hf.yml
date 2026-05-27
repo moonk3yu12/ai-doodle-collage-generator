@@ -17,8 +17,8 @@ jobs:
       - name: Push to HF
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_USER: leemoonkyu         # 스크린샷에 나온 실제 아이디로 수정 완료!
-          HF_SPACE: Character_Design_Request    # 스크린샷에 나온 스페이스 이름과 일치 완료!
+          HF_USER: moonLeek
+          HF_SPACE: Character_Design_Request
         run: |
           git remote add hf https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE
           git push --force hf main
