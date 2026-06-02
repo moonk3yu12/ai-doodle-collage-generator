@@ -212,11 +212,43 @@ def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
-body, .gradio-container {
+/* ── 전체 배경 ── */
+body, .gradio-container, .gradio-container * {
     font-family: 'Nunito', sans-serif !important;
+    box-sizing: border-box;
+}
+body, .gradio-container {
     background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%) !important;
+    min-height: 100vh;
 }
 
+/* ── 모든 블록/패널 배경을 흰색으로 강제 ── */
+.block, .form, .wrap, .panel,
+.gradio-container .block,
+section.block, div.block,
+.gradio-container .wrap {
+    background: white !important;
+    border-color: #f3e8ff !important;
+}
+
+/* ── 이미지 컴포넌트 내부 배경 ── */
+.image-container, .upload-container,
+div[data-testid="image"],
+div[data-testid="image"] > div,
+.svelte-p3y7hu, .empty {
+    background: #fdf4ff !important;
+    border-color: #e9d5ff !important;
+}
+
+/* 이미지 업로드 영역 점선 테두리 */
+.upload-container, .upload-button,
+.wrap.svelte-i3tvor {
+    border: 2px dashed #d8b4fe !important;
+    border-radius: 16px !important;
+    background: #fdf4ff !important;
+}
+
+/* ── 헤더 ── */
 #app-header {
     text-align: center;
     padding: 2rem 0 0.5rem;
@@ -229,35 +261,19 @@ body, .gradio-container {
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.4rem;
     letter-spacing: -0.5px;
-    text-shadow: none;
 }
-#app-header p {
-    color: #a78bca;
-    font-size: 1rem;
-    font-weight: 600;
-}
+#app-header p { color: #a78bca; font-size: 1rem; font-weight: 600; }
 
-/* 메인 카드 패널 */
-.panel-card {
-    background: white;
+/* ── 메인 카드 (좌우 패널) ── */
+#left-panel, #right-panel {
+    background: white !important;
+    border: 2px solid #f3e8ff !important;
     border-radius: 24px !important;
     box-shadow: 0 4px 24px rgba(192, 132, 252, 0.12) !important;
-    border: 2px solid #f3e8ff !important;
-    padding: 1.2rem !important;
+    padding: 1.4rem !important;
 }
 
-/* 섹션 제목 */
-.section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #9333ea;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-/* 생성 버튼 */
+/* ── 생성 버튼 ── */
 #generate-btn {
     background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8) !important;
     color: white !important;
@@ -267,83 +283,78 @@ body, .gradio-container {
     border-radius: 50px !important;
     padding: 0.75rem 1.5rem !important;
     width: 100% !important;
-    margin-top: 0.5rem !important;
     box-shadow: 0 4px 16px rgba(192, 132, 252, 0.4) !important;
     transition: all 0.2s ease !important;
-    letter-spacing: 0.3px !important;
 }
 #generate-btn:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.5) !important;
-}
-#generate-btn:active {
-    transform: translateY(0px) !important;
+    box-shadow: 0 8px 24px rgba(192, 132, 252, 0.55) !important;
+    opacity: 1 !important;
 }
 
-/* 팁 박스 */
+/* ── 팁 박스 ── */
 .tip-box {
-    background: linear-gradient(135deg, #fdf4ff, #f5f0ff);
-    border: 1.5px solid #e9d5ff;
-    border-radius: 16px;
-    padding: 0.75rem 1rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #9333ea;
-    margin-top: 0.5rem;
+    background: linear-gradient(135deg, #fdf4ff, #f5f0ff) !important;
+    border: 1.5px solid #e9d5ff !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: #9333ea !important;
 }
 
-/* 스텝 박스 */
+/* ── 스텝 박스 ── */
 .step-box {
-    background: white;
-    border: 2px solid #f3e8ff;
-    border-radius: 20px;
-    padding: 1.2rem;
-    text-align: center;
-    box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: white !important;
+    border: 2px solid #f3e8ff !important;
+    border-radius: 20px !important;
+    padding: 1.2rem !important;
+    text-align: center !important;
+    box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
 }
 .step-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2);
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2) !important;
 }
 
-/* 라디오 버튼 */
-.gr-radio label {
-    border-radius: 12px !important;
-    border: 1.5px solid #e9d5ff !important;
-    font-weight: 600 !important;
-}
-.gr-radio label:hover {
-    background: #fdf4ff !important;
-    border-color: #c084fc !important;
-}
-
-/* 구분선 */
+/* ── 구분선 ── */
 hr {
     border: none !important;
     border-top: 2px dashed #f0e4ff !important;
     margin: 1rem 0 !important;
 }
 
-/* 이미지 업로드 영역 */
-.gr-image {
-    border-radius: 18px !important;
-    border: 2px dashed #d8b4fe !important;
-}
-
-/* 텍스트박스 */
-.gr-textbox textarea {
+/* ── 텍스트박스 ── */
+textarea, input[type="text"] {
     border-radius: 14px !important;
     border: 1.5px solid #e9d5ff !important;
+    background: #fdf4ff !important;
     font-family: 'Nunito', sans-serif !important;
     font-size: 0.9rem !important;
+    color: #4c1d95 !important;
 }
 
-/* 아코디언 */
-.gr-accordion {
+/* ── 아코디언 ── */
+details, .accordion {
     border-radius: 16px !important;
     border: 2px solid #f3e8ff !important;
+    background: white !important;
     overflow: hidden !important;
+}
+
+/* ── 라디오 버튼 ── */
+input[type="radio"] + span,
+.wrap label span {
+    font-weight: 600 !important;
+    color: #7c3aed !important;
+}
+
+/* ── 레이블 텍스트 ── */
+label span, .block > label > span {
+    color: #9333ea !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
 }
 """
 
@@ -360,25 +371,25 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     gr.Markdown("---")
 
-    with gr.Row(equal_height=True):
+    with gr.Row(equal_height=False):
 
-        with gr.Column(scale=1):
+        with gr.Column(scale=1, elem_id="left-panel"):
             gr.Markdown("### 📸 사진 올리기")
             image_input = gr.Image(
                 type="pil",
-                label="Character or Person Photo",
-                height=300,
+                label="캐릭터 또는 인물 사진",
+                height=280,
             )
             mode_selector = gr.Radio(
                 choices=[
-                    ("🎨 Full Character Sheet", "Full Character Sheet"),
-                    ("🖼️ Portrait Doodle", "Portrait Doodle"),
-                    ("👗 Upper Body Character", "Upper Body Character"),
-                    ("🌟 Chibi Sticker", "Chibi Sticker"),
-                    ("✨ Simple Clean Portrait", "Simple Clean Portrait"),
+                    ("🎨 풀 캐릭터 시트", "Full Character Sheet"),
+                    ("🖼️ 포트레이트 낙서", "Portrait Doodle"),
+                    ("👗 상반신 캐릭터", "Upper Body Character"),
+                    ("🌟 치비 스티커", "Chibi Sticker"),
+                    ("✨ 심플 클린 포트레이트", "Simple Clean Portrait"),
                 ],
                 value="Full Character Sheet",
-                label="🎭 Generation Mode",
+                label="🎭 생성 모드",
             )
             generate_btn = gr.Button(
                 "✨  낙서 시트 만들기  ♡",
@@ -391,12 +402,12 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 elem_classes="tip-box",
             )
 
-        with gr.Column(scale=1):
+        with gr.Column(scale=1, elem_id="right-panel"):
             gr.Markdown("### 🎨 완성된 낙서 시트 ♡")
             image_output = gr.Image(
                 type="pil",
-                label="Generated Character Sheet",
-                height=460,
+                label="생성된 캐릭터 시트",
+                height=500,
             )
 
     with gr.Accordion("🔍 분석 & 프롬프트 보기 ▾", open=False):
@@ -453,7 +464,7 @@ demo.launch(
     theme=gr.themes.Soft(
         primary_hue="pink",
         secondary_hue="purple",
-        neutral_hue="slate",
+        neutral_hue="pink",
         font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
         radius_size=gr.themes.sizes.radius_lg,
     ),
