@@ -299,8 +299,11 @@ div[data-testid="image"] > div,
     border-radius: 16px !important;
     padding: 0.75rem 1rem !important;
     font-size: 0.88rem !important;
-    font-weight: 600 !important;
-    color: #9333ea !important;
+    font-weight: 700 !important;
+    color: #c084fc !important;
+}
+.tip-box p, .tip-box strong, .tip-box * {
+    color: #c084fc !important;
 }
 
 /* ── 스텝 박스 ── */
@@ -312,10 +315,10 @@ div[data-testid="image"] > div,
     text-align: center !important;
     box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
-    color: #7c3aed !important;
+    color: #c084fc !important;
 }
 .step-box p, .step-box strong, .step-box * {
-    color: #7c3aed !important;
+    color: #c084fc !important;
 }
 .step-box:hover {
     transform: translateY(-3px) !important;
@@ -325,8 +328,22 @@ div[data-testid="image"] > div,
 /* ── 섹션 제목 (어떻게 만들어지나요? 등) ── */
 .gradio-container h3,
 .gradio-container h2 {
-    color: #7c3aed !important;
+    color: #c084fc !important;
     font-weight: 800 !important;
+}
+
+/* ── 아코디언 라벨 ── */
+details summary,
+details summary span,
+.accordion-header, .label-wrap span {
+    color: #c084fc !important;
+    font-weight: 700 !important;
+}
+
+/* ── 일반 마크다운 텍스트 ── */
+.gradio-container p,
+.gradio-container .prose p {
+    color: #c084fc !important;
 }
 
 /* ── 구분선 ── */
