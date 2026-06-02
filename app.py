@@ -167,7 +167,7 @@ def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
         model="gpt-image-1",
         prompt=prompt,
         size="1024x1024",
-        quality="high",
+        quality="medium",
     )
     image_bytes = base64.b64decode(resp.data[0].b64_json)
     return Image.open(io.BytesIO(image_bytes)).convert("RGB")
@@ -210,42 +210,140 @@ def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
 
 CSS = """
-#app-header { text-align: center; padding: 1.5rem 0 0.5rem; }
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+body, .gradio-container {
+    font-family: 'Nunito', sans-serif !important;
+    background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%) !important;
+}
+
+#app-header {
+    text-align: center;
+    padding: 2rem 0 0.5rem;
+}
 #app-header h1 {
-    font-size: 2.2rem;
-    background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa);
+    font-size: 2.6rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #ff6eb4, #c084fc, #818cf8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.5px;
+    text-shadow: none;
 }
-#app-header p { color: #64748b; font-size: 1rem; }
+#app-header p {
+    color: #a78bca;
+    font-size: 1rem;
+    font-weight: 600;
+}
 
+/* 메인 카드 패널 */
+.panel-card {
+    background: white;
+    border-radius: 24px !important;
+    box-shadow: 0 4px 24px rgba(192, 132, 252, 0.12) !important;
+    border: 2px solid #f3e8ff !important;
+    padding: 1.2rem !important;
+}
+
+/* 섹션 제목 */
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #9333ea;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* 생성 버튼 */
 #generate-btn {
-    background: linear-gradient(90deg, #f472b6, #a78bfa) !important;
+    background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8) !important;
     color: white !important;
     border: none !important;
-    font-size: 1rem !important;
-    border-radius: 8px !important;
-    padding: 0.7rem 1.5rem !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    padding: 0.75rem 1.5rem !important;
     width: 100% !important;
+    margin-top: 0.5rem !important;
+    box-shadow: 0 4px 16px rgba(192, 132, 252, 0.4) !important;
+    transition: all 0.2s ease !important;
+    letter-spacing: 0.3px !important;
 }
-#generate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+#generate-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.5) !important;
+}
+#generate-btn:active {
+    transform: translateY(0px) !important;
+}
 
+/* 팁 박스 */
 .tip-box {
-    background: #fdf4ff;
-    border: 1px solid #e9d5ff;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #fdf4ff, #f5f0ff);
+    border: 1.5px solid #e9d5ff;
+    border-radius: 16px;
     padding: 0.75rem 1rem;
     font-size: 0.88rem;
-    color: #7c3aed;
+    font-weight: 600;
+    color: #9333ea;
+    margin-top: 0.5rem;
 }
 
+/* 스텝 박스 */
 .step-box {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 1rem;
+    background: white;
+    border: 2px solid #f3e8ff;
+    border-radius: 20px;
+    padding: 1.2rem;
     text-align: center;
+    box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.step-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2);
+}
+
+/* 라디오 버튼 */
+.gr-radio label {
+    border-radius: 12px !important;
+    border: 1.5px solid #e9d5ff !important;
+    font-weight: 600 !important;
+}
+.gr-radio label:hover {
+    background: #fdf4ff !important;
+    border-color: #c084fc !important;
+}
+
+/* 구분선 */
+hr {
+    border: none !important;
+    border-top: 2px dashed #f0e4ff !important;
+    margin: 1rem 0 !important;
+}
+
+/* 이미지 업로드 영역 */
+.gr-image {
+    border-radius: 18px !important;
+    border: 2px dashed #d8b4fe !important;
+}
+
+/* 텍스트박스 */
+.gr-textbox textarea {
+    border-radius: 14px !important;
+    border: 1.5px solid #e9d5ff !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+
+/* 아코디언 */
+.gr-accordion {
+    border-radius: 16px !important;
+    border: 2px solid #f3e8ff !important;
+    overflow: hidden !important;
 }
 """
 
@@ -256,8 +354,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# ✨ AI Doodle Character Sheet Generator\n"
-            "Upload any character or person photo → get a kawaii doodle collage character sheet"
+            "# ✨ AI Doodle Character Sheet ✨\n"
+            "ʕ •ᴥ•ʔ 캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ♡"
         )
 
     gr.Markdown("---")
@@ -265,7 +363,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     with gr.Row(equal_height=True):
 
         with gr.Column(scale=1):
-            gr.Markdown("### 📸 Upload Image")
+            gr.Markdown("### 📸 사진 올리기")
             image_input = gr.Image(
                 type="pil",
                 label="Character or Person Photo",
@@ -283,63 +381,62 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 label="🎭 Generation Mode",
             )
             generate_btn = gr.Button(
-                "🎨  Generate Character Sheet",
+                "✨  낙서 시트 만들기  ♡",
                 variant="primary",
                 elem_id="generate-btn",
             )
             gr.Markdown(
-                "**Tip:** Clear front-facing photos work best.  \n"
-                "Anime / game characters, OCs, and real people all work!",
+                "💡 **Tip:** 정면 사진일수록 잘 나와요!  \n"
+                "애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ",
                 elem_classes="tip-box",
             )
 
         with gr.Column(scale=1):
-            gr.Markdown("### 🖼️ Generated Character Sheet")
+            gr.Markdown("### 🎨 완성된 낙서 시트 ♡")
             image_output = gr.Image(
                 type="pil",
                 label="Generated Character Sheet",
                 height=460,
             )
 
-    with gr.Accordion("📋 Analysis & Prompt Details", open=False):
+    with gr.Accordion("🔍 분석 & 프롬프트 보기 ▾", open=False):
         with gr.Row():
             analysis_out = gr.Textbox(
-                label="🔍 Character Analysis (GPT-4o Vision)",
+                label="👁️ 캐릭터 분석 결과 (GPT-4o Vision)",
                 lines=7,
                 interactive=False,
-                placeholder="Analysis will appear here after generation…",
+                placeholder="생성 후 캐릭터 분석 결과가 여기에 나타나요 ✨",
             )
             prompt_out = gr.Textbox(
-                label="✍️ Image Generation Prompt (gpt-image-1)",
+                label="✍️ 이미지 생성 프롬프트 (gpt-image-1)",
                 lines=7,
                 interactive=False,
-                placeholder="Generated prompt will appear here…",
+                placeholder="생성된 프롬프트가 여기에 나타나요 ♡",
             )
 
-    gr.Markdown("---\n### 💡 How It Works")
+    gr.Markdown("---\n### ✨ 어떻게 만들어지나요?")
     with gr.Row():
         gr.Markdown(
-            "**1 · Analyze**  \nGPT-4o Vision extracts hair, eyes, outfit, "
-            "color palette, and every visual trait from your photo.",
+            "**1단계 · 분석 🔍**  \nGPT-4o가 사진에서 머리카락, 눈, 의상, "
+            "색상 팔레트 등 모든 특징을 추출해요.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**2 · Prompt**  \nGPT-4o writes a short texture-first prompt "
-            "tuned to the selected generation mode.",
+            "**2단계 · 프롬프트 ✍️**  \nGPT-4o가 선택한 모드에 맞는 "
+            "낙서 스타일 이미지 프롬프트를 작성해요.",
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**3 · Generate**  \ngpt-image-1 renders a raw sketchbook doodle — "
-            "rough pen lines, cheap marker coloring, messy fanart energy.",
+            "**3단계 · 생성 🎨**  \ngpt-image-1이 스케치북 낙서 느낌의 "
+            "캐릭터 시트를 그려줘요 ♡",
             elem_classes="step-box",
         )
 
     gr.Markdown(
         "---\n"
-        "*Built with [Gradio](https://gradio.app) · "
-        "[OpenAI GPT-4o](https://platform.openai.com) · "
-        "[gpt-image-1](https://platform.openai.com/docs/guides/images) · "
-        "Hosted on [Hugging Face Spaces](https://huggingface.co/spaces)*"
+        "<p style='text-align:center; color:#c084fc; font-size:0.85rem;'>"
+        "Made with ♡ using Gradio · OpenAI GPT-4o · gpt-image-1 · Hugging Face Spaces"
+        "</p>"
     )
 
     generate_btn.click(
@@ -353,6 +450,12 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 demo.launch(
     server_name="0.0.0.0",
     server_port=7860,
-    theme=gr.themes.Soft(primary_hue="pink", secondary_hue="purple"),
+    theme=gr.themes.Soft(
+        primary_hue="pink",
+        secondary_hue="purple",
+        neutral_hue="slate",
+        font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
+        radius_size=gr.themes.sizes.radius_lg,
+    ),
     css=CSS,
 )
