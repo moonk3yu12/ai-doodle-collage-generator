@@ -306,16 +306,27 @@ div[data-testid="image"] > div,
 /* ── 스텝 박스 ── */
 .step-box {
     background: white !important;
-    border: 2px solid #f3e8ff !important;
+    border: 2px solid #e9d5ff !important;
     border-radius: 20px !important;
     padding: 1.2rem !important;
     text-align: center !important;
     box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
+    color: #7c3aed !important;
+}
+.step-box p, .step-box strong, .step-box * {
+    color: #7c3aed !important;
 }
 .step-box:hover {
     transform: translateY(-3px) !important;
     box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2) !important;
+}
+
+/* ── 섹션 제목 (어떻게 만들어지나요? 등) ── */
+.gradio-container h3,
+.gradio-container h2 {
+    color: #7c3aed !important;
+    font-weight: 800 !important;
 }
 
 /* ── 구분선 ── */
