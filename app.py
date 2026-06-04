@@ -415,14 +415,33 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     )
 
 
-def generate_sheet(client: openai.OpenAI, prompt: str, quality: str) -> tuple[Image.Image, object]:
-    """gpt-image-1: generate the character sheet (returns base64, no URL download needed)."""
-    resp = client.images.generate(
-        model="gpt-image-1",
-        prompt=prompt,
-        size="1024x1024",
-        quality=quality,
-    )
+def generate_sheet(
+    client: openai.OpenAI,
+    prompt: str,
+    quality: str,
+    reference_image: Image.Image | None = None,
+) -> tuple[Image.Image, object]:
+    """gpt-image-1: edit mode when reference image provided, generate mode otherwise."""
+    if reference_image is not None:
+        # images.edit — pass original image so character design is preserved
+        buf = io.BytesIO()
+        reference_image.save(buf, format="PNG")
+        buf.seek(0)
+        buf.name = "reference.png"
+        resp = client.images.edit(
+            model="gpt-image-1",
+            image=buf,
+            prompt=prompt,
+            size="1024x1024",
+            quality=quality,
+        )
+    else:
+        resp = client.images.generate(
+            model="gpt-image-1",
+            prompt=prompt,
+            size="1024x1024",
+            quality=quality,
+        )
     image_bytes = base64.b64decode(resp.data[0].b64_json)
     return Image.open(io.BytesIO(image_bytes)).convert("RGB"), resp.usage
 
@@ -446,7 +465,7 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         prompt = build_doodle_prompt(analysis, mode)
 
         progress(0.70, desc="Generating character sheet...")
-        sheet, u3 = generate_sheet(client, prompt, quality)
+        sheet, u3 = generate_sheet(client, prompt, quality, reference_image=image)
 
         progress(1.00, desc="Done!")
 
@@ -461,7 +480,7 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
             f"  in: {u1.prompt_tokens:,}   out: {u1.completion_tokens:,}   total: {u1.total_tokens:,}\n\n"
             f"Step 2 · Prompt    (template — no API call)\n"
             f"  Full analysis injected directly. 0 tokens used.\n\n"
-            f"Step 3 · Generate  (gpt-image-1)\n"
+            f"Step 3 · Generate  (gpt-image-1 — image edit mode)\n"
             f"  in: {u3.input_tokens:,}   out: {u3.output_tokens:,}   total: {u3.total_tokens:,}\n\n"
             f"{'─' * 40}\n"
             f"Grand total: {u1.total_tokens + u3.total_tokens:,} tokens\n\n"
