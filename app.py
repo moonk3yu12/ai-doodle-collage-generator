@@ -249,81 +249,93 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
     primary_prompt = (
         "This is a digital artwork / character illustration.\n"
-        "Extract EVERY visible visual detail of this character. Do NOT summarize. Do NOT simplify.\n"
-        "Do NOT identify who this character is. Do NOT name any franchise or IP.\n"
-        "Be exhaustive — a character artist must be able to recreate this character from your description alone.\n\n"
+        "Do NOT identify the character. Do NOT name any franchise or IP.\n"
+        "Extract every visible design element as bullet points under each section.\n"
+        "Do NOT write paragraphs. Do NOT summarize. Do NOT omit small accessories.\n"
+        "Prefer exhaustive extraction over concise descriptions.\n\n"
 
-        "HAIR: exact color(s) with adjectives, length, style, texture, "
-        "any highlights/gradients/streaks, how it flows or is tied\n"
+        "HAIR\n"
+        "- exact color(s) with adjectives (e.g. ice blue, silver-white with pale tips)\n"
+        "- length and silhouette\n"
+        "- style (loose, twin tails, braid, etc.) and how it flows\n"
+        "- any visible layers, gradients, or streaks\n\n"
 
-        "HAIR ACCESSORIES: every crown, ornament, clip, ribbon, pin, tiara — "
-        "shape, color, material, position on head\n"
+        "HEAD ACCESSORIES\n"
+        "- every crown, tiara, horn, ornament, clip, pin, ribbon on or around the head\n"
+        "- for each: shape, color, material, exact position\n\n"
 
-        "EYES: exact color, pupil shape (round, slit, star, etc.), iris details, "
-        "lash thickness, eye shape (almond, round, sharp), any glow or special effect\n"
+        "EYES\n"
+        "- exact iris color\n"
+        "- pupil shape (round, slit, star, cross, etc.)\n"
+        "- eye shape (almond, round, upturned, etc.)\n"
+        "- lash style (thick, long, sparse)\n"
+        "- any glow, gradient, or special iris pattern\n\n"
 
-        "FACE: skin tone, face shape, any markings (freckles, scars, tattoos, blush marks, "
-        "beauty marks, runes, glowing lines)\n"
+        "FACE\n"
+        "- skin tone\n"
+        "- face shape\n"
+        "- every marking: freckles, scars, blush marks, tattoos, runes, beauty marks\n"
+        "- earrings: style, color, length, material\n\n"
 
-        "EARS & EARRINGS: ear shape if notable, earring type, color, material, length\n"
+        "OUTFIT\n"
+        "- neckline and collar style\n"
+        "- top / bodice: garment type, color, fabric texture, patterns, embroidery, cutouts\n"
+        "- necklaces, chokers, pendants: shape, color, material\n"
+        "- chest emblem or insignia: shape, color, position\n"
+        "- shoulder armor or pauldrons: shape, color, engravings\n"
+        "- sleeves: length, style, color, any cuffs or arm guards\n"
+        "- gloves: length, color, material, finger coverage\n"
+        "- belt or waist piece: width, color, buckle or clasp design\n"
+        "- cape or coat: shape, length, color, lining color, clasp or brooch\n"
+        "- any symbols, runes, or crests: shape and location on outfit\n\n"
 
-        "NECK & CHEST: necklaces, chokers, pendants, chest emblem or insignia — "
-        "describe shape, color, material\n"
+        "SKIRT\n"
+        "- type (full skirt, layered, shorts, pants, wrap, etc.)\n"
+        "- length\n"
+        "- every layer with its color and material\n"
+        "- frills, slits, overlays, or decorative edges\n\n"
 
-        "SHOULDERS & ARMS: shoulder armor or pauldrons (shape, color, engravings), "
-        "arm guards, gloves — each piece separately with colors and details\n"
+        "LEGS\n"
+        "- stockings or leggings: color, pattern (striped, lace, plain, sheer), height\n"
+        "- any armor or decorative pieces on the legs\n\n"
 
-        "UPPER BODY / TORSO: top garment type, color, fabric texture, patterns, "
-        "buttons, laces, embroidery, cutouts, collar style\n"
+        "FOOTWEAR\n"
+        "- boot or shoe style (knee-high, ankle, platform, heeled, etc.)\n"
+        "- color of each section\n"
+        "- heel type and height\n"
+        "- buckles, laces, straps, or armor plates\n"
+        "- toe shape\n\n"
 
-        "WAIST: belt, sash, ribbon, waist decorations — color, width, buckle design\n"
+        "HELD OBJECTS\n"
+        "- for every staff, wand, sword, shield, orb, or carried object:\n"
+        "  - overall shape and proportions\n"
+        "  - color of each part\n"
+        "  - material appearance (metal, crystal, wood, cloth, etc.)\n"
+        "  - any glowing elements, gems, engravings, or unique decorations\n\n"
 
-        "LOWER BODY: skirt/pants/shorts type, length, layers, colors, patterns, "
-        "frills, slits, overlays\n"
+        "SPECIAL EFFECTS\n"
+        "- any aura, glow, energy trails, floating elements, particles\n"
+        "- for each: color, shape, position relative to character\n\n"
 
-        "CAPE / COAT / OUTER LAYER: if present — shape, length, color, lining color, "
-        "clasp or brooch, how it flows\n"
+        "COLOR PALETTE\n"
+        "- list 6 to 8 specific color names used in this design\n\n"
 
-        "STOCKINGS / LEGGINGS: color, pattern (striped, lace, plain), height\n"
-
-        "BOOTS / SHOES: style (knee-high, ankle, platform), color, heel type, "
-        "buckles, laces, toe shape, any armor plates\n"
-
-        "HELD OBJECTS & EQUIPMENT: any staff, wand, sword, shield, bow, or carried object — "
-        "shape, size proportions, color of each part, material appearance "
-        "(metal, crystal, wood, etc.), any glowing or decorative elements, "
-        "gems, engravings, unique structural features\n"
-
-        "SPECIAL EFFECTS & FLOATING ELEMENTS: any aura, glow, energy trails, "
-        "floating objects, particles, summoned elements — color, shape, position\n"
-
-        "SYMBOLS & PATTERNS: any recurring symbols, runes, emblems, crests on the outfit — "
-        "describe shape and where they appear\n"
-
-        "COLOR PALETTE: list 6-8 specific colors by name "
-        "(e.g. 'ice blue', 'deep navy', 'pale gold', 'white', 'black')\n"
-
-        "SIGNATURE FEATURES: 3-5 unique design elements that make this character "
-        "immediately recognizable and distinct from a generic character\n\n"
-
-        "Output only the structured sections above. No commentary. No summaries."
+        "Output only the sections above with bullet points. No commentary. No prose."
     )
 
     fallback_prompt = (
-        "This is a fictional character illustration. "
-        "Describe every visible visual detail: "
-        "hair color/style/accessories, eye color/shape, skin tone, facial markings, "
-        "each piece of the outfit with colors and details, "
-        "all accessories and jewelry, any held objects or equipment with shape and color, "
-        "any special effects or floating elements, "
-        "and list 6 dominant colors. "
-        "Be specific and detailed. Do not summarize."
+        "This is a fictional character illustration.\n"
+        "List every visible design element as bullet points under these sections:\n"
+        "HAIR / HEAD ACCESSORIES / EYES / FACE / OUTFIT / SKIRT / LEGS / FOOTWEAR "
+        "/ HELD OBJECTS / SPECIAL EFFECTS / COLOR PALETTE\n"
+        "Do not summarize. Do not omit accessories. Do not identify anyone."
     )
 
     simple_prompt = (
-        "Describe the visual design of this illustrated character. "
-        "List: hair, eyes, skin, outfit, accessories, held objects, and dominant colors. "
-        "Be detailed. Do not identify anyone."
+        "List the visual design of this illustrated character using bullet points. "
+        "Sections: hair, head accessories, eyes, face, outfit, skirt, legs, footwear, "
+        "held objects, special effects, color palette. "
+        "Be specific. Do not identify anyone."
     )
 
     for prompt_text in (primary_prompt, fallback_prompt, simple_prompt):
