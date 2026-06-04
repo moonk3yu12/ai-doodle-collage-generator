@@ -346,80 +346,45 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
 
 def build_doodle_prompt(analysis: str, mode: str) -> str:
-    """Build prompt: style_reference (front) + style anchors + character details."""
+    """Build prompt optimised for images.edit: character preservation first, style second."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
-    STYLE_OPEN = (
-        # ── Background: pure white only ────────────────────────────────────────
-        "BACKGROUND IS PURE WHITE #FFFFFF. Clean white digital canvas. "
-        "DO NOT generate notebook paper. DO NOT generate sketchbook paper. "
-        "DO NOT generate aged paper. DO NOT generate cream paper. "
-        "DO NOT generate beige paper. DO NOT generate parchment. "
-        "DO NOT generate vintage paper texture. DO NOT generate warm paper. "
-        "DO NOT generate off-white paper. NO PAPER TEXTURE OF ANY KIND. "
-        "White empty background only. #FFFFFF only. "
-        # ── Hard style rejections ──────────────────────────────────────────────
-        "DO NOT draw clean lineart. "
-        "DO NOT draw polished anime illustration. "
-        "DO NOT draw professional concept art. "
-        "DO NOT draw studio artwork. "
-        "DO NOT render smooth coloring. "
-        "DO NOT make this look finished or professional. "
-        # ── Core aesthetic declaration ─────────────────────────────────────────
-        "ROUGH MESSY DOODLE COLLAGE. AMATEUR BALLPOINT PEN SCRIBBLES. "
-        "A teenager's white page covered in obsessive character doodles. "
-        "Every inch of the pure white canvas is filled with overlapping rough sketches. "
-        "Drawings crammed together, some tilted, some overlapping, some half-finished. "
-        # ── Line quality ───────────────────────────────────────────────────────
-        "Lineart: wobbly shaky ballpoint pen lines, scratchy and uneven, "
-        "visible sketch underdrawing showing through, ink blobs at line ends, "
-        "multiple overlapping sketch strokes for each line, rough and imprecise. "
-        # ── Coloring ──────────────────────────────────────────────────────────
-        "Coloring: messy colored pencil or marker scribbles that go outside the lines, "
-        "uneven pressure, streaky fills, visible hatching and cross-hatching for shadows, "
-        "some areas left uncolored, rough and imperfect. "
-        # ── Anatomy / proportions ─────────────────────────────────────────────
-        "Anatomy: imperfect and exaggerated, chibi-like goofy proportions, "
-        "big heads, tiny bodies, expressive exaggerated faces, "
-        "hands slightly wrong, uneven eyes, charming amateur mistakes. "
-        # ── Page chaos ────────────────────────────────────────────────────────
-        "Page feel: CROWDED AND CHAOTIC. No empty space. "
-        "Doodles overlapping doodles. Pure white canvas completely packed. "
-    )
-
-    STYLE_CLOSE = (
-        # ── Decoration density ─────────────────────────────────────────────────
-        "COVER THE ENTIRE WHITE CANVAS WITH THESE HAND-DRAWN ELEMENTS: "
-        "♡♡♡ hearts scrawled in every gap between drawings, "
-        "★★★ rough stars drawn all over, "
-        "✦✦ sparkles scratched everywhere, "
-        "→ ↑ ← messy arrows pointing to character features with handwritten labels, "
-        "tiny speech bubbles crammed in margins: owo, uwu, hehe, omg, !!, ??, kyaa, "
-        "crossed-out words and redone scribbles, ink smudges, "
-        "a rough barcode sticker doodle in one corner, "
-        "color palette swatches drawn in a wobbly box, "
-        "tiny exaggerated chibi face reactions (shocked, crying, laughing) in the margins, "
-        "a small rough mascot animal sketch tucked in somewhere, "
-        "character name written in big messy bubble letters, "
-        "random annotations in chicken-scratch handwriting with tiny arrows, "
-        "doodle frames around some sketches drawn with shaky lines. "
-        # ── Final vibe + background lock ──────────────────────────────────────
-        "FINAL VIBE: a devoted fan who spent all of class filling their pure white page "
-        "with drawings of this character. Zero professional polish. "
-        "Pure chaotic doodle collage energy. Imperfect, crowded, messy, and full of love. "
-        "BACKGROUND REMAINS PURE WHITE #FFFFFF. No paper texture. White digital canvas only."
-    )
-
-    return (
-        f"{STYLE_OPEN}"
-        "CHARACTER DETAILS — reproduce EXACTLY as described:\n"
+    # ── 1. Character preservation block (FIRST — highest weight in edit mode) ──
+    CHARACTER_BLOCK = (
+        "Redraw the character from the reference image as a messy hand-drawn doodle collage.\n\n"
+        "PRESERVE EXACTLY from the reference image — do not change any of these:\n"
         f"{analysis}\n\n"
-        "CRITICAL: Preserve every feature above — exact hair color and style, "
-        "eye color, skin tone, full outfit, all accessories and weapons, "
-        "and the character's color palette. Do not invent or substitute anything.\n\n"
-        f"{layout}.\n\n"
-        f"{STYLE_CLOSE}"
+        "CRITICAL PRESERVATION RULES:\n"
+        "- Keep the exact hair color, style, and all hair ornaments/crowns/accessories\n"
+        "- Keep the exact eye color and shape\n"
+        "- Keep every piece of the outfit with its original colors and details\n"
+        "- Keep all accessories, jewelry, armor, and decorative elements\n"
+        "- Keep all held objects and equipment with their original shape and colors\n"
+        "- Keep the character's full color palette — do not substitute any colors\n"
+        "- This must be recognizably the SAME character as in the reference image\n\n"
     )
+
+    # ── 2. Layout block ────────────────────────────────────────────────────────
+    LAYOUT_BLOCK = f"PAGE LAYOUT: {layout}.\n\n"
+
+    # ── 3. Style block (AFTER character — concise, positive framing) ──────────
+    STYLE_BLOCK = (
+        "ART STYLE — redraw everything in this style:\n"
+        "Rough messy doodle collage on pure white #FFFFFF background. "
+        "Amateur ballpoint pen sketch texture. "
+        "Wobbly uneven lineart, coloring outside the lines, scratchy hatching. "
+        "Imperfect chibi-like proportions, big expressive heads. "
+        "Page completely packed — multiple rough sketches of the same character, "
+        "some tilted, some overlapping, some half-finished. "
+        "Hand-drawn decorations everywhere: "
+        "♡♡♡ hearts, ★★ stars, ✦ sparkles, messy arrows → with handwritten labels, "
+        "speech bubbles (owo, uwu, !!, ??), barcode sticker, color swatches, "
+        "chibi reaction faces, character name in bubble letters. "
+        "Feels like a devoted fan's chaotic sketchbook page. "
+        "No paper texture. White background only."
+    )
+
+    return f"{CHARACTER_BLOCK}{LAYOUT_BLOCK}{STYLE_BLOCK}"
 
 
 def generate_sheet(
