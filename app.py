@@ -149,36 +149,44 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     """Inject full analysis directly into a fixed style template — no API call."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
-    LONG_STYLE_TEMPLATE = (
-        "Ultra messy doodle collage, chaotic sketchbook page, intentionally rough and ugly-cute, "
-        "MS Paint mouse drawing aesthetic, amateur hand-drawn scribbles, "
-        "ballpoint pen texture, colored pen sketch, rough lineart with wobbly lines, "
-        "messy coloring outside the lines, uneven anatomy, goofy proportions, "
-        "childish lineart, low quality hand-drawn feeling, "
-        "charming amateur doodle energy, loose sketch strokes. "
-        "White background covered in scattered doodles — NOT a clean professional sheet. "
-        "Doodle collage layout: expression sheet, pose sheet, sticker sheet all mixed together chaotically. "
-        "Multiple rough sketches of the same character at different sizes across the canvas, "
-        "some overlapping, some tilted, some tiny and some large. "
-        "Handwritten messy notes EVERYWHERE — scribbled labels, tiny arrows pointing to features, "
-        "random words, owo uwu text, exclamation marks, question marks, "
-        "speech bubbles with dumb phrases, tiny chibi reactions. "
-        "Hearts ♡ stars ★ sparkles ✦ scrawled randomly all over the page. "
-        "Barcode sticker, color swatches drawn messily in a corner, "
-        "small mascot animal doodle, rough emoji-style reaction faces. "
-        "Rough marker coloring with visible sketch lines underneath, "
-        "hatching and cross-hatching for shadows, scratchy fills. "
-        "Cute chaotic energy — looks like a fan obsessively doodled this in their notebook."
+    STYLE_OPEN = (
+        "ULTRA MESSY DOODLE COLLAGE. Chaotic amateur sketchbook page. "
+        "Ugly-cute hand-drawn scribbles. MS Paint mouse drawing aesthetic. "
+        "NOT clean anime art. NOT polished concept art. NOT professional reference sheet. "
+        "Rough ballpoint pen sketch. Wobbly shaky lineart. Childish uneven strokes. "
+        "Messy coloring outside the lines. Scratchy marker fills. Visible under-sketch lines. "
+        "Goofy proportions. Uneven anatomy. Low quality hand-drawn feeling. "
+        "Chaotic sticker sheet collage layout. Fan obsessively doodling in their notebook. "
+    )
+
+    STYLE_CLOSE = (
+        "ART STYLE: ultra rough sketchy doodle, NOT clean, NOT polished, NOT professional. "
+        "Ballpoint pen texture throughout. Wobbly uneven outlines. Messy hatching for shadows. "
+        "Coloring that goes outside the lines. Amateur hand-drawn energy. "
+        "DECORATIONS all over the white background: "
+        "scrawled hearts ♡♡♡ everywhere, hand-drawn stars ★★★ scattered randomly, "
+        "sparkles ✦ and asterisks * drawn by hand, "
+        "rough arrows → pointing to random things, "
+        "messy speech bubbles with owo uwu hehe text, "
+        "exclamation marks !! question marks ?? all over the place, "
+        "scribbled color palette swatches in a messy corner box, "
+        "hand-drawn barcode sticker with rough edges, "
+        "tiny rough chibi reaction faces, small mascot animal doodle, "
+        "handwritten annotations with tiny arrows pointing to character features, "
+        "random scrawled words and labels everywhere. "
+        "Overall aesthetic: adorable chaotic fan sketchbook page, cute mess, "
+        "charming amateur doodle collage covering the entire white page."
     )
 
     prompt = (
+        f"{STYLE_OPEN}"
         "CHARACTER DETAILS — reproduce EXACTLY as described:\n"
         f"{analysis}\n\n"
         "CRITICAL: Preserve every feature above — exact hair color and style, "
         "eye color, skin tone, full outfit, all accessories and weapons, "
         "and the character's color palette. Do not invent or substitute anything.\n\n"
         f"{layout}.\n\n"
-        f"{LONG_STYLE_TEMPLATE}"
+        f"{STYLE_CLOSE}"
     )
 
     return prompt
