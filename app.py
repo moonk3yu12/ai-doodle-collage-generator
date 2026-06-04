@@ -433,6 +433,7 @@ def generate_sheet(
             prompt=prompt,
             size="1024x1024",
             quality=quality,
+            input_fidelity="high",
         )
     else:
         resp = client.images.generate(
