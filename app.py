@@ -3,6 +3,7 @@ import openai
 import base64
 import os
 import io
+import pathlib
 import requests
 from PIL import Image
 
@@ -30,9 +31,143 @@ def url_to_pil(url: str) -> Image.Image:
     return Image.open(io.BytesIO(resp.content)).convert("RGB")
 
 
+# ── Style reference system ─────────────────────────────────────────────────────
+
+STYLES_DIR = pathlib.Path("styles")
+STYLE_REF_FILE = pathlib.Path("style_reference.txt")
+
+_STYLE_ANALYSIS_PROMPT = (
+    "Analyze the VISUAL STYLE of this artwork only.\n"
+    "Do NOT describe any character's identity, name, specific outfit, or specific weapons.\n"
+    "Focus ONLY on artistic style elements:\n\n"
+    "- LINEART: pen type (ballpoint, marker, etc.), line quality, weight, consistency\n"
+    "- SKETCH QUALITY: rough/clean, sketch marks visible, underdrawing, ink blobs\n"
+    "- DOODLE DENSITY: how packed the page is, overlap, spacing\n"
+    "- COLORING STYLE: medium used, coverage, hatching, messiness\n"
+    "- PAGE LAYOUT: collage, sticker sheet, reference sheet, scatter arrangement\n"
+    "- ANNOTATION STYLE: handwritten notes, arrows, labels, text style\n"
+    "- SYMBOLS & DECORATIONS: hearts, stars, speech bubbles, stickers, barcodes\n"
+    "- COLOR PALETTE USAGE: limited/wide, dominant tones, warm/cool/pastel\n"
+    "- OVERALL AESTHETIC: fan art, notebook doodle, amateur, polished, chaotic\n\n"
+    "Output a concise bulleted list of style observations only. No character details."
+)
+
+_STYLE_SYNTHESIS_PROMPT = (
+    "Below are visual style analyses of multiple artworks that share a common aesthetic.\n"
+    "Extract ONLY the style elements that appear consistently across the samples.\n\n"
+    "Strict rules:\n"
+    "- Remove ALL character-specific details (names, specific outfits, hairstyles, weapons)\n"
+    "- Remove ALL franchise, game, or IP references\n"
+    "- Keep ONLY universal, reusable style descriptors\n\n"
+    "Output exactly in this format:\n\n"
+    "STYLE REFERENCE\n"
+    "[one concise style descriptor per line]\n\n"
+    "Focus on: lineart quality, sketch texture, coloring approach, page layout, "
+    "decoration style, annotation style, color palette tone, overall aesthetic feeling."
+)
+
+_style_cache: str = ""
+
+
+def load_style_reference() -> str:
+    global _style_cache
+    if STYLE_REF_FILE.exists():
+        _style_cache = STYLE_REF_FILE.read_text(encoding="utf-8").strip()
+    else:
+        _style_cache = ""
+    return _style_cache
+
+
+def run_generate_style_reference(progress=gr.Progress()):
+    try:
+        client = get_client()
+    except ValueError as e:
+        raise gr.Error(str(e))
+
+    if not STYLES_DIR.exists():
+        raise gr.Error(
+            "styles/ 폴더가 없어요. 프로젝트 루트에 styles/ 폴더를 만들고 "
+            "PNG/JPG 샘플 이미지를 10장 넣어주세요."
+        )
+
+    image_paths = sorted([
+        *STYLES_DIR.glob("*.png"),
+        *STYLES_DIR.glob("*.jpg"),
+        *STYLES_DIR.glob("*.jpeg"),
+    ])[:10]
+
+    if not image_paths:
+        raise gr.Error("styles/ 폴더에 이미지가 없어요. PNG/JPG 파일을 넣어주세요.")
+
+    try:
+        analyses = []
+        for i, img_path in enumerate(image_paths):
+            progress(
+                (i + 1) / (len(image_paths) + 2),
+                desc=f"샘플 {i+1}/{len(image_paths)} 스타일 분석 중...",
+            )
+            img = Image.open(img_path).convert("RGB")
+            img.thumbnail((512, 512))
+            b64 = pil_to_base64(img)
+            resp = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a visual style analyst. "
+                            "Describe only the artistic style of images, "
+                            "never the character identity or content."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": _STYLE_ANALYSIS_PROMPT},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+                        ],
+                    },
+                ],
+                max_tokens=400,
+            )
+            analyses.append(resp.choices[0].message.content.strip())
+
+        progress(0.92, desc="공통 스타일 추출 중...")
+        combined = "\n\n---\n\n".join(
+            f"[Sample {i+1}]\n{a}" for i, a in enumerate(analyses)
+        )
+        resp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{
+                "role": "user",
+                "content": f"{_STYLE_SYNTHESIS_PROMPT}\n\n{combined}",
+            }],
+            max_tokens=600,
+        )
+        style_ref = resp.choices[0].message.content.strip()
+
+        STYLE_REF_FILE.write_text(style_ref, encoding="utf-8")
+        global _style_cache
+        _style_cache = style_ref
+
+        progress(1.0, desc="완료!")
+        return style_ref, f"✅ {len(image_paths)}장 분석 완료 · style_reference.txt 저장됨"
+
+    except gr.Error:
+        raise
+    except openai.AuthenticationError:
+        raise gr.Error("Invalid OpenAI API key. Check your OPENAI_API_KEY secret.")
+    except openai.RateLimitError:
+        raise gr.Error("OpenAI rate limit hit. Please wait and try again.")
+    except Exception as e:
+        raise gr.Error(f"Style reference 생성 실패: {e}")
+
+
+# Load at startup (if style_reference.txt exists in the repo)
+load_style_reference()
+
+
 # ── Generation mode configs ────────────────────────────────────────────────────
-# Each entry defines the visual brief injected into build_doodle_prompt().
-# Keys are English (used internally); Korean labels are shown in the Radio UI.
 
 MODE_CONFIGS = {
     "Full Character Sheet": {
@@ -76,6 +211,7 @@ MODE_CONFIGS = {
     },
 }
 
+
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
 _REFUSAL_PHRASES = (
@@ -84,9 +220,11 @@ _REFUSAL_PHRASES = (
     "i'm not able", "unable to", "not able to",
 )
 
+
 def _is_refusal(text: str) -> bool:
     low = text.lower()
     return any(phrase in low for phrase in _REFUSAL_PHRASES)
+
 
 _SYSTEM_MSG = (
     "You are a professional visual design analyst specializing in character art, "
@@ -95,6 +233,7 @@ _SYSTEM_MSG = (
     "clothing, accessories, weapons, and stylistic features. "
     "You never identify real people. You only describe what is visually present in the artwork."
 )
+
 
 def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, object]:
     """GPT-4o Vision: extract visual design traits. Retries with simpler prompt on refusal."""
@@ -146,7 +285,7 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
 
 def build_doodle_prompt(analysis: str, mode: str) -> str:
-    """Inject full analysis directly into a fixed style template — no API call."""
+    """Build prompt: style_reference (front) + style anchors + character details."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
     STYLE_OPEN = (
@@ -210,7 +349,13 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "BACKGROUND REMAINS PURE WHITE #FFFFFF. No paper texture. White digital canvas only."
     )
 
-    prompt = (
+    style_ref_block = (
+        f"STYLE REFERENCE — follow this style exactly:\n{_style_cache}\n\n"
+        if _style_cache else ""
+    )
+
+    return (
+        f"{style_ref_block}"
         f"{STYLE_OPEN}"
         "CHARACTER DETAILS — reproduce EXACTLY as described:\n"
         f"{analysis}\n\n"
@@ -220,8 +365,6 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         f"{layout}.\n\n"
         f"{STYLE_CLOSE}"
     )
-
-    return prompt
 
 
 def generate_sheet(client: openai.OpenAI, prompt: str, quality: str) -> tuple[Image.Image, object]:
@@ -259,6 +402,12 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         progress(1.00, desc="Done!")
 
+        style_ref_status = (
+            f"✅ Style reference active ({len(_style_cache)} chars)"
+            if _style_cache
+            else "⚠️ No style reference — use the Style Reference panel to generate one"
+        )
+
         token_summary = (
             f"Step 1 · Analyze   (GPT-4o Vision)\n"
             f"  in: {u1.prompt_tokens:,}   out: {u1.completion_tokens:,}   total: {u1.total_tokens:,}\n\n"
@@ -267,10 +416,13 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
             f"Step 3 · Generate  (gpt-image-1)\n"
             f"  in: {u3.input_tokens:,}   out: {u3.output_tokens:,}   total: {u3.total_tokens:,}\n\n"
             f"{'─' * 40}\n"
-            f"Grand total: {u1.total_tokens + u3.total_tokens:,} tokens"
+            f"Grand total: {u1.total_tokens + u3.total_tokens:,} tokens\n\n"
+            f"{style_ref_status}"
         )
 
-        return sheet, analysis, prompt, token_summary
+        style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
+
+        return sheet, analysis, prompt, token_summary, style_ref_display
 
     except gr.Error:
         raise
@@ -289,7 +441,6 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
-/* ── 전체 배경 ── */
 body, .gradio-container, .gradio-container * {
     font-family: 'Nunito', sans-serif !important;
     box-sizing: border-box;
@@ -298,8 +449,6 @@ body, .gradio-container {
     background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%) !important;
     min-height: 100vh;
 }
-
-/* ── 모든 블록/패널 배경을 흰색으로 강제 ── */
 .block, .form, .wrap, .panel,
 .gradio-container .block,
 section.block, div.block,
@@ -307,8 +456,6 @@ section.block, div.block,
     background: white !important;
     border-color: #f3e8ff !important;
 }
-
-/* ── 이미지 컴포넌트 내부 배경 ── */
 .image-container, .upload-container,
 div[data-testid="image"],
 div[data-testid="image"] > div,
@@ -316,16 +463,12 @@ div[data-testid="image"] > div,
     background: #fdf4ff !important;
     border-color: #e9d5ff !important;
 }
-
-/* 이미지 업로드 영역 점선 테두리 */
 .upload-container, .upload-button,
 .wrap.svelte-i3tvor {
     border: 2px dashed #d8b4fe !important;
     border-radius: 16px !important;
     background: #fdf4ff !important;
 }
-
-/* ── 헤더 ── */
 #app-header {
     text-align: center;
     padding: 2rem 0 0.5rem;
@@ -340,8 +483,6 @@ div[data-testid="image"] > div,
     letter-spacing: -0.5px;
 }
 #app-header p { color: #a78bca; font-size: 1rem; font-weight: 600; }
-
-/* ── 메인 카드 (좌우 패널) ── */
 #left-panel, #right-panel {
     background: white !important;
     border: 2px solid #f3e8ff !important;
@@ -349,8 +490,6 @@ div[data-testid="image"] > div,
     box-shadow: 0 4px 24px rgba(192, 132, 252, 0.12) !important;
     padding: 1.4rem !important;
 }
-
-/* ── 생성 버튼 ── */
 #generate-btn {
     background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8) !important;
     color: white !important;
@@ -368,8 +507,12 @@ div[data-testid="image"] > div,
     box-shadow: 0 8px 24px rgba(192, 132, 252, 0.55) !important;
     opacity: 1 !important;
 }
-
-/* ── 팁 박스 ── */
+#style-ref-btn {
+    border: 2px solid #c084fc !important;
+    color: #c084fc !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+}
 .tip-box {
     background: linear-gradient(135deg, #fdf4ff, #f5f0ff) !important;
     border: 1.5px solid #e9d5ff !important;
@@ -379,11 +522,7 @@ div[data-testid="image"] > div,
     font-weight: 700 !important;
     color: #c084fc !important;
 }
-.tip-box p, .tip-box strong, .tip-box * {
-    color: #c084fc !important;
-}
-
-/* ── 스텝 박스 ── */
+.tip-box p, .tip-box strong, .tip-box * { color: #c084fc !important; }
 .step-box {
     background: white !important;
     border: 2px solid #e9d5ff !important;
@@ -394,43 +533,26 @@ div[data-testid="image"] > div,
     transition: transform 0.2s, box-shadow 0.2s !important;
     color: #c084fc !important;
 }
-.step-box p, .step-box strong, .step-box * {
-    color: #c084fc !important;
-}
+.step-box p, .step-box strong, .step-box * { color: #c084fc !important; }
 .step-box:hover {
     transform: translateY(-3px) !important;
     box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2) !important;
 }
-
-/* ── 섹션 제목 (어떻게 만들어지나요? 등) ── */
-.gradio-container h3,
-.gradio-container h2 {
+.gradio-container h3, .gradio-container h2 {
     color: #c084fc !important;
     font-weight: 800 !important;
 }
-
-/* ── 아코디언 라벨 ── */
-details summary,
-details summary span,
+details summary, details summary span,
 .accordion-header, .label-wrap span {
     color: #c084fc !important;
     font-weight: 700 !important;
 }
-
-/* ── 일반 마크다운 텍스트 ── */
-.gradio-container p,
-.gradio-container .prose p {
-    color: #c084fc !important;
-}
-
-/* ── 구분선 ── */
+.gradio-container p, .gradio-container .prose p { color: #c084fc !important; }
 hr {
     border: none !important;
     border-top: 2px dashed #f0e4ff !important;
     margin: 1rem 0 !important;
 }
-
-/* ── 텍스트박스 ── */
 textarea, input[type="text"] {
     border-radius: 14px !important;
     border: 1.5px solid #e9d5ff !important;
@@ -439,23 +561,16 @@ textarea, input[type="text"] {
     font-size: 0.9rem !important;
     color: #4c1d95 !important;
 }
-
-/* ── 아코디언 ── */
 details, .accordion {
     border-radius: 16px !important;
     border: 2px solid #f3e8ff !important;
     background: white !important;
     overflow: hidden !important;
 }
-
-/* ── 라디오 버튼 ── */
-input[type="radio"] + span,
-.wrap label span {
+input[type="radio"] + span, .wrap label span {
     font-weight: 600 !important;
     color: #7c3aed !important;
 }
-
-/* ── 레이블 텍스트 ── */
 label span, .block > label > span {
     color: #9333ea !important;
     font-weight: 700 !important;
@@ -524,7 +639,41 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 height=500,
             )
 
+    # ── Style Reference panel ──────────────────────────────────────────────────
+    with gr.Accordion("🎨 Style Reference (스타일 레퍼런스)", open=False):
+        gr.Markdown(
+            "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
+            "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
+            "**사용법:** `styles/sample01.png` ~ `styles/sample10.png` 형식으로 넣기"
+        )
+        with gr.Row():
+            style_ref_btn = gr.Button(
+                "🖼️ styles/ 폴더에서 Style Reference 생성",
+                variant="secondary",
+                elem_id="style-ref-btn",
+            )
+            style_ref_status = gr.Textbox(
+                label="상태",
+                interactive=False,
+                lines=1,
+                placeholder="버튼을 눌러 style_reference.txt를 생성하세요",
+                value=f"✅ style_reference.txt 로드됨 ({len(_style_cache)} chars)" if _style_cache else "⚠️ style_reference.txt 없음",
+            )
+        style_ref_content = gr.Textbox(
+            label="현재 Style Reference 내용",
+            value=_style_cache if _style_cache else "(비어있음 — 생성 버튼을 눌러주세요)",
+            lines=12,
+            interactive=False,
+        )
+
+    # ── Analysis, Prompt & Token Usage panel ──────────────────────────────────
     with gr.Accordion("📋 Analysis, Prompt & Token Usage", open=False):
+        style_ref_out = gr.Textbox(
+            label="🎨 삽입된 Style Reference",
+            lines=5,
+            interactive=False,
+            placeholder="생성 후 여기에 실제 삽입된 style reference가 표시됩니다…",
+        )
         with gr.Row():
             analysis_out = gr.Textbox(
                 label="🔍 Character Analysis (GPT-4o Vision)",
@@ -553,8 +702,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
             elem_classes="step-box",
         )
         gr.Markdown(
-            "**2단계 · 프롬프트 ✍️**  \nGPT-4o가 선택한 모드에 맞는 "
-            "낙서 스타일 이미지 프롬프트를 작성해요.",
+            "**2단계 · 프롬프트 ✍️**  \nStyle Reference + 캐릭터 분석 결과를 "
+            "합쳐서 이미지 생성 프롬프트를 만들어요.",
             elem_classes="step-box",
         )
         gr.Markdown(
@@ -570,10 +719,17 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
         "</p>"
     )
 
+    # ── Button wiring ──────────────────────────────────────────────────────────
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out],
+    )
+
+    style_ref_btn.click(
+        fn=run_generate_style_reference,
+        inputs=[],
+        outputs=[style_ref_content, style_ref_status],
     )
 
 
