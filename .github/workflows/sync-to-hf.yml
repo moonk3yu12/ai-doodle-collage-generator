@@ -24,7 +24,7 @@ jobs:
           git config user.name "GitHub Actions"
           git remote add hf https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE
           git checkout --orphan hf-deploy
-          git rm -rf styles/ 2>/dev/null || true
+          git rm --cached -rf styles/ 2>/dev/null || true
           git commit -m "chore: deploy snapshot (no binary assets)"
           git push --force hf hf-deploy:main
 
