@@ -150,7 +150,15 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
     STYLE_OPEN = (
-        # ── Hard rejections first ──────────────────────────────────────────────
+        # ── Background: pure white only ────────────────────────────────────────
+        "BACKGROUND IS PURE WHITE #FFFFFF. Clean white digital canvas. "
+        "DO NOT generate notebook paper. DO NOT generate sketchbook paper. "
+        "DO NOT generate aged paper. DO NOT generate cream paper. "
+        "DO NOT generate beige paper. DO NOT generate parchment. "
+        "DO NOT generate vintage paper texture. DO NOT generate warm paper. "
+        "DO NOT generate off-white paper. NO PAPER TEXTURE OF ANY KIND. "
+        "White empty background only. #FFFFFF only. "
+        # ── Hard style rejections ──────────────────────────────────────────────
         "DO NOT draw clean lineart. "
         "DO NOT draw polished anime illustration. "
         "DO NOT draw professional concept art. "
@@ -158,9 +166,9 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "DO NOT render smooth coloring. "
         "DO NOT make this look finished or professional. "
         # ── Core aesthetic declaration ─────────────────────────────────────────
-        "ROUGH FAN SKETCHBOOK PAGE. MESSY NOTEBOOK DOODLES. AMATEUR BALLPOINT PEN SCRIBBLES. "
-        "A teenager's notebook covered in obsessive character doodles. "
-        "Every inch of the white page is filled with overlapping rough sketches. "
+        "ROUGH MESSY DOODLE COLLAGE. AMATEUR BALLPOINT PEN SCRIBBLES. "
+        "A teenager's white page covered in obsessive character doodles. "
+        "Every inch of the pure white canvas is filled with overlapping rough sketches. "
         "Drawings crammed together, some tilted, some overlapping, some half-finished. "
         # ── Line quality ───────────────────────────────────────────────────────
         "Lineart: wobbly shaky ballpoint pen lines, scratchy and uneven, "
@@ -176,12 +184,12 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "hands slightly wrong, uneven eyes, charming amateur mistakes. "
         # ── Page chaos ────────────────────────────────────────────────────────
         "Page feel: CROWDED AND CHAOTIC. No empty space. "
-        "Doodles overlapping doodles. Page completely packed. "
+        "Doodles overlapping doodles. Pure white canvas completely packed. "
     )
 
     STYLE_CLOSE = (
         # ── Decoration density ─────────────────────────────────────────────────
-        "COVER THE ENTIRE PAGE WITH THESE HAND-DRAWN ELEMENTS: "
+        "COVER THE ENTIRE WHITE CANVAS WITH THESE HAND-DRAWN ELEMENTS: "
         "♡♡♡ hearts scrawled in every gap between drawings, "
         "★★★ rough stars drawn all over, "
         "✦✦ sparkles scratched everywhere, "
@@ -195,10 +203,11 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "character name written in big messy bubble letters, "
         "random annotations in chicken-scratch handwriting with tiny arrows, "
         "doodle frames around some sketches drawn with shaky lines. "
-        # ── Final vibe lock ────────────────────────────────────────────────────
-        "FINAL VIBE: a devoted fan who spent all of class filling their notebook "
+        # ── Final vibe + background lock ──────────────────────────────────────
+        "FINAL VIBE: a devoted fan who spent all of class filling their pure white page "
         "with drawings of this character. Zero professional polish. "
-        "Pure chaotic sketchbook energy. Imperfect, crowded, messy, and full of love."
+        "Pure chaotic doodle collage energy. Imperfect, crowded, messy, and full of love. "
+        "BACKGROUND REMAINS PURE WHITE #FFFFFF. No paper texture. White digital canvas only."
     )
 
     prompt = (
