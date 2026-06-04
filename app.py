@@ -455,6 +455,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         f"[PARSE] sections found={len(secs)} keys={list(secs.keys())}",
         flush=True,
     )
+    print(f"[PARSE] analysis raw (first 300 chars): {repr(analysis[:300])}", flush=True)
     if secs:
         face_parts = [f"{k}\n{secs[k]}" for k in _FACE_KEYS if k in secs]
         face_detail = "\n\n".join(face_parts)
