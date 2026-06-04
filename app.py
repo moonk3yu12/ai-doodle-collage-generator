@@ -150,45 +150,55 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
     STYLE_OPEN = (
-        "DO NOT create professional anime concept art. "
-        "DO NOT create polished illustration. "
-        "DO NOT create clean character sheets. "
-        "DO NOT create studio-quality artwork. "
-        "DO NOT use clean ink outlines. "
-        "DO NOT use soft copic marker rendering. "
-        "DO NOT make this look like professional artwork. "
-        "THIS MUST LOOK HANDMADE. THIS MUST LOOK MESSY. THIS MUST LOOK AMATEUR. "
-        "THIS MUST LOOK LIKE A STUDENT DOODLING IN THEIR NOTEBOOK. "
-        "Ultra messy doodle collage. Chaotic sketchbook page covered in rough scribbles. "
-        "Ugly-cute amateur hand-drawn notebook doodles. MS Paint mouse drawing aesthetic. "
-        "Rough ballpoint pen sketch texture. Wobbly shaky uneven lineart. "
-        "Scratchy coloring that goes outside the lines. Messy hatching for shadows. "
-        "Uneven anatomy. Goofy childish proportions. Low quality hand-drawn imperfection. "
-        "The doodle collage aesthetic is more important than render quality. "
-        "The image must feel chaotic, imperfect, sketchy, and playful. "
+        # ── Hard rejections first ──────────────────────────────────────────────
+        "DO NOT draw clean lineart. "
+        "DO NOT draw polished anime illustration. "
+        "DO NOT draw professional concept art. "
+        "DO NOT draw studio artwork. "
+        "DO NOT render smooth coloring. "
+        "DO NOT make this look finished or professional. "
+        # ── Core aesthetic declaration ─────────────────────────────────────────
+        "ROUGH FAN SKETCHBOOK PAGE. MESSY NOTEBOOK DOODLES. AMATEUR BALLPOINT PEN SCRIBBLES. "
+        "A teenager's notebook covered in obsessive character doodles. "
+        "Every inch of the white page is filled with overlapping rough sketches. "
+        "Drawings crammed together, some tilted, some overlapping, some half-finished. "
+        # ── Line quality ───────────────────────────────────────────────────────
+        "Lineart: wobbly shaky ballpoint pen lines, scratchy and uneven, "
+        "visible sketch underdrawing showing through, ink blobs at line ends, "
+        "multiple overlapping sketch strokes for each line, rough and imprecise. "
+        # ── Coloring ──────────────────────────────────────────────────────────
+        "Coloring: messy colored pencil or marker scribbles that go outside the lines, "
+        "uneven pressure, streaky fills, visible hatching and cross-hatching for shadows, "
+        "some areas left uncolored, rough and imperfect. "
+        # ── Anatomy / proportions ─────────────────────────────────────────────
+        "Anatomy: imperfect and exaggerated, chibi-like goofy proportions, "
+        "big heads, tiny bodies, expressive exaggerated faces, "
+        "hands slightly wrong, uneven eyes, charming amateur mistakes. "
+        # ── Page chaos ────────────────────────────────────────────────────────
+        "Page feel: CROWDED AND CHAOTIC. No empty space. "
+        "Doodles overlapping doodles. Page completely packed. "
     )
 
     STYLE_CLOSE = (
-        "RENDER STYLE: rough ballpoint pen scribbles, scratchy uneven fills, "
-        "wobbly lines, coloring outside the lines, visible pencil under-sketch, "
-        "messy hatching, low quality charming imperfection. "
-        "NOT clean. NOT polished. NOT professional. NOT studio quality. "
-        "FILL THE ENTIRE WHITE PAGE WITH DOODLE DECORATIONS: "
-        "hand-scrawled hearts ♡♡♡ scattered everywhere across the page, "
-        "rough hand-drawn stars ★★★ all over, "
-        "hand-drawn sparkles ✦✦✦ and asterisks * everywhere, "
-        "messy arrows → ← ↑ pointing to random things, "
-        "rough speech bubbles filled with owo uwu hehe lol text, "
-        "exclamation marks !! and question marks ?? scrawled randomly, "
-        "handwritten messy annotations with tiny arrows pointing to character features, "
-        "scribbled color palette swatches in a rough box corner, "
-        "hand-drawn barcode sticker with jagged rough edges, "
-        "tiny rough chibi reaction faces doodled in margins, "
-        "small mascot animal scribble, "
-        "random words and labels written in messy handwriting everywhere. "
-        "FINAL VIBE: adorable chaotic fan who filled their entire notebook page "
-        "with doodles of their favorite character. Cute mess. Charming chaos. "
-        "Imperfect and lovable amateur sketchbook energy."
+        # ── Decoration density ─────────────────────────────────────────────────
+        "COVER THE ENTIRE PAGE WITH THESE HAND-DRAWN ELEMENTS: "
+        "♡♡♡ hearts scrawled in every gap between drawings, "
+        "★★★ rough stars drawn all over, "
+        "✦✦ sparkles scratched everywhere, "
+        "→ ↑ ← messy arrows pointing to character features with handwritten labels, "
+        "tiny speech bubbles crammed in margins: owo, uwu, hehe, omg, !!, ??, kyaa, "
+        "crossed-out words and redone scribbles, ink smudges, "
+        "a rough barcode sticker doodle in one corner, "
+        "color palette swatches drawn in a wobbly box, "
+        "tiny exaggerated chibi face reactions (shocked, crying, laughing) in the margins, "
+        "a small rough mascot animal sketch tucked in somewhere, "
+        "character name written in big messy bubble letters, "
+        "random annotations in chicken-scratch handwriting with tiny arrows, "
+        "doodle frames around some sketches drawn with shaky lines. "
+        # ── Final vibe lock ────────────────────────────────────────────────────
+        "FINAL VIBE: a devoted fan who spent all of class filling their notebook "
+        "with drawings of this character. Zero professional polish. "
+        "Pure chaotic sketchbook energy. Imperfect, crowded, messy, and full of love."
     )
 
     prompt = (
