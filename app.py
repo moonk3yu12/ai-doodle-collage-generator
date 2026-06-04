@@ -182,23 +182,29 @@ def run_generate_style_reference(progress=gr.Progress()):
 # Load at startup (if style_reference.txt exists in the repo)
 load_style_reference()
 
+# DEBUG: set False to disable style reference images (character-only mode)
+_STYLE_IMAGES_ENABLED = False
+
 # Load 2 random style reference images from styles/ at startup
 import random as _random
 
 _STYLE_IMAGES: list = []
-_style_paths = sorted([
-    *STYLES_DIR.glob("*.png"),
-    *STYLES_DIR.glob("*.jpg"),
-    *STYLES_DIR.glob("*.jpeg"),
-]) if STYLES_DIR.exists() else []
-if _style_paths:
-    _STYLE_IMAGES = [
-        Image.open(p).convert("RGB")
-        for p in _random.sample(_style_paths, min(2, len(_style_paths)))
-    ]
-    print(f"[STARTUP] Style images loaded: {len(_STYLE_IMAGES)} image(s)", flush=True)
+if not _STYLE_IMAGES_ENABLED:
+    print("[STARTUP] Style images DISABLED (debug flag) — single-image mode", flush=True)
 else:
-    print("[STARTUP] No style images found — single-image edit mode", flush=True)
+    _style_paths = sorted([
+        *STYLES_DIR.glob("*.png"),
+        *STYLES_DIR.glob("*.jpg"),
+        *STYLES_DIR.glob("*.jpeg"),
+    ]) if STYLES_DIR.exists() else []
+    if _style_paths:
+        _STYLE_IMAGES = [
+            Image.open(p).convert("RGB")
+            for p in _random.sample(_style_paths, min(2, len(_style_paths)))
+        ]
+        print(f"[STARTUP] Style images loaded: {len(_STYLE_IMAGES)} image(s)", flush=True)
+    else:
+        print("[STARTUP] No style images found — single-image edit mode", flush=True)
 
 
 # ── Generation mode configs ────────────────────────────────────────────────────
