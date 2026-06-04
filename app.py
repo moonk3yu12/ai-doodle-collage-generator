@@ -117,45 +117,49 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
 
 def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> tuple[str, object]:
-    """GPT-4o: write a prompt targeting semi-polished anime fanart doodle style."""
-    brief = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
+    """Compress analysis to 1 sentence, then inject into a fixed style template."""
+    layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
+    # Step 1: compress full analysis into one concise character sentence
     resp = client.chat.completions.create(
         model="gpt-4o",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You write image prompts that produce semi-polished anime fanart doodle character sheets. "
-                    "Target style: clean expressive ink linework, soft copic marker coloring, "
-                    "plain white background, multiple poses and expressions, handwritten annotations. "
-                    "Like a skilled fanartist's character sheet — not rough/scratchy, not AI-polished.\n"
-                    "Rules:\n"
-                    "- Always open with: 'clean anime ink sketch, soft copic marker coloring, plain white background'\n"
-                    "- Keep total prompt under 130 words\n"
-                    "- Never use: rough, scratchy, ballpoint, notebook paper, pencil, amateur, "
-                    "MS Paint, ugly, cinematic, rendered, masterpiece, artstation, hyper-detailed"
-                ),
-            },
-            {
-                "role": "user",
-                "content": (
-                    f"CHARACTER: {analysis}\n\n"
-                    f"LAYOUT: {brief}\n\n"
-                    "Write ONE image prompt. Structure:\n"
-                    "1. Style anchor (first phrase): 'clean anime ink sketch, soft copic marker coloring, plain white background'\n"
-                    "2. Character (one sentence): hair color and style, eye color, outfit and accessories\n"
-                    "3. Layout (2-3 phrases from LAYOUT above)\n"
-                    "4. Decoration: handwritten annotations, color palette swatches, "
-                    "hearts ♡ stars ★ sparkles ✦ speech bubbles\n"
-                    "5. Closer: 'semi-polished anime fanart style, expressive linework, flat marker fills'\n"
-                    "Total: under 130 words. One paragraph. No headers."
-                ),
-            },
-        ],
-        max_tokens=220,
+        messages=[{
+            "role": "user",
+            "content": (
+                f"From this analysis:\n{analysis}\n\n"
+                "Write ONE sentence (under 40 words) describing: "
+                "hair color and style, eye color, and main outfit/accessories. "
+                "Be specific. No commentary."
+            ),
+        }],
+        max_tokens=80,
     )
-    return resp.choices[0].message.content.strip(), resp.usage
+    char_desc = resp.choices[0].message.content.strip()
+
+    # Step 2: inject into fixed template — style is locked, character changes
+    prompt = (
+        f"{char_desc} "
+        f"{layout}. "
+        "Ultra messy doodle collage, intentionally bad but cute drawing, chaotic sketchbook page, "
+        "MS Paint mouse drawing aesthetic, rough scribbles, ugly-cute, charming amateur doodle, "
+        "white background, low quality hand-drawn feeling, uneven anatomy, childish lineart, "
+        "goofy proportions, awkward but adorable composition, loose sketch strokes, "
+        "ballpoint pen texture, colored pen sketch, notebook doodle vibe. "
+        "Multiple drawings of the same character across the canvas, character reference sheet, "
+        "expression sheet, pose sheet, doodle collage layout. "
+        "Large main portrait, full body standing pose, sitting pose, close-up face, "
+        "sleepy face, crying face, angry face, smug face, embarrassed face, chibi version. "
+        "Cute anime-style doodle character, keep distinctive features and fashion identity, "
+        "soft blush, expressive eyes, simple cute face, rounded cheeks, "
+        "slightly exaggerated cute proportions. "
+        "Scribbled handwritten text, stars, hearts, arrows, speech bubbles, "
+        "question marks, exclamation marks, barcode, tiny notes, owo, "
+        "small mascot animal, color swatches. "
+        "Rough marker coloring, sketchy hatching, visible pen strokes, "
+        "white background with scattered doodles, cute chaotic energy, charming messy collage."
+    )
+
+    return prompt, resp.usage
 
 
 def generate_sheet(client: openai.OpenAI, prompt: str, quality: str) -> tuple[Image.Image, object]:
