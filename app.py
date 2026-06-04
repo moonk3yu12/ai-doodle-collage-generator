@@ -377,7 +377,22 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     )
 
     # ── 2. Layout block ────────────────────────────────────────────────────────
-    LAYOUT_BLOCK = f"PAGE LAYOUT: {layout}.\n\n"
+    LAYOUT_BLOCK = (
+        f"PAGE LAYOUT: {layout}.\n\n"
+        "DENSITY REQUIREMENTS — the entire canvas must be overcrowded with content:\n"
+        "- 1 large full-body drawing of the character (dominant, center or near-center)\n"
+        "- at least 2 medium upper-body or bust portraits\n"
+        "- at least 8 facial expression drawings (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
+        "- at least 3 chibi versions in different poses\n"
+        "- 1 color palette swatch box with the character's colors labeled\n"
+        "- 20 or more small doodles, sketches, and decorative elements filling every gap\n"
+        "- handwritten notes, labels, and annotations scattered across the entire page\n\n"
+        "EMPTY SPACE RULES:\n"
+        "- NO empty space anywhere on the canvas\n"
+        "- Every corner must contain at least one of: sketch, arrow, star, heart, note, reaction face, tiny doodle, or decorative mark\n"
+        "- All gaps between drawings must be filled with hearts ♡, stars ★, sparkles ✦, arrows →, or scribbled words\n"
+        "- The page must feel completely packed, like a fan ran out of space while drawing\n\n"
+    )
 
     # ── 3. Style block (AFTER character — concise, positive framing) ──────────
     STYLE_BLOCK = (
