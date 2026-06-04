@@ -14,7 +14,8 @@ COPY --chown=user:user . .
 
 USER user
 ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1
 
 EXPOSE 7860
 
