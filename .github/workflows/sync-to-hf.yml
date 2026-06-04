@@ -20,6 +20,8 @@ jobs:
           HF_USER: moonLeek
           HF_SPACE: Character_Design_Request
         run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
           git remote add hf https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE
           git checkout -b hf-deploy
           git rm -r --cached styles/ 2>/dev/null || true
