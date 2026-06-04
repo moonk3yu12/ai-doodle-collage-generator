@@ -356,13 +356,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "BACKGROUND REMAINS PURE WHITE #FFFFFF. No paper texture. White digital canvas only."
     )
 
-    style_ref_block = (
-        f"STYLE REFERENCE — follow this style exactly:\n{_style_cache}\n\n"
-        if _style_cache else ""
-    )
-
     return (
-        f"{style_ref_block}"
         f"{STYLE_OPEN}"
         "CHARACTER DETAILS — reproduce EXACTLY as described:\n"
         f"{analysis}\n\n"
