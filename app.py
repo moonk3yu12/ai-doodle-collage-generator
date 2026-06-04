@@ -182,6 +182,24 @@ def run_generate_style_reference(progress=gr.Progress()):
 # Load at startup (if style_reference.txt exists in the repo)
 load_style_reference()
 
+# Load 2 random style reference images from styles/ at startup
+import random as _random
+
+_STYLE_IMAGES: list = []
+_style_paths = sorted([
+    *STYLES_DIR.glob("*.png"),
+    *STYLES_DIR.glob("*.jpg"),
+    *STYLES_DIR.glob("*.jpeg"),
+]) if STYLES_DIR.exists() else []
+if _style_paths:
+    _STYLE_IMAGES = [
+        Image.open(p).convert("RGB")
+        for p in _random.sample(_style_paths, min(2, len(_style_paths)))
+    ]
+    print(f"[STARTUP] Style images loaded: {len(_STYLE_IMAGES)} image(s)", flush=True)
+else:
+    print("[STARTUP] No style images found — single-image edit mode", flush=True)
+
 
 # ── Generation mode configs ────────────────────────────────────────────────────
 
@@ -372,8 +390,11 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
 
     # ── 1. Character preservation block (FIRST — highest weight in edit mode) ──
     CHARACTER_BLOCK = (
-        "Redraw the character from the reference image as a messy hand-drawn doodle collage.\n\n"
-        "PRESERVE EXACTLY from the reference image — do not change any of these:\n"
+        "IMAGE ROLES:\n"
+        "- Image 1: CHARACTER REFERENCE — preserve hair, eyes, outfit, colors, and identity exactly\n"
+        "- Images 2-3: STYLE REFERENCE — copy only the drawing style, page layout, and doodle density\n\n"
+        "Redraw the character from Image 1 as a messy hand-drawn doodle collage.\n\n"
+        "PRESERVE EXACTLY from Image 1 — do not change any of these:\n"
         f"{analysis}\n\n"
         "CRITICAL PRESERVATION RULES:\n"
         "- Keep the exact hair color, style, and all hair ornaments/crowns/accessories\n"
@@ -431,14 +452,25 @@ def generate_sheet(
 ) -> tuple[Image.Image, object]:
     """gpt-image-1: edit mode when reference image provided, generate mode otherwise."""
     if reference_image is not None:
-        # images.edit — pass original image so character design is preserved
-        buf = io.BytesIO()
-        reference_image.save(buf, format="PNG")
-        buf.seek(0)
-        buf.name = "reference.png"
+        char_buf = io.BytesIO()
+        reference_image.save(char_buf, format="PNG")
+        char_buf.seek(0)
+        char_buf.name = "reference.png"
+
+        image_input: list | io.BytesIO = char_buf
+        if _STYLE_IMAGES:
+            style_bufs = []
+            for idx, simg in enumerate(_STYLE_IMAGES):
+                sbuf = io.BytesIO()
+                simg.save(sbuf, format="PNG")
+                sbuf.seek(0)
+                sbuf.name = f"style{idx + 1}.png"
+                style_bufs.append(sbuf)
+            image_input = [char_buf] + style_bufs
+
         resp = client.images.edit(
             model="gpt-image-1",
-            image=buf,
+            image=image_input,
             prompt=prompt,
             size="1024x1024",
             quality=quality,
