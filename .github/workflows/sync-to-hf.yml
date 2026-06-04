@@ -23,9 +23,9 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git remote add hf https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE
-          git checkout -b hf-deploy
-          git rm -r --cached styles/ 2>/dev/null || true
-          git commit --allow-empty -m "chore: deploy without binary assets"
+          git checkout --orphan hf-deploy
+          git rm -rf styles/ 2>/dev/null || true
+          git commit -m "chore: deploy snapshot (no binary assets)"
           git push --force hf hf-deploy:main
 
       - name: Upload style images via HF Hub API
