@@ -78,11 +78,23 @@ MODE_CONFIGS = {
 
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
-_REFUSAL_PHRASES = ("i'm sorry", "i can't assist", "i cannot assist", "i'm unable", "i cannot help")
+_REFUSAL_PHRASES = (
+    "i'm sorry", "i can't assist", "i cannot assist",
+    "i'm unable", "i cannot help", "i can't help",
+    "i'm not able", "unable to", "not able to",
+)
 
 def _is_refusal(text: str) -> bool:
     low = text.lower()
     return any(phrase in low for phrase in _REFUSAL_PHRASES)
+
+_SYSTEM_MSG = (
+    "You are a professional visual design analyst specializing in character art, "
+    "illustration, and concept art. "
+    "Your task is to describe the visual design elements of artwork — colors, shapes, "
+    "clothing, accessories, weapons, and stylistic features. "
+    "You never identify real people. You only describe what is visually present in the artwork."
+)
 
 def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, object]:
     """GPT-4o Vision: extract visual design traits. Retries with simpler prompt on refusal."""
@@ -90,37 +102,40 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
     image_block = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
 
     primary_prompt = (
-        "You are a professional character concept artist.\n"
-        "Describe only the visible visual design of this character illustration.\n"
-        "Do NOT identify the character. Do NOT name any person or franchise.\n"
-        "Focus purely on what you can see — colors, shapes, clothing, features.\n\n"
-        "Extract each section exactly:\n"
-        "HAIR: exact color (e.g. 'silver-white with pale blue highlights'), length, style\n"
-        "EYES: exact color, shape, notable features (e.g. heterochromia, star pupils)\n"
-        "FACE: skin tone, face shape, notable marks (freckles, scars, blush marks)\n"
-        "OUTFIT: every piece — top, bottom, shoes, armor, layers — with colors and patterns\n"
-        "ACCESSORIES: every visible item (hair clips, ribbons, belts, jewelry, bags, etc.)\n"
-        "WEAPONS: any weapons or held objects with shape, color, material description\n"
-        "COLOR PALETTE: 5 dominant color names used in the overall design\n"
-        "SIGNATURE DESIGN FEATURES: 2-3 things that make this design instantly recognizable\n\n"
-        "Only describe visible artistic features. Never identify a real person. "
-        "Never guess identity. Output the structured sections only."
+        "This is a digital artwork / character illustration.\n"
+        "Describe the visual design of the character in this artwork.\n"
+        "Do NOT identify who this character is. Do NOT name any franchise or IP.\n"
+        "Only describe what you visually observe.\n\n"
+        "HAIR: exact color with adjective (e.g. 'silver-white with pale blue tips'), length, style\n"
+        "EYES: exact color, shape, notable features (e.g. heterochromia, star pupils, thick lashes)\n"
+        "FACE: skin tone, notable marks (freckles, scars, blush marks, tattoos)\n"
+        "OUTFIT: every piece — top, bottom, shoes, armor, layers — with exact colors and patterns\n"
+        "ACCESSORIES: every visible item (hair clips, ribbons, belts, jewelry, capes, bags, etc.)\n"
+        "WEAPONS: any weapons or held objects — shape, color, material\n"
+        "COLOR PALETTE: 5 dominant color names in this design\n"
+        "SIGNATURE DESIGN FEATURES: 2-3 elements that make this design instantly recognizable\n\n"
+        "Output only the structured sections above. No commentary."
     )
 
     fallback_prompt = (
-        "Describe the visual design of this illustrated character. "
-        "List: hair color and style, eye color, skin tone, outfit description, "
-        "any accessories or weapons, and 5 dominant colors. "
-        "Do not identify anyone. Describe only what is visually present."
+        "This is a fictional character illustration. "
+        "List the visual design elements: "
+        "hair color and style, eye color, skin tone, "
+        "outfit with colors, accessories, any weapons, "
+        "and 5 dominant colors in the design. "
+        "Only describe visual elements present in the artwork."
     )
 
     for prompt_text in (primary_prompt, fallback_prompt):
         resp = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{
-                "role": "user",
-                "content": [{"type": "text", "text": prompt_text}, image_block],
-            }],
+            messages=[
+                {"role": "system", "content": _SYSTEM_MSG},
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": prompt_text}, image_block],
+                },
+            ],
             max_tokens=600,
         )
         result = resp.choices[0].message.content.strip()
@@ -203,6 +218,8 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         return sheet, analysis, prompt, token_summary
 
+    except gr.Error:
+        raise
     except openai.AuthenticationError:
         raise gr.Error("Invalid OpenAI API key. Check your OPENAI_API_KEY secret.")
     except openai.RateLimitError:
