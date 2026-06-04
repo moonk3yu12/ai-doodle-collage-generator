@@ -10,6 +10,14 @@ from PIL import Image
 
 # ── OpenAI client ──────────────────────────────────────────────────────────────
 
+_api_key_at_startup = os.environ.get("OPENAI_API_KEY", "")
+print(
+    f"[STARTUP] OPENAI_API_KEY present={bool(_api_key_at_startup)} "
+    f"length={len(_api_key_at_startup)} "
+    f"prefix={_api_key_at_startup[:7] if len(_api_key_at_startup) >= 7 else '(too short)'}"
+)
+
+
 def get_client() -> openai.OpenAI:
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
