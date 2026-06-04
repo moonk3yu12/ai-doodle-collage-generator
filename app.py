@@ -289,12 +289,13 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
         "BOOTS / SHOES: style (knee-high, ankle, platform), color, heel type, "
         "buckles, laces, toe shape, any armor plates\n"
 
-        "WEAPON(S): for each weapon — exact shape, length proportions, color of each part, "
-        "material (metal, crystal, wood, etc.), any glowing elements, engravings, "
-        "decorative gems, unique structural features\n"
+        "HELD OBJECTS & EQUIPMENT: any staff, wand, sword, shield, bow, or carried object — "
+        "shape, size proportions, color of each part, material appearance "
+        "(metal, crystal, wood, etc.), any glowing or decorative elements, "
+        "gems, engravings, unique structural features\n"
 
-        "MAGICAL EFFECTS / FLOATING OBJECTS: any aura, glow, energy, floating elements, "
-        "particles, summoned objects — color, shape, position\n"
+        "SPECIAL EFFECTS & FLOATING ELEMENTS: any aura, glow, energy trails, "
+        "floating objects, particles, summoned elements — color, shape, position\n"
 
         "SYMBOLS & PATTERNS: any recurring symbols, runes, emblems, crests on the outfit — "
         "describe shape and where they appear\n"
@@ -313,13 +314,19 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
         "Describe every visible visual detail: "
         "hair color/style/accessories, eye color/shape, skin tone, facial markings, "
         "each piece of the outfit with colors and details, "
-        "all accessories and jewelry, any weapons with shape and color, "
-        "any magical effects or floating objects, "
+        "all accessories and jewelry, any held objects or equipment with shape and color, "
+        "any special effects or floating elements, "
         "and list 6 dominant colors. "
         "Be specific and detailed. Do not summarize."
     )
 
-    for prompt_text in (primary_prompt, fallback_prompt):
+    simple_prompt = (
+        "Describe the visual design of this illustrated character. "
+        "List: hair, eyes, skin, outfit, accessories, held objects, and dominant colors. "
+        "Be detailed. Do not identify anyone."
+    )
+
+    for prompt_text in (primary_prompt, fallback_prompt, simple_prompt):
         resp = client.chat.completions.create(
             model="gpt-4o",
             messages=[
