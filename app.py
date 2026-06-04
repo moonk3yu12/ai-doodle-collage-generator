@@ -116,50 +116,29 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
     return resp.choices[0].message.content.strip(), resp.usage
 
 
-def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> tuple[str, object]:
-    """Compress analysis to 1 sentence, then inject into a fixed style template."""
+def build_doodle_prompt(analysis: str, mode: str) -> str:
+    """Inject full analysis directly into a fixed style template — no API call."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
-    # Step 1: compress full analysis into one concise character sentence
-    resp = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{
-            "role": "user",
-            "content": (
-                f"From this analysis:\n{analysis}\n\n"
-                "Write ONE sentence (under 40 words) describing: "
-                "hair color and style, eye color, and main outfit/accessories. "
-                "Be specific. No commentary."
-            ),
-        }],
-        max_tokens=80,
-    )
-    char_desc = resp.choices[0].message.content.strip()
-
-    # Step 2: inject into fixed template — style is locked, character changes
     prompt = (
-        f"{char_desc} "
-        f"{layout}. "
-        "Ultra messy doodle collage, intentionally bad but cute drawing, chaotic sketchbook page, "
-        "MS Paint mouse drawing aesthetic, rough scribbles, ugly-cute, charming amateur doodle, "
-        "white background, low quality hand-drawn feeling, uneven anatomy, childish lineart, "
-        "goofy proportions, awkward but adorable composition, loose sketch strokes, "
-        "ballpoint pen texture, colored pen sketch, notebook doodle vibe. "
-        "Multiple drawings of the same character across the canvas, character reference sheet, "
-        "expression sheet, pose sheet, doodle collage layout. "
-        "Large main portrait, full body standing pose, sitting pose, close-up face, "
-        "sleepy face, crying face, angry face, smug face, embarrassed face, chibi version. "
-        "Cute anime-style doodle character, keep distinctive features and fashion identity, "
-        "soft blush, expressive eyes, simple cute face, rounded cheeks, "
-        "slightly exaggerated cute proportions. "
-        "Scribbled handwritten text, stars, hearts, arrows, speech bubbles, "
-        "question marks, exclamation marks, barcode, tiny notes, owo, "
-        "small mascot animal, color swatches. "
-        "Rough marker coloring, sketchy hatching, visible pen strokes, "
-        "white background with scattered doodles, cute chaotic energy, charming messy collage."
+        "Clean anime ink sketch, soft copic marker coloring, kawaii fanart doodle collage, "
+        "white background, charming fan artist sketchbook style. "
+        "\n\nCHARACTER DETAILS — reproduce EXACTLY as described:\n"
+        f"{analysis}\n\n"
+        "CRITICAL: Preserve every feature above — exact hair color and style, "
+        "eye color, skin tone, full outfit, all accessories and weapons, "
+        "and the character's color palette. Do not invent or substitute anything.\n\n"
+        f"{layout}.\n\n"
+        "Style anchors: clean confident ink outlines, soft pastel marker fills, "
+        "anime-style proportions, expressive kawaii faces, plain white background throughout. "
+        "Handwritten annotations with small arrows pointing to features, "
+        "hearts ♡ stars ★ sparkles ✦ speech bubbles scattered around. "
+        "Character reference sheet layout — multiple drawings of the SAME character, "
+        "doodle collage aesthetic — like a dedicated fan artist's sketchbook spread. "
+        "Color swatches corner, barcode sticker, tiny personality notes."
     )
 
-    return prompt, resp.usage
+    return prompt
 
 
 def generate_sheet(client: openai.OpenAI, prompt: str, quality: str) -> tuple[Image.Image, object]:
@@ -189,8 +168,8 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         progress(0.10, desc="Analyzing character features...")
         analysis, u1 = analyze_character(client, image)
 
-        progress(0.45, desc="Writing image prompt...")
-        prompt, u2 = build_doodle_prompt(client, analysis, mode)
+        progress(0.45, desc="Building image prompt...")
+        prompt = build_doodle_prompt(analysis, mode)
 
         progress(0.70, desc="Generating character sheet...")
         sheet, u3 = generate_sheet(client, prompt, quality)
@@ -200,12 +179,12 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         token_summary = (
             f"Step 1 · Analyze   (GPT-4o Vision)\n"
             f"  in: {u1.prompt_tokens:,}   out: {u1.completion_tokens:,}   total: {u1.total_tokens:,}\n\n"
-            f"Step 2 · Prompt    (GPT-4o)\n"
-            f"  in: {u2.prompt_tokens:,}   out: {u2.completion_tokens:,}   total: {u2.total_tokens:,}\n\n"
+            f"Step 2 · Prompt    (template — no API call)\n"
+            f"  Full analysis injected directly. 0 tokens used.\n\n"
             f"Step 3 · Generate  (gpt-image-1)\n"
             f"  in: {u3.input_tokens:,}   out: {u3.output_tokens:,}   total: {u3.total_tokens:,}\n\n"
             f"{'─' * 40}\n"
-            f"Grand total: {u1.total_tokens + u2.total_tokens + u3.total_tokens:,} tokens"
+            f"Grand total: {u1.total_tokens + u3.total_tokens:,} tokens"
         )
 
         return sheet, analysis, prompt, token_summary
