@@ -79,7 +79,7 @@ MODE_CONFIGS = {
 
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
-def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
+def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, object]:
     """GPT-4o Vision: extract rich, structured visual traits for doodle collage generation."""
     b64 = pil_to_base64(image)
     resp = client.chat.completions.create(
@@ -114,10 +114,10 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> str:
         }],
         max_tokens=600,
     )
-    return resp.choices[0].message.content.strip()
+    return resp.choices[0].message.content.strip(), resp.usage
 
 
-def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> str:
+def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> tuple[str, object]:
     """GPT-4o: write a short texture-first prompt that produces raw sketchbook doodles."""
     brief = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
@@ -158,10 +158,10 @@ def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> str:
         ],
         max_tokens=180,
     )
-    return resp.choices[0].message.content.strip()
+    return resp.choices[0].message.content.strip(), resp.usage
 
 
-def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
+def generate_sheet(client: openai.OpenAI, prompt: str) -> tuple[Image.Image, object]:
     """gpt-image-1: generate the character sheet (returns base64, no URL download needed)."""
     resp = client.images.generate(
         model="gpt-image-1",
@@ -170,7 +170,7 @@ def generate_sheet(client: openai.OpenAI, prompt: str) -> Image.Image:
         quality="medium",
     )
     image_bytes = base64.b64decode(resp.data[0].b64_json)
-    return Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    return Image.open(io.BytesIO(image_bytes)).convert("RGB"), resp.usage
 
 
 # ── Gradio handler ─────────────────────────────────────────────────────────────
@@ -186,16 +186,28 @@ def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
 
     try:
         progress(0.10, desc="Analyzing character features...")
-        analysis = analyze_character(client, image)
+        analysis, u1 = analyze_character(client, image)
 
         progress(0.45, desc="Writing image prompt...")
-        prompt = build_doodle_prompt(client, analysis, mode)
+        prompt, u2 = build_doodle_prompt(client, analysis, mode)
 
         progress(0.70, desc="Generating character sheet...")
-        sheet = generate_sheet(client, prompt)
+        sheet, u3 = generate_sheet(client, prompt)
 
         progress(1.00, desc="Done!")
-        return sheet, analysis, prompt
+
+        token_summary = (
+            f"Step 1 · Analyze   (GPT-4o Vision)\n"
+            f"  in: {u1.prompt_tokens:,}   out: {u1.completion_tokens:,}   total: {u1.total_tokens:,}\n\n"
+            f"Step 2 · Prompt    (GPT-4o)\n"
+            f"  in: {u2.prompt_tokens:,}   out: {u2.completion_tokens:,}   total: {u2.total_tokens:,}\n\n"
+            f"Step 3 · Generate  (gpt-image-1)\n"
+            f"  in: {u3.input_tokens:,}   out: {u3.output_tokens:,}   total: {u3.total_tokens:,}\n\n"
+            f"{'─' * 40}\n"
+            f"Grand total: {u1.total_tokens + u2.total_tokens + u3.total_tokens:,} tokens"
+        )
+
+        return sheet, analysis, prompt, token_summary
 
     except openai.AuthenticationError:
         raise gr.Error("Invalid OpenAI API key. Check your OPENAI_API_KEY secret.")
@@ -438,20 +450,26 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 height=500,
             )
 
-    with gr.Accordion("🔍 분석 & 프롬프트 보기 ▾", open=False):
+    with gr.Accordion("📋 Analysis, Prompt & Token Usage", open=False):
         with gr.Row():
             analysis_out = gr.Textbox(
-                label="👁️ 캐릭터 분석 결과 (GPT-4o Vision)",
+                label="🔍 Character Analysis (GPT-4o Vision)",
                 lines=7,
                 interactive=False,
-                placeholder="생성 후 캐릭터 분석 결과가 여기에 나타나요 ✨",
+                placeholder="Analysis will appear here after generation…",
             )
             prompt_out = gr.Textbox(
-                label="✍️ 이미지 생성 프롬프트 (gpt-image-1)",
+                label="✍️ Image Generation Prompt (gpt-image-1)",
                 lines=7,
                 interactive=False,
-                placeholder="생성된 프롬프트가 여기에 나타나요 ♡",
+                placeholder="Generated prompt will appear here…",
             )
+        token_out = gr.Textbox(
+            label="📊 Token Usage",
+            lines=7,
+            interactive=False,
+            placeholder="Token usage will appear here after generation…",
+        )
 
     gr.Markdown("---\n### ✨ 어떻게 만들어지나요?")
     with gr.Row():
@@ -481,7 +499,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector],
-        outputs=[image_output, analysis_out, prompt_out],
+        outputs=[image_output, analysis_out, prompt_out, token_out],
     )
 
 
