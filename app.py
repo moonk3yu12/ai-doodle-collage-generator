@@ -384,6 +384,20 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
     raise gr.Error("Character analysis failed. Please try another image.")
 
 
+def _parse_analysis_sections(analysis: str) -> dict[str, str]:
+    """Split GPT-4o analysis text into named sections by uppercase header lines."""
+    import re
+    result = {}
+    pattern = re.compile(r'^([A-Z][A-Z &/]+)$', re.MULTILINE)
+    matches = list(pattern.finditer(analysis))
+    for i, match in enumerate(matches):
+        key = match.group(1).strip()
+        start = match.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(analysis)
+        result[key] = analysis[start:end].strip()
+    return result
+
+
 def build_doodle_prompt(analysis: str, mode: str) -> str:
     """Build prompt optimised for images.edit: character preservation first, style second."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
@@ -412,18 +426,40 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "ALL GAPS between drawings must be filled with: ♡ ★ ✦ → speech bubbles or scribbled words\n\n"
     )
 
-    # ── 2. Character preservation block ───────────────────────────────────────
+    # ── 2. Character preservation block (face-priority compression) ──────────
+    _FACE_KEYS = ["FACE", "EYES", "HAIR", "HEAD ACCESSORIES", "COLOR PALETTE"]
+    _COMPRESS_MAP = {"OUTFIT": 3, "SKIRT": 1, "LEGS": 1,
+                     "FOOTWEAR": 1, "HELD OBJECTS": 1, "SPECIAL EFFECTS": 1}
+
+    secs = _parse_analysis_sections(analysis)
+    if secs:
+        face_parts = [f"{k}\n{secs[k]}" for k in _FACE_KEYS if k in secs]
+        face_detail = "\n\n".join(face_parts)
+
+        outfit_lines = []
+        for k, n in _COMPRESS_MAP.items():
+            if k in secs:
+                bullets = [l for l in secs[k].split("\n") if l.strip()][:n]
+                outfit_lines.append(f"{k}: {' | '.join(bullets)}")
+        outfit_summary = "\n".join(outfit_lines)
+
+        analysis_block = (
+            "CHARACTER IDENTITY — reproduce exactly (highest priority):\n\n"
+            f"{face_detail}\n\n"
+            "OUTFIT REFERENCE (secondary):\n"
+            f"{outfit_summary}\n\n"
+        )
+    else:
+        analysis_block = f"PRESERVE EXACTLY:\n{analysis}\n\n"
+
     CHARACTER_BLOCK = (
         "Redraw the character from Image 1 as a messy hand-drawn doodle collage.\n\n"
-        "PRESERVE EXACTLY from Image 1 — do not change any of these:\n"
-        f"{analysis}\n\n"
+        f"{analysis_block}"
         "CRITICAL PRESERVATION RULES:\n"
-        "- Keep the exact hair color, style, and all hair ornaments/crowns/accessories\n"
-        "- Keep the exact eye color and shape\n"
-        "- Keep every piece of the outfit with its original colors and details\n"
-        "- Keep all accessories, jewelry, armor, and decorative elements\n"
-        "- Keep all held objects and equipment with their original shape and colors\n"
-        "- Keep the character's full color palette — do not substitute any colors\n"
+        "- Face shape, eye color and shape, iris pattern — preserve exactly\n"
+        "- Hair color, length, style, and every hair ornament — preserve exactly\n"
+        "- Head accessories (crowns, pins, horns, ribbons) — preserve exactly\n"
+        "- Full color palette — do not substitute any colors\n"
         "- This must be recognizably the SAME character as in the reference image\n\n"
     )
 
