@@ -388,11 +388,32 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     """Build prompt optimised for images.edit: character preservation first, style second."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
-    # ── 1. Character preservation block (FIRST — highest weight in edit mode) ──
-    CHARACTER_BLOCK = (
+    # ── 1. Layout block (FIRST — spatial zones anchor the composition) ──────────
+    LAYOUT_BLOCK = (
         "IMAGE ROLES:\n"
         "- Image 1: CHARACTER REFERENCE — preserve hair, eyes, outfit, colors, and identity exactly\n"
         "- Images 2-3: STYLE REFERENCE — copy only the drawing style, page layout, and doodle density\n\n"
+        f"PAGE LAYOUT: {layout}.\n\n"
+        "SPATIAL ZONE MAP — fill every zone completely:\n\n"
+        "TOP ZONE (upper 30%):\n"
+        "  - large bust or upper-body portrait on the left\n"
+        "  - second bust portrait on the right\n"
+        "  - character name in large bubble letters across the top\n\n"
+        "CENTER ZONE (middle 35%):\n"
+        "  - one large full-body standing character (dominant element, center)\n"
+        "  - small annotations and arrows pointing at outfit details\n\n"
+        "BOTTOM ZONE (lower 35%):\n"
+        "  - row of 8 expression face close-ups (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
+        "  - 3 chibi full-body poses scattered across the zone\n"
+        "  - color palette swatch box with labeled colors\n"
+        "  - handwritten notes and short captions\n\n"
+        "ALL FOUR CORNERS — each corner must contain:\n"
+        "  stars ★★, hearts ♡♡, sparkles ✦, arrows →, or small reaction doodles\n\n"
+        "ALL GAPS between drawings must be filled with: ♡ ★ ✦ → speech bubbles or scribbled words\n\n"
+    )
+
+    # ── 2. Character preservation block ───────────────────────────────────────
+    CHARACTER_BLOCK = (
         "Redraw the character from Image 1 as a messy hand-drawn doodle collage.\n\n"
         "PRESERVE EXACTLY from Image 1 — do not change any of these:\n"
         f"{analysis}\n\n"
@@ -406,25 +427,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "- This must be recognizably the SAME character as in the reference image\n\n"
     )
 
-    # ── 2. Layout block ────────────────────────────────────────────────────────
-    LAYOUT_BLOCK = (
-        f"PAGE LAYOUT: {layout}.\n\n"
-        "DENSITY REQUIREMENTS — the entire canvas must be overcrowded with content:\n"
-        "- 1 large full-body drawing of the character (dominant, center or near-center)\n"
-        "- at least 2 medium upper-body or bust portraits\n"
-        "- at least 8 facial expression drawings (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
-        "- at least 3 chibi versions in different poses\n"
-        "- 1 color palette swatch box with the character's colors labeled\n"
-        "- 20 or more small doodles, sketches, and decorative elements filling every gap\n"
-        "- handwritten notes, labels, and annotations scattered across the entire page\n\n"
-        "EMPTY SPACE RULES:\n"
-        "- NO empty space anywhere on the canvas\n"
-        "- Every corner must contain at least one of: sketch, arrow, star, heart, note, reaction face, tiny doodle, or decorative mark\n"
-        "- All gaps between drawings must be filled with hearts ♡, stars ★, sparkles ✦, arrows →, or scribbled words\n"
-        "- The page must feel completely packed, like a fan ran out of space while drawing\n\n"
-    )
-
-    # ── 3. Style block (AFTER character — concise, positive framing) ──────────
+    # ── 3. Style block ─────────────────────────────────────────────────────────
     STYLE_BLOCK = (
         "ART STYLE — redraw everything in this style:\n"
         "Rough messy doodle collage on pure white #FFFFFF background. "
@@ -441,7 +444,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "No paper texture. White background only."
     )
 
-    return f"{CHARACTER_BLOCK}{LAYOUT_BLOCK}{STYLE_BLOCK}"
+    return f"{LAYOUT_BLOCK}{CHARACTER_BLOCK}{STYLE_BLOCK}"
 
 
 def generate_sheet(
