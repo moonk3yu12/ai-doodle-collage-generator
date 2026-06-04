@@ -161,13 +161,13 @@ def build_doodle_prompt(client: openai.OpenAI, analysis: str, mode: str) -> tupl
     return resp.choices[0].message.content.strip(), resp.usage
 
 
-def generate_sheet(client: openai.OpenAI, prompt: str) -> tuple[Image.Image, object]:
+def generate_sheet(client: openai.OpenAI, prompt: str, quality: str) -> tuple[Image.Image, object]:
     """gpt-image-1: generate the character sheet (returns base64, no URL download needed)."""
     resp = client.images.generate(
         model="gpt-image-1",
         prompt=prompt,
         size="1024x1024",
-        quality="medium",
+        quality=quality,
     )
     image_bytes = base64.b64decode(resp.data[0].b64_json)
     return Image.open(io.BytesIO(image_bytes)).convert("RGB"), resp.usage
@@ -175,7 +175,7 @@ def generate_sheet(client: openai.OpenAI, prompt: str) -> tuple[Image.Image, obj
 
 # ── Gradio handler ─────────────────────────────────────────────────────────────
 
-def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
+def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progress()):
     if image is None:
         raise gr.Error("Please upload an image first.")
 
@@ -192,7 +192,7 @@ def run_pipeline(image: Image.Image, mode: str, progress=gr.Progress()):
         prompt, u2 = build_doodle_prompt(client, analysis, mode)
 
         progress(0.70, desc="Generating character sheet...")
-        sheet, u3 = generate_sheet(client, prompt)
+        sheet, u3 = generate_sheet(client, prompt, quality)
 
         progress(1.00, desc="Done!")
 
@@ -431,6 +431,15 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 value="Full Character Sheet",
                 label="🎭 생성 모드",
             )
+            quality_selector = gr.Radio(
+                choices=[
+                    ("💸 Low — 약 15원", "low"),
+                    ("⚡ Medium — 약 58원", "medium"),
+                    ("✨ High — 약 230원", "high"),
+                ],
+                value="medium",
+                label="🖼️ 이미지 퀄리티",
+            )
             generate_btn = gr.Button(
                 "✨  낙서 시트 만들기  ♡",
                 variant="primary",
@@ -498,7 +507,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     generate_btn.click(
         fn=run_pipeline,
-        inputs=[image_input, mode_selector],
+        inputs=[image_input, mode_selector, quality_selector],
         outputs=[image_output, analysis_out, prompt_out, token_out],
     )
 
