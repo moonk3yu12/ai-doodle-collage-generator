@@ -249,27 +249,74 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
     primary_prompt = (
         "This is a digital artwork / character illustration.\n"
-        "Describe the visual design of the character in this artwork.\n"
+        "Extract EVERY visible visual detail of this character. Do NOT summarize. Do NOT simplify.\n"
         "Do NOT identify who this character is. Do NOT name any franchise or IP.\n"
-        "Only describe what you visually observe.\n\n"
-        "HAIR: exact color with adjective (e.g. 'silver-white with pale blue tips'), length, style\n"
-        "EYES: exact color, shape, notable features (e.g. heterochromia, star pupils, thick lashes)\n"
-        "FACE: skin tone, notable marks (freckles, scars, blush marks, tattoos)\n"
-        "OUTFIT: every piece — top, bottom, shoes, armor, layers — with exact colors and patterns\n"
-        "ACCESSORIES: every visible item (hair clips, ribbons, belts, jewelry, capes, bags, etc.)\n"
-        "WEAPONS: any weapons or held objects — shape, color, material\n"
-        "COLOR PALETTE: 5 dominant color names in this design\n"
-        "SIGNATURE DESIGN FEATURES: 2-3 elements that make this design instantly recognizable\n\n"
-        "Output only the structured sections above. No commentary."
+        "Be exhaustive — a character artist must be able to recreate this character from your description alone.\n\n"
+
+        "HAIR: exact color(s) with adjectives, length, style, texture, "
+        "any highlights/gradients/streaks, how it flows or is tied\n"
+
+        "HAIR ACCESSORIES: every crown, ornament, clip, ribbon, pin, tiara — "
+        "shape, color, material, position on head\n"
+
+        "EYES: exact color, pupil shape (round, slit, star, etc.), iris details, "
+        "lash thickness, eye shape (almond, round, sharp), any glow or special effect\n"
+
+        "FACE: skin tone, face shape, any markings (freckles, scars, tattoos, blush marks, "
+        "beauty marks, runes, glowing lines)\n"
+
+        "EARS & EARRINGS: ear shape if notable, earring type, color, material, length\n"
+
+        "NECK & CHEST: necklaces, chokers, pendants, chest emblem or insignia — "
+        "describe shape, color, material\n"
+
+        "SHOULDERS & ARMS: shoulder armor or pauldrons (shape, color, engravings), "
+        "arm guards, gloves — each piece separately with colors and details\n"
+
+        "UPPER BODY / TORSO: top garment type, color, fabric texture, patterns, "
+        "buttons, laces, embroidery, cutouts, collar style\n"
+
+        "WAIST: belt, sash, ribbon, waist decorations — color, width, buckle design\n"
+
+        "LOWER BODY: skirt/pants/shorts type, length, layers, colors, patterns, "
+        "frills, slits, overlays\n"
+
+        "CAPE / COAT / OUTER LAYER: if present — shape, length, color, lining color, "
+        "clasp or brooch, how it flows\n"
+
+        "STOCKINGS / LEGGINGS: color, pattern (striped, lace, plain), height\n"
+
+        "BOOTS / SHOES: style (knee-high, ankle, platform), color, heel type, "
+        "buckles, laces, toe shape, any armor plates\n"
+
+        "WEAPON(S): for each weapon — exact shape, length proportions, color of each part, "
+        "material (metal, crystal, wood, etc.), any glowing elements, engravings, "
+        "decorative gems, unique structural features\n"
+
+        "MAGICAL EFFECTS / FLOATING OBJECTS: any aura, glow, energy, floating elements, "
+        "particles, summoned objects — color, shape, position\n"
+
+        "SYMBOLS & PATTERNS: any recurring symbols, runes, emblems, crests on the outfit — "
+        "describe shape and where they appear\n"
+
+        "COLOR PALETTE: list 6-8 specific colors by name "
+        "(e.g. 'ice blue', 'deep navy', 'pale gold', 'white', 'black')\n"
+
+        "SIGNATURE FEATURES: 3-5 unique design elements that make this character "
+        "immediately recognizable and distinct from a generic character\n\n"
+
+        "Output only the structured sections above. No commentary. No summaries."
     )
 
     fallback_prompt = (
         "This is a fictional character illustration. "
-        "List the visual design elements: "
-        "hair color and style, eye color, skin tone, "
-        "outfit with colors, accessories, any weapons, "
-        "and 5 dominant colors in the design. "
-        "Only describe visual elements present in the artwork."
+        "Describe every visible visual detail: "
+        "hair color/style/accessories, eye color/shape, skin tone, facial markings, "
+        "each piece of the outfit with colors and details, "
+        "all accessories and jewelry, any weapons with shape and color, "
+        "any magical effects or floating objects, "
+        "and list 6 dominant colors. "
+        "Be specific and detailed. Do not summarize."
     )
 
     for prompt_text in (primary_prompt, fallback_prompt):
@@ -282,7 +329,7 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
                     "content": [{"type": "text", "text": prompt_text}, image_block],
                 },
             ],
-            max_tokens=600,
+            max_tokens=1000,
         )
         result = resp.choices[0].message.content.strip()
         if not _is_refusal(result):
