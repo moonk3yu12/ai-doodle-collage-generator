@@ -385,16 +385,35 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
 
 def _parse_analysis_sections(analysis: str) -> dict[str, str]:
-    """Split GPT-4o analysis text into named sections by uppercase header lines."""
+    """Split GPT-4o analysis into named sections.
+
+    Handles two formats:
+      Format A (primary prompt)  — plain uppercase headers:  HAIR\\n- ...
+      Format B (fallback prompt) — markdown bold headers:    - **Hair**:\\n  - ...
+    """
     import re
     result = {}
-    pattern = re.compile(r'^([A-Z][A-Z &/]+)$', re.MULTILINE)
-    matches = list(pattern.finditer(analysis))
-    for i, match in enumerate(matches):
-        key = match.group(1).strip()
-        start = match.end()
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(analysis)
-        result[key] = analysis[start:end].strip()
+
+    # Format A: plain uppercase line (e.g. "HAIR", "HEAD ACCESSORIES")
+    plain_matches = list(re.finditer(r'^([A-Z][A-Z &/]+)$', analysis, re.MULTILINE))
+    if plain_matches:
+        for i, m in enumerate(plain_matches):
+            key = m.group(1).strip()
+            start = m.end()
+            end = plain_matches[i + 1].start() if i + 1 < len(plain_matches) else len(analysis)
+            result[key] = analysis[start:end].strip()
+        return result
+
+    # Format B: markdown bold header (e.g. "- **Hair**:" or "**Hair**:")
+    md_matches = list(re.finditer(r'^\s*-?\s*\*\*([^*:]+?)\*\*\s*:?', analysis, re.MULTILINE))
+    if md_matches:
+        for i, m in enumerate(md_matches):
+            key = m.group(1).strip().upper()
+            start = m.end()
+            end = md_matches[i + 1].start() if i + 1 < len(md_matches) else len(analysis)
+            result[key] = analysis[start:end].strip()
+        return result
+
     return result
 
 
@@ -432,6 +451,10 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
                      "FOOTWEAR": 1, "HELD OBJECTS": 1, "SPECIAL EFFECTS": 1}
 
     secs = _parse_analysis_sections(analysis)
+    print(
+        f"[PARSE] sections found={len(secs)} keys={list(secs.keys())}",
+        flush=True,
+    )
     if secs:
         face_parts = [f"{k}\n{secs[k]}" for k in _FACE_KEYS if k in secs]
         face_detail = "\n\n".join(face_parts)
