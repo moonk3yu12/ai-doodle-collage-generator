@@ -78,42 +78,56 @@ MODE_CONFIGS = {
 
 # ── Pipeline steps ─────────────────────────────────────────────────────────────
 
+_REFUSAL_PHRASES = ("i'm sorry", "i can't assist", "i cannot assist", "i'm unable", "i cannot help")
+
+def _is_refusal(text: str) -> bool:
+    low = text.lower()
+    return any(phrase in low for phrase in _REFUSAL_PHRASES)
+
 def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, object]:
-    """GPT-4o Vision: extract rich, structured visual traits for doodle collage generation."""
+    """GPT-4o Vision: extract visual design traits. Retries with simpler prompt on refusal."""
     b64 = pil_to_base64(image)
-    resp = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": (
-                        "You are a professional character designer preparing a reference brief.\n"
-                        "Analyze this image and extract every visual detail. Be extremely specific — "
-                        "vague descriptions produce bad illustrations.\n\n"
-                        "Structure your answer in these sections:\n"
-                        "HAIR: exact color with adjective (e.g. 'bubblegum pink with bleached tips'), "
-                        "length, and style (twin tails, messy bob, etc.)\n"
-                        "EYES: exact color, shape, notable features (e.g. star pupils, thick lashes)\n"
-                        "SKIN: tone in plain words\n"
-                        "OUTFIT: every piece — top, bottom, shoes, layers — with colors and any patterns\n"
-                        "ACCESSORIES: every item present (hair clips, ribbons, bags, jewelry, etc.)\n"
-                        "SIGNATURE DETAILS: 2-3 things that make this character instantly recognizable\n"
-                        "COLOR PALETTE: 5 dominant color names (e.g. 'dusty rose', 'warm cream', 'cobalt blue')\n"
-                        "PERSONALITY VIBE: 3 adjectives describing their energy\n\n"
-                        "Do not add commentary. Just the structured facts."
-                    ),
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/png;base64,{b64}"},
-                },
-            ],
-        }],
-        max_tokens=600,
+    image_block = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
+
+    primary_prompt = (
+        "You are a professional character concept artist.\n"
+        "Describe only the visible visual design of this character illustration.\n"
+        "Do NOT identify the character. Do NOT name any person or franchise.\n"
+        "Focus purely on what you can see — colors, shapes, clothing, features.\n\n"
+        "Extract each section exactly:\n"
+        "HAIR: exact color (e.g. 'silver-white with pale blue highlights'), length, style\n"
+        "EYES: exact color, shape, notable features (e.g. heterochromia, star pupils)\n"
+        "FACE: skin tone, face shape, notable marks (freckles, scars, blush marks)\n"
+        "OUTFIT: every piece — top, bottom, shoes, armor, layers — with colors and patterns\n"
+        "ACCESSORIES: every visible item (hair clips, ribbons, belts, jewelry, bags, etc.)\n"
+        "WEAPONS: any weapons or held objects with shape, color, material description\n"
+        "COLOR PALETTE: 5 dominant color names used in the overall design\n"
+        "SIGNATURE DESIGN FEATURES: 2-3 things that make this design instantly recognizable\n\n"
+        "Only describe visible artistic features. Never identify a real person. "
+        "Never guess identity. Output the structured sections only."
     )
-    return resp.choices[0].message.content.strip(), resp.usage
+
+    fallback_prompt = (
+        "Describe the visual design of this illustrated character. "
+        "List: hair color and style, eye color, skin tone, outfit description, "
+        "any accessories or weapons, and 5 dominant colors. "
+        "Do not identify anyone. Describe only what is visually present."
+    )
+
+    for prompt_text in (primary_prompt, fallback_prompt):
+        resp = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{
+                "role": "user",
+                "content": [{"type": "text", "text": prompt_text}, image_block],
+            }],
+            max_tokens=600,
+        )
+        result = resp.choices[0].message.content.strip()
+        if not _is_refusal(result):
+            return result, resp.usage
+
+    raise gr.Error("Character analysis failed. Please try another image.")
 
 
 def build_doodle_prompt(analysis: str, mode: str) -> str:
