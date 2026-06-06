@@ -487,15 +487,30 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     if not char_name or char_name.lower() in ("none", "unknown", "n/a", ""):
         char_name = "???"
 
+    _eye_lines = [l.strip().lstrip("- ").strip() for l in secs.get("EYES", "").split("\n") if l.strip()]
+    eyes_info = _eye_lines[0] if _eye_lines else "?"
+
+    _acc_lines = [l.strip().lstrip("- ").strip() for l in secs.get("HEAD ACCESSORIES", "").split("\n") if l.strip()]
+    accessory_info = _acc_lines[0] if _acc_lines else "?"
+
+    _pal_lines = [l.strip().lstrip("- ").strip() for l in secs.get("COLOR PALETTE", "").split("\n") if l.strip()]
+    palette_info = " / ".join(_pal_lines[:4]) if _pal_lines else "?"
+
     # ── 1. Layout block (FIRST — spatial zones anchor the composition) ──────────
     _ZONE_MAPS = {
         "Full Character Sheet": (
-            "NO READABLE TEXT — do not write any words, names, letters, or speech bubbles.\n"
-            "Use only decorative symbols: ♡ ★ ✦ → !! ??\n\n"
+            "READABLE TEXT RULE: only the Character Info Box (defined below) may contain printed text.\n"
+            "Everywhere else: NO words, NO names, NO speech bubbles — decorative symbols only: ♡ ★ ✦ → !! ??\n\n"
             "SPATIAL ZONE MAP — fill every zone completely:\n\n"
             "TOP ZONE (upper 30%):\n"
             "  - large bust portrait on the left\n"
-            "  - second bust portrait on the right\n\n"
+            "  - second bust portrait in the center-right\n"
+            "  - CHARACTER INFO BOX in the upper-right corner (small thin-bordered rectangle, handwritten font):\n"
+            f"      Character Info\n"
+            f"      Name: {char_name}\n"
+            f"      Eyes: {eyes_info}\n"
+            f"      Accessory: {accessory_info}\n"
+            f"      Palette: {palette_info}\n\n"
             "CENTER ZONE (middle 35%):\n"
             "  - one large full-body standing character (dominant element, center)\n\n"
             "BOTTOM ZONE (lower 35%):\n"
