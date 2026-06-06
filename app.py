@@ -989,17 +989,20 @@ _HELP_HTML = """
 .dg-help-pop.open { display: block; }
 .dg-help-title {
   font-weight: 800;
-  color: #c084fc;
+  color: #c084fc !important;
   font-size: 0.88rem;
   margin-bottom: 8px;
 }
 .dg-help-list {
   margin: 0;
   padding-left: 16px;
-  color: #7c3aed;
+  color: #9333ea !important;
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.65;
+}
+.dg-help-list li {
+  color: #9333ea !important;
 }
 </style>
 <script>
