@@ -652,7 +652,9 @@ def generate_sheet(
             quality=quality,
         )
     image_bytes = base64.b64decode(resp.data[0].b64_json)
-    return Image.open(io.BytesIO(image_bytes)).convert("RGB"), resp.usage
+    result_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    print(f"[GENERATE] returned image size: {result_img.size[0]}x{result_img.size[1]}", flush=True)
+    return result_img, resp.usage
 
 
 # ── Analysis quality check ────────────────────────────────────────────────────
