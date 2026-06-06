@@ -298,15 +298,15 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
         "- for each: shape, color, material, exact position\n\n"
 
         "EYES\n"
-        "- exact iris color\n"
+        "- exact iris color (specific name required: cerulean, amber, violet — never just 'blue' or 'light')\n"
         "- pupil shape (round, slit, star, cross, etc.)\n"
-        "- eye shape (almond, round, upturned, etc.)\n"
+        "- eye shape (almond, round, upturned, downturned, etc.)\n"
         "- lash style (thick, long, sparse)\n"
         "- any glow, gradient, or special iris pattern\n\n"
 
         "FACE\n"
-        "- skin tone\n"
-        "- face shape\n"
+        "- skin tone (e.g. fair, warm ivory, light tan)\n"
+        "- face shape (oval, angular, round, heart-shaped, square — required)\n"
         "- every marking: freckles, scars, blush marks, tattoos, runes, beauty marks\n"
         "- earrings: style, color, length, material\n\n"
 
@@ -353,15 +353,58 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
         "COLOR PALETTE\n"
         "- list 6 to 8 specific color names used in this design\n\n"
 
-        "Output only the sections above with bullet points. No commentary. No prose."
+        "CRITICAL OUTPUT FORMAT — follow exactly:\n"
+        "- Section names must be plain UPPERCASE on their own line (e.g. HAIR)\n"
+        "- Each detail on its own line starting with '- '\n"
+        "- No markdown, no bold, no asterisks, no colons after section names\n"
+        "- Example:\nHAIR\n- ice blue with silver tips\n- shoulder length, twin tails\n\nEYES\n- cerulean blue iris\n- almond-shaped\n- round pupil"
     )
 
     fallback_prompt = (
         "This is a fictional character illustration.\n"
-        "List every visible design element as bullet points under these sections:\n"
-        "HAIR / HEAD ACCESSORIES / EYES / FACE / OUTFIT / SKIRT / LEGS / FOOTWEAR "
-        "/ HELD OBJECTS / SPECIAL EFFECTS / COLOR PALETTE\n"
-        "Do not summarize. Do not omit accessories. Do not identify anyone."
+        "Describe the visual design using the exact format below.\n"
+        "Plain text only — no markdown, no bold, no asterisks.\n"
+        "Section names in UPPERCASE on their own line, then bullet points.\n\n"
+
+        "HAIR\n"
+        "- exact color with adjectives (e.g. ice blue, sandy blonde)\n"
+        "- length and style\n\n"
+
+        "HEAD ACCESSORIES\n"
+        "- list every item on or around the head with color and position\n\n"
+
+        "EYES\n"
+        "- exact iris color — use a specific name (cerulean, amber, violet, crimson)\n"
+        "- eye shape (almond, round, upturned, downturned)\n"
+        "- pupil shape (round, slit, star)\n\n"
+
+        "FACE\n"
+        "- skin tone\n"
+        "- face shape (oval, angular, round, heart-shaped, square)\n"
+        "- any markings, blush, freckles, or scars\n\n"
+
+        "OUTFIT\n"
+        "- garment type, colors, and key details\n\n"
+
+        "SKIRT\n"
+        "- type, length, colors\n\n"
+
+        "LEGS\n"
+        "- stockings or leggings with color and pattern\n\n"
+
+        "FOOTWEAR\n"
+        "- style, color, details\n\n"
+
+        "HELD OBJECTS\n"
+        "- each object: shape, color, material\n\n"
+
+        "SPECIAL EFFECTS\n"
+        "- aura or energy: color and position\n\n"
+
+        "COLOR PALETTE\n"
+        "- list 5 to 7 specific color names (e.g. cerulean blue, ivory white, gold)\n\n"
+
+        "Do not identify the character. Do not name any franchise."
     )
 
     simple_prompt = (
