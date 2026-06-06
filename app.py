@@ -206,6 +206,17 @@ else:
     else:
         print("[STARTUP] No style images found — single-image edit mode", flush=True)
 
+# Load gallery images from test/ folder at startup
+GALLERY_DIR = pathlib.Path("test")
+_gallery_images: list[str] = []
+if GALLERY_DIR.exists():
+    _raw = sorted(
+        [*GALLERY_DIR.glob("*.png"), *GALLERY_DIR.glob("*.jpg"), *GALLERY_DIR.glob("*.jpeg")],
+        key=lambda p: (int(p.stem) if p.stem.isdigit() else float("inf"), p.stem),
+    )
+    _gallery_images = [str(p) for p in _raw]
+    print(f"[STARTUP] Gallery images loaded: {len(_gallery_images)} image(s)", flush=True)
+
 
 # ── Generation mode configs ────────────────────────────────────────────────────
 
@@ -1113,23 +1124,17 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     # ── Gallery panel ─────────────────────────────────────────────────────────
     with gr.Accordion("🖼️ 전시관 Gallery", open=False):
         gr.Markdown(
-            "여태 만든 낙서 시트를 올려서 전시해요 ♡  \n"
-            "여러 장을 한번에 선택해서 업로드할 수 있어요.",
+            f"test/ 폴더에서 {len(_gallery_images)}장을 불러왔어요 ♡",
             elem_classes="tip-box",
         )
-        gallery_upload = gr.File(
-            file_count="multiple",
-            file_types=[".png", ".jpg", ".jpeg", ".webp"],
-            label="📁 이미지 업로드 (여러 장 가능)",
-        )
-        gallery_display = gr.Gallery(
+        gr.Gallery(
+            value=_gallery_images,
             label="",
             columns=3,
-            height=500,
+            height=600,
             object_fit="contain",
             show_label=False,
         )
-        gallery_clear_btn = gr.Button("🗑️ 전시관 비우기", variant="secondary", size="sm")
 
     # ── Analysis, Prompt & Token Usage panel ──────────────────────────────────
     with gr.Accordion("📋 Analysis, Prompt & Token Usage", open=False):
@@ -1197,15 +1202,6 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
         outputs=[style_ref_content, style_ref_status],
     )
 
-    gallery_upload.change(
-        fn=lambda files: [f.name for f in files] if files else [],
-        inputs=gallery_upload,
-        outputs=gallery_display,
-    )
-    gallery_clear_btn.click(
-        fn=lambda: (None, []),
-        outputs=[gallery_upload, gallery_display],
-    )
 
 
 # Docker / HF Spaces: bind to 0.0.0.0 on port 7860
