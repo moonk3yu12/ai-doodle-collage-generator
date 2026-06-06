@@ -929,6 +929,96 @@ label span, .block > label > span {
 """
 
 
+_HELP_HTML = """
+<div class="dg-help-wrap" id="dg-help-wrap">
+  <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁">ⓘ</button>
+  <div class="dg-help-pop" id="dg-help-pop">
+    <div class="dg-help-title">💡 생성 팁</div>
+    <ul class="dg-help-list">
+      <li>정면 캐릭터일수록 잘 나와요</li>
+      <li>얼굴이 크게 보이는 이미지가 좋아요</li>
+      <li>머리 장식이 선명할수록 특징 보존이 잘 됩니다</li>
+      <li>캐릭터가 화면에서 차지하는 비율이 클수록 좋아요</li>
+      <li>Full Character Sheet는 생성마다 결과가 달라질 수 있어요</li>
+    </ul>
+  </div>
+</div>
+<style>
+.dg-help-wrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+.dg-help-icon {
+  background: linear-gradient(135deg, #f9a8d4, #d8b4fe);
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(192,132,252,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  font-weight: 700;
+  padding: 0;
+  line-height: 1;
+}
+.dg-help-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 14px rgba(192,132,252,0.55);
+}
+.dg-help-pop {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 255px;
+  background: white;
+  border: 2px solid #e9d5ff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 28px rgba(192,132,252,0.2);
+  z-index: 9999;
+}
+.dg-help-wrap:hover .dg-help-pop,
+.dg-help-pop.open { display: block; }
+.dg-help-title {
+  font-weight: 800;
+  color: #c084fc;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+.dg-help-list {
+  margin: 0;
+  padding-left: 16px;
+  color: #7c3aed;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.65;
+}
+</style>
+<script>
+(function(){
+  var wrap = document.getElementById('dg-help-wrap');
+  var btn  = document.getElementById('dg-help-btn');
+  var pop  = document.getElementById('dg-help-pop');
+  if(!btn||!pop) return;
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    pop.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e){
+    if(wrap && !wrap.contains(e.target)) pop.classList.remove('open');
+  });
+})();
+</script>
+"""
+
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
 with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
@@ -963,13 +1053,14 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
             )
             quality_selector = gr.Radio(
                 choices=[
-                    ("💸 Low — 약 15원", "low"),
-                    ("⚡ Medium — 약 58원", "medium"),
-                    ("✨ High — 약 230원", "high"),
+                    ("💸 Low", "low"),
+                    ("⚡ Medium", "medium"),
+                    ("✨ High", "high"),
                 ],
                 value="medium",
                 label="🖼️ 이미지 퀄리티",
             )
+            gr.HTML(_HELP_HTML)
             generate_btn = gr.Button(
                 "✨  낙서 시트 만들기  ♡",
                 variant="primary",
