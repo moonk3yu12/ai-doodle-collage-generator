@@ -556,6 +556,34 @@ def generate_sheet(
     return Image.open(io.BytesIO(image_bytes)).convert("RGB"), resp.usage
 
 
+# ── Analysis quality check ────────────────────────────────────────────────────
+
+_WEAK_PHRASES = [
+    "not visible", "not distinctly", "not clearly",
+    "obscured", "partially obscured",
+    "cannot", "can't see", "hard to", "difficult to",
+    "not shown", "not present", "unclear",
+]
+
+
+def _is_weak_analysis(analysis: str) -> tuple[bool, str]:
+    """Return (is_weak, reason) based on FACE/EYES section quality."""
+    secs = _parse_analysis_sections(analysis)
+    reasons = []
+    for section in ("EYES", "FACE"):
+        content = secs.get(section, "").lower()
+        if not content:
+            reasons.append(f"{section}: missing")
+        elif len(content) < 20:
+            reasons.append(f"{section}: too short")
+        else:
+            for phrase in _WEAK_PHRASES:
+                if phrase in content:
+                    reasons.append(f"{section}: '{phrase}'")
+                    break
+    return bool(reasons), " | ".join(reasons)
+
+
 # ── Gradio handler ─────────────────────────────────────────────────────────────
 
 def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progress()):
@@ -571,6 +599,9 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         progress(0.10, desc="Analyzing character features...")
         analysis, u1 = analyze_character(client, image)
 
+        is_weak, weak_reason = _is_weak_analysis(analysis)
+        print(f"[QUALITY] weak={is_weak} reason='{weak_reason}'", flush=True)
+
         progress(0.45, desc="Building image prompt...")
         prompt = build_doodle_prompt(analysis, mode)
 
@@ -585,7 +616,14 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
             else "⚠️ No style reference — use the Style Reference panel to generate one"
         )
 
+        quality_warning = (
+            f"⚠️  Face data insufficient: {weak_reason}\n"
+            f"   → Use a clearer frontal image for better character identity.\n\n"
+            if is_weak else ""
+        )
+
         token_summary = (
+            f"{quality_warning}"
             f"Step 1 · Analyze   (GPT-4o Vision)\n"
             f"  in: {u1.prompt_tokens:,}   out: {u1.completion_tokens:,}   total: {u1.total_tokens:,}\n\n"
             f"Step 2 · Prompt    (template — no API call)\n"
