@@ -632,6 +632,10 @@ def generate_sheet(
                 style_bufs.append(sbuf)
             image_input = [char_buf] + style_bufs
 
+        image_count = len(image_input) if isinstance(image_input, list) else 1
+        image_names = [f.name for f in image_input] if isinstance(image_input, list) else [image_input.name]
+        print(f"[GENERATE] images sent to edit(): count={image_count} names={image_names}", flush=True)
+
         resp = client.images.edit(
             model="gpt-image-1",
             image=image_input,
