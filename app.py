@@ -183,7 +183,7 @@ def run_generate_style_reference(progress=gr.Progress()):
 load_style_reference()
 
 # DEBUG: set False to disable style reference images (character-only mode)
-_STYLE_IMAGES_ENABLED = False
+_STYLE_IMAGES_ENABLED = True
 
 # Load 2 random style reference images from styles/ at startup
 import random as _random
