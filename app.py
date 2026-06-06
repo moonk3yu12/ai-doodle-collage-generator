@@ -495,18 +495,17 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "  - one large BUST PORTRAIT cropped at the chest or waist\n"
             "  - the drawing must show: face, hair, shoulders, upper chest — NO lower body\n"
             "  - CROP the drawing at waist level or higher — do not draw legs or feet\n"
-            "  - character name in bubble letters above or beside the portrait\n\n"
+            "  - character name in plain handwritten letters above or beside the portrait\n\n"
             "SUPPORTING DRAWINGS (lower half of page):\n"
             "  - 2 to 3 smaller bust portraits in different expressions\n"
             "  - each portrait cropped at chest or shoulders — NO legs, NO full silhouette\n"
             "  - color palette swatch box with labeled colors\n"
             "  - handwritten annotations pointing at hair and outfit details\n\n"
-            "ALL FOUR CORNERS: stars ★, hearts ♡, sparkles ✦, arrows →\n"
-            "ALL GAPS: fill with ♡ ★ ✦ → scribbled words\n\n"
             "STRICT RULES — these are mandatory:\n"
             "  DO NOT draw legs, feet, or shoes.\n"
             "  DO NOT draw any full-body silhouette.\n"
             "  DO NOT draw chibi versions.\n"
+            "  DO NOT add hearts, stars, or sparkle decorations.\n"
             "  Every drawing must be cropped at waist or higher.\n\n"
         ),
         "Portrait Doodle": (
@@ -514,13 +513,11 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "CENTER (dominant, fills upper 60%):\n"
             "  - one large expressive face and head portrait\n"
             "  - outfit collar or top just barely visible at the bottom edge\n"
-            "  - character name in handwritten bubble letters at the top\n\n"
+            "  - character name in handwritten letters at the top\n\n"
             "SURROUNDING AREA:\n"
-            "  - 4 to 6 smaller expression face sketches around the main portrait\n"
-            "  - small hearts and stars framing the main portrait\n\n"
-            "ALL CORNERS: hearts ♡, sparkles ✦, small doodles\n"
-            "ALL GAPS: fill with ♡ ★ ✦\n\n"
-            "DO NOT draw any full-body poses or chibi versions.\n\n"
+            "  - 4 to 6 smaller expression face sketches around the main portrait\n\n"
+            "DO NOT draw any full-body poses or chibi versions.\n"
+            "DO NOT add hearts, stars, or sparkle decorations.\n\n"
         ),
         "Chibi Sticker": (
             "SPATIAL ZONE MAP — sticker sheet, no fixed zones:\n\n"
@@ -536,9 +533,8 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "SPATIAL ZONE MAP:\n\n"
             "CENTER (dominant):\n"
             "  - single character portrait centered on the page\n"
-            "  - clean and uncluttered — do not pack the page\n"
-            "  - only a few small star or heart accents nearby\n\n"
-            "KEEP SPARSE — do not add dense doodles or fill all space.\n\n"
+            "  - clean and uncluttered — do not pack the page\n\n"
+            "KEEP SPARSE — do not add hearts, stars, sparkles, or dense doodles.\n\n"
         ),
     }
 
@@ -595,18 +591,21 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     )
 
     # ── 3. Style block ─────────────────────────────────────────────────────────
+    _decorations = (
+        "Hand-drawn decorations everywhere: "
+        "♡♡♡ hearts, ★★ stars, ✦ sparkles, messy arrows → with handwritten labels, "
+        "speech bubbles (owo, uwu, !!, ??), barcode sticker. "
+    ) if mode in ("Full Character Sheet", "Chibi Sticker") else ""
+
     STYLE_BLOCK = (
         "ART STYLE — redraw everything in this style:\n"
         "Rough messy doodle collage on pure white #FFFFFF background. "
         "Amateur ballpoint pen sketch texture. "
         "Wobbly uneven lineart, coloring outside the lines, scratchy hatching. "
         "Imperfect chibi-like proportions, big expressive heads. "
-        "Page completely packed — multiple rough sketches of the same character, "
+        "Multiple rough sketches of the same character, "
         "some tilted, some overlapping, some half-finished. "
-        "Hand-drawn decorations everywhere: "
-        "♡♡♡ hearts, ★★ stars, ✦ sparkles, messy arrows → with handwritten labels, "
-        "speech bubbles (owo, uwu, !!, ??), barcode sticker, color swatches, "
-        "chibi reaction faces, character name in bubble letters. "
+        f"{_decorations}"
         "Feels like a devoted fan's chaotic sketchbook page. "
         "No paper texture. White background only."
     )
