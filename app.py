@@ -353,6 +353,11 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
         "COLOR PALETTE\n"
         "- list 6 to 8 specific color names used in this design\n\n"
 
+        "CHARACTER NAME\n"
+        "- If a character name or title is written as visible text in this image, transcribe it exactly\n"
+        "- If no name is visible as text in the image, write: ???\n"
+        "- Do NOT use character recognition — only transcribe visible text\n\n"
+
         "CRITICAL OUTPUT FORMAT — follow exactly:\n"
         "- Section names must be plain UPPERCASE on their own line (e.g. HAIR)\n"
         "- Each detail on its own line starting with '- '\n"
@@ -403,6 +408,9 @@ def analyze_character(client: openai.OpenAI, image: Image.Image) -> tuple[str, o
 
         "COLOR PALETTE\n"
         "- list 5 to 7 specific color names (e.g. cerulean blue, ivory white, gold)\n\n"
+
+        "CHARACTER NAME\n"
+        "- Visible name text in image (transcribe only), or ???\n\n"
 
         "Do not identify the character. Do not name any franchise."
     )
@@ -470,6 +478,17 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     """Build prompt optimised for images.edit: character preservation first, style second."""
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
+    # ── Parse sections early so char_name is available for zone maps ─────────
+    secs = _parse_analysis_sections(analysis)
+    print(f"[PARSE] sections found={len(secs)} keys={list(secs.keys())}", flush=True)
+    print(f"[PARSE] analysis raw (first 300 chars): {repr(analysis[:300])}", flush=True)
+
+    name_raw = secs.get("CHARACTER NAME", "").strip()
+    name_lines = [l.strip().lstrip("- ").strip() for l in name_raw.split("\n") if l.strip()]
+    char_name = name_lines[0] if name_lines else "???"
+    if not char_name or char_name.lower() in ("none", "unknown", "n/a", ""):
+        char_name = "???"
+
     # ── 1. Layout block (FIRST — spatial zones anchor the composition) ──────────
     _ZONE_MAPS = {
         "Full Character Sheet": (
@@ -477,7 +496,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "TOP ZONE (upper 30%):\n"
             "  - large bust portrait on the left\n"
             "  - second bust portrait on the right\n"
-            "  - character name in large bubble letters across the top\n\n"
+            f"  - character name '{char_name}' in large bubble letters across the top\n\n"
             "CENTER ZONE (middle 35%):\n"
             "  - one large full-body standing character (dominant element, center)\n"
             "  - small arrows and annotations pointing at outfit details\n\n"
@@ -495,7 +514,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "  - one large BUST PORTRAIT centered and dominant\n"
             "  - shows face, hair, shoulders, and upper chest only\n"
             "  - cropped at waist level — no lower body visible\n"
-            "  - character name in plain handwritten letters nearby\n\n"
+            f"  - character name '{char_name}' in plain handwritten letters nearby\n\n"
             "STRICT RULES:\n"
             "  Draw ONLY ONE character portrait — no additional drawings.\n"
             "  DO NOT draw legs, feet, or shoes.\n"
@@ -508,7 +527,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "CENTER (dominant, fills upper 60%):\n"
             "  - one large expressive face and head portrait\n"
             "  - outfit collar or top just barely visible at the bottom edge\n"
-            "  - character name in handwritten letters at the top\n\n"
+            f"  - character name '{char_name}' in handwritten letters at the top\n\n"
             "SURROUNDING AREA:\n"
             "  - 4 to 6 smaller expression face sketches around the main portrait\n\n"
             "DO NOT draw any full-body poses or chibi versions.\n"
@@ -543,20 +562,15 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         f"{zone_map}"
     )
 
-    # ── 2. Character preservation block (face-priority compression) ──────────
-    _FACE_KEYS = ["FACE", "EYES", "HAIR", "HEAD ACCESSORIES", "COLOR PALETTE"]
+    # ── 2. Character preservation block (silhouette-priority ordering) ───────
+    # Priority: hair silhouette → head accessories → signature objects → colors → face
+    _IDENTITY_KEYS = ["HAIR", "HEAD ACCESSORIES", "HELD OBJECTS", "COLOR PALETTE", "FACE", "EYES"]
     _COMPRESS_MAP = {"OUTFIT": 3, "SKIRT": 1, "LEGS": 1,
-                     "FOOTWEAR": 1, "HELD OBJECTS": 1, "SPECIAL EFFECTS": 1}
+                     "FOOTWEAR": 1, "SPECIAL EFFECTS": 1}
 
-    secs = _parse_analysis_sections(analysis)
-    print(
-        f"[PARSE] sections found={len(secs)} keys={list(secs.keys())}",
-        flush=True,
-    )
-    print(f"[PARSE] analysis raw (first 300 chars): {repr(analysis[:300])}", flush=True)
     if secs:
-        face_parts = [f"{k}\n{secs[k]}" for k in _FACE_KEYS if k in secs]
-        face_detail = "\n\n".join(face_parts)
+        identity_parts = [f"{k}\n{secs[k]}" for k in _IDENTITY_KEYS if k in secs]
+        identity_detail = "\n\n".join(identity_parts)
 
         outfit_lines = []
         for k, n in _COMPRESS_MAP.items():
@@ -566,8 +580,13 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         outfit_summary = "\n".join(outfit_lines)
 
         analysis_block = (
-            "CHARACTER IDENTITY — reproduce exactly (highest priority):\n\n"
-            f"{face_detail}\n\n"
+            "VISUAL IDENTITY — preserve these exactly (priority order):\n"
+            "1. HAIR silhouette, color, and style\n"
+            "2. HEAD ACCESSORIES (every crown, hat, ribbon, ornament)\n"
+            "3. SIGNATURE OBJECTS AND WEAPONS\n"
+            "4. DOMINANT COLOR COMBINATION\n"
+            "5. FACE and EYES\n\n"
+            f"{identity_detail}\n\n"
             "OUTFIT REFERENCE (secondary):\n"
             f"{outfit_summary}\n\n"
         )
@@ -578,9 +597,9 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
         "Redraw the character from Image 1 as a messy hand-drawn doodle collage.\n\n"
         f"{analysis_block}"
         "CRITICAL PRESERVATION RULES:\n"
-        "- Face shape, eye color and shape, iris pattern — preserve exactly\n"
-        "- Hair color, length, style, and every hair ornament — preserve exactly\n"
-        "- Head accessories (crowns, pins, horns, ribbons) — preserve exactly\n"
+        "- Hair silhouette, color, and style — highest priority\n"
+        "- Every head accessory (crowns, hats, horns, ribbons) — preserve exactly\n"
+        "- Signature weapons and held objects — preserve shape and color\n"
         "- Full color palette — do not substitute any colors\n"
         "- This must be recognizably the SAME character as in the reference image\n\n"
     )
