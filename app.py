@@ -471,27 +471,78 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     layout = MODE_CONFIGS.get(mode, MODE_CONFIGS["Full Character Sheet"])["brief"]
 
     # ── 1. Layout block (FIRST — spatial zones anchor the composition) ──────────
+    _ZONE_MAPS = {
+        "Full Character Sheet": (
+            "SPATIAL ZONE MAP — fill every zone completely:\n\n"
+            "TOP ZONE (upper 30%):\n"
+            "  - large bust portrait on the left\n"
+            "  - second bust portrait on the right\n"
+            "  - character name in large bubble letters across the top\n\n"
+            "CENTER ZONE (middle 35%):\n"
+            "  - one large full-body standing character (dominant element, center)\n"
+            "  - small arrows and annotations pointing at outfit details\n\n"
+            "BOTTOM ZONE (lower 35%):\n"
+            "  - row of 8 expression face close-ups (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
+            "  - 3 chibi full-body poses scattered across the zone\n"
+            "  - color palette swatch box with labeled colors\n"
+            "  - handwritten notes and short captions\n\n"
+            "ALL FOUR CORNERS: stars ★, hearts ♡, sparkles ✦, arrows →, or small reaction doodles\n"
+            "ALL GAPS: fill with ♡ ★ ✦ → speech bubbles or scribbled words\n\n"
+        ),
+        "Upper Body Character": (
+            "SPATIAL ZONE MAP:\n\n"
+            "TOP ZONE (upper 45%):\n"
+            "  - one large bust or upper-body portrait (dominant, center)\n"
+            "  - character name in bubble letters at the top\n\n"
+            "BOTTOM ZONE (lower 55%):\n"
+            "  - 2 to 3 additional bust portraits in different expressions or angles\n"
+            "  - color palette swatch box with labeled colors\n"
+            "  - handwritten annotations pointing at outfit details\n\n"
+            "ALL FOUR CORNERS: stars ★, hearts ♡, sparkles ✦, arrows →\n"
+            "ALL GAPS: fill with ♡ ★ ✦ → scribbled words\n\n"
+            "DO NOT draw any full-body poses or chibi versions.\n\n"
+        ),
+        "Portrait Doodle": (
+            "SPATIAL ZONE MAP:\n\n"
+            "CENTER (dominant, fills upper 60%):\n"
+            "  - one large expressive face and head portrait\n"
+            "  - outfit collar or top just barely visible at the bottom edge\n"
+            "  - character name in handwritten bubble letters at the top\n\n"
+            "SURROUNDING AREA:\n"
+            "  - 4 to 6 smaller expression face sketches around the main portrait\n"
+            "  - small hearts and stars framing the main portrait\n\n"
+            "ALL CORNERS: hearts ♡, sparkles ✦, small doodles\n"
+            "ALL GAPS: fill with ♡ ★ ✦\n\n"
+            "DO NOT draw any full-body poses or chibi versions.\n\n"
+        ),
+        "Chibi Sticker": (
+            "SPATIAL ZONE MAP — sticker sheet, no fixed zones:\n\n"
+            "FULL PAGE:\n"
+            "  - 5 to 6 chibi full-body poses scattered at random angles across the entire page\n"
+            "  - each chibi in a different pose or expression\n"
+            "  - some slightly tilted, overlapping edges\n"
+            "  - small hearts ♡ and stars ★ between each chibi\n\n"
+            "ALL GAPS: fill with ♡ ★ tiny doodles\n\n"
+            "DO NOT draw any full-size portraits or full-body realistic poses.\n\n"
+        ),
+        "Simple Clean Portrait": (
+            "SPATIAL ZONE MAP:\n\n"
+            "CENTER (dominant):\n"
+            "  - single character portrait centered on the page\n"
+            "  - clean and uncluttered — do not pack the page\n"
+            "  - only a few small star or heart accents nearby\n\n"
+            "KEEP SPARSE — do not add dense doodles or fill all space.\n\n"
+        ),
+    }
+
+    zone_map = _ZONE_MAPS.get(mode, _ZONE_MAPS["Full Character Sheet"])
+
     LAYOUT_BLOCK = (
         "IMAGE ROLES:\n"
         "- Image 1: CHARACTER REFERENCE — preserve hair, eyes, outfit, colors, and identity exactly\n"
         "- Images 2-3: STYLE REFERENCE — copy only the drawing style, page layout, and doodle density\n\n"
         f"PAGE LAYOUT: {layout}.\n\n"
-        "SPATIAL ZONE MAP — fill every zone completely:\n\n"
-        "TOP ZONE (upper 30%):\n"
-        "  - large bust or upper-body portrait on the left\n"
-        "  - second bust portrait on the right\n"
-        "  - character name in large bubble letters across the top\n\n"
-        "CENTER ZONE (middle 35%):\n"
-        "  - one large full-body standing character (dominant element, center)\n"
-        "  - small annotations and arrows pointing at outfit details\n\n"
-        "BOTTOM ZONE (lower 35%):\n"
-        "  - row of 8 expression face close-ups (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
-        "  - 3 chibi full-body poses scattered across the zone\n"
-        "  - color palette swatch box with labeled colors\n"
-        "  - handwritten notes and short captions\n\n"
-        "ALL FOUR CORNERS — each corner must contain:\n"
-        "  stars ★★, hearts ♡♡, sparkles ✦, arrows →, or small reaction doodles\n\n"
-        "ALL GAPS between drawings must be filled with: ♡ ★ ✦ → speech bubbles or scribbled words\n\n"
+        f"{zone_map}"
     )
 
     # ── 2. Character preservation block (face-priority compression) ──────────
