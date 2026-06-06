@@ -216,16 +216,14 @@ MODE_CONFIGS = {
             "large main portrait center, full body standing pose, several chibi versions, "
             "close-up face expressions (happy, sleepy, embarrassed, angry, smug), "
             "color palette swatches in a corner, barcode sticker, "
-            "handwritten character name and annotations with small arrows, "
-            "hearts ♡ stars ★ sparkles ✦ speech bubbles scattered around"
+            "hearts ♡ stars ★ sparkles ✦ scattered around"
         ),
     },
     "Portrait Doodle": {
         "brief": (
             "single upper-body portrait centered on plain white page, "
             "large expressive face, outfit top visible, "
-            "small hearts and stars framing the drawing, "
-            "handwritten name or nickname label nearby"
+            "small hearts and stars framing the drawing"
         ),
     },
     "Upper Body Character": {
@@ -492,21 +490,20 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     # ── 1. Layout block (FIRST — spatial zones anchor the composition) ──────────
     _ZONE_MAPS = {
         "Full Character Sheet": (
+            "NO READABLE TEXT — do not write any words, names, letters, or speech bubbles.\n"
+            "Use only decorative symbols: ♡ ★ ✦ → !! ??\n\n"
             "SPATIAL ZONE MAP — fill every zone completely:\n\n"
             "TOP ZONE (upper 30%):\n"
             "  - large bust portrait on the left\n"
-            "  - second bust portrait on the right\n"
-            f"  - character name '{char_name}' in large bubble letters across the top\n\n"
+            "  - second bust portrait on the right\n\n"
             "CENTER ZONE (middle 35%):\n"
-            "  - one large full-body standing character (dominant element, center)\n"
-            "  - small arrows and annotations pointing at outfit details\n\n"
+            "  - one large full-body standing character (dominant element, center)\n\n"
             "BOTTOM ZONE (lower 35%):\n"
             "  - row of 8 expression face close-ups (happy, sad, angry, surprised, embarrassed, sleepy, smug, crying)\n"
             "  - 3 chibi full-body poses scattered across the zone\n"
-            "  - color palette swatch box with labeled colors\n"
-            "  - handwritten notes and short captions\n\n"
-            "ALL FOUR CORNERS: stars ★, hearts ♡, sparkles ✦, arrows →, or small reaction doodles\n"
-            "ALL GAPS: fill with ♡ ★ ✦ → speech bubbles or scribbled words\n\n"
+            "  - color palette swatch box (no text labels)\n\n"
+            "ALL FOUR CORNERS: stars ★, hearts ♡, sparkles ✦, arrows →\n"
+            "ALL GAPS: fill with ♡ ★ ✦ →\n\n"
         ),
         "Upper Body Character": (
             "SPATIAL ZONE MAP:\n\n"
@@ -514,7 +511,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "  - one large BUST PORTRAIT centered and dominant\n"
             "  - shows face, hair, shoulders, and upper chest only\n"
             "  - cropped at waist level — no lower body visible\n"
-            f"  - character name '{char_name}' in plain handwritten letters nearby\n\n"
+            "  - no text or labels\n\n"
             "STRICT RULES:\n"
             "  Draw ONLY ONE character portrait — no additional drawings.\n"
             "  DO NOT draw legs, feet, or shoes.\n"
@@ -527,7 +524,7 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
             "CENTER (dominant, fills upper 60%):\n"
             "  - one large expressive face and head portrait\n"
             "  - outfit collar or top just barely visible at the bottom edge\n"
-            f"  - character name '{char_name}' in handwritten letters at the top\n\n"
+            "  - no text or name labels\n\n"
             "SURROUNDING AREA:\n"
             "  - 4 to 6 smaller expression face sketches around the main portrait\n\n"
             "DO NOT draw any full-body poses or chibi versions.\n"
@@ -607,8 +604,8 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
     # ── 3. Style block ─────────────────────────────────────────────────────────
     _decorations = (
         "Hand-drawn decorations everywhere: "
-        "♡♡♡ hearts, ★★ stars, ✦ sparkles, messy arrows → with handwritten labels, "
-        "speech bubbles (owo, uwu, !!, ??), barcode sticker. "
+        "♡♡♡ hearts, ★★ stars, ✦ sparkles, messy arrows →, barcode sticker. "
+        "NO readable text, NO speech bubbles, NO handwritten words. "
     ) if mode in ("Full Character Sheet", "Chibi Sticker") else ""
 
     STYLE_BLOCK = (
