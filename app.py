@@ -659,7 +659,7 @@ def generate_sheet(
             model="gpt-image-1",
             image=image_input,
             prompt=prompt,
-            size="1024x1024",
+            size="1024x1536",
             quality=quality,
             input_fidelity="high",
         )
