@@ -592,13 +592,16 @@ def build_doodle_prompt(analysis: str, mode: str) -> str:
 
     CHARACTER_BLOCK = (
         "Redraw the character from Image 1 as a messy hand-drawn doodle collage.\n\n"
+        "CRITICAL PRESERVATION RULES — apply to every single drawing on the page:\n"
+        "- HAIR: preserve exact silhouette, color, length, and style in every drawing\n"
+        "- HEAD ACCESSORIES: every crown, hat, horn, ribbon must appear in every drawing\n"
+        "- WEAPONS AND HELD OBJECTS: preserve shape and color in full-body drawings\n"
+        "- COLOR PALETTE: do not substitute any colors\n"
+        "- PAGE CONSISTENCY: every sketch, chibi, and expression on this page must depict\n"
+        "  the SAME character — same hair, same accessories, same color scheme\n"
+        "- Even chibi versions must show the exact hair silhouette and head accessories\n"
+        "- This must be recognizably the SAME character as in Image 1\n\n"
         f"{analysis_block}"
-        "CRITICAL PRESERVATION RULES:\n"
-        "- Hair silhouette, color, and style — highest priority\n"
-        "- Every head accessory (crowns, hats, horns, ribbons) — preserve exactly\n"
-        "- Signature weapons and held objects — preserve shape and color\n"
-        "- Full color palette — do not substitute any colors\n"
-        "- This must be recognizably the SAME character as in the reference image\n\n"
     )
 
     # ── 3. Style block ─────────────────────────────────────────────────────────
