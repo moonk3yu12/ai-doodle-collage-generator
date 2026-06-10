@@ -826,9 +826,7 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
-        _goods_dir = pathlib.Path("goods")
-        _goods_dir.mkdir(exist_ok=True)
-        sheet.save(_goods_dir / ".current.png")
+        sheet.save(pathlib.Path("/tmp/.current_goods.png"))
         return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True)
 
     except gr.Error:
@@ -1293,7 +1291,7 @@ async def _goods_page():
 
 @_app.get("/goods-simulate")
 async def _goods_simulate(type: str = "📸 포토카드"):
-    img_path = pathlib.Path("goods/.current.png")
+    img_path = pathlib.Path("/tmp/.current_goods.png")
     if not img_path.exists():
         return FastAPIResponse(status_code=404)
     image = Image.open(img_path).convert("RGB")
