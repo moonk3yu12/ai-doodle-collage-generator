@@ -5,7 +5,7 @@ import os
 import io
 import pathlib
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 # ── OpenAI client ──────────────────────────────────────────────────────────────
@@ -217,6 +217,18 @@ if GALLERY_DIR.exists():
     _gallery_images = [str(p) for p in _raw]
     print(f"[STARTUP] Gallery images loaded: {len(_gallery_images)} image(s)", flush=True)
 
+
+# ── Goods simulation config ───────────────────────────────────────────────────
+
+GOODS_DIR = pathlib.Path("goods")
+
+# area: (x, y, width, height) — where the character image is pasted on the template
+GOODS_CONFIG: dict[str, dict] = {
+    "📸 포토카드": {"file": "photocard.png", "canvas": (300, 420), "area": (30,  50, 240, 320)},
+    "🌟 스티커":   {"file": "sticker.png",   "canvas": (400, 400), "area": (60,  60, 280, 280)},
+    "🔑 키링":     {"file": "keyring.png",   "canvas": (280, 330), "area": (55,  65, 170, 200)},
+    "👕 옷":       {"file": "clothes.png",   "canvas": (480, 560), "area": (140, 120, 200, 240)},
+}
 
 # ── Generation mode configs ────────────────────────────────────────────────────
 
@@ -730,6 +742,37 @@ def _is_weak_analysis(analysis: str) -> tuple[bool, str]:
     return bool(reasons), " | ".join(reasons)
 
 
+# ── Goods simulation ───────────────────────────────────────────────────────────
+
+def _placeholder_template(goods_type: str, canvas: tuple) -> Image.Image:
+    w, h = canvas
+    img = Image.new("RGBA", (w, h), (253, 244, 255, 255))
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle([8, 8, w - 8, h - 8], radius=18, outline=(192, 132, 252), width=3)
+    px, py, pw, ph = GOODS_CONFIG[goods_type]["area"]
+    draw.rectangle([px, py, px + pw, py + ph], outline=(209, 180, 252), width=2)
+    return img
+
+
+def simulate_goods(image: Image.Image | None, goods_type: str) -> Image.Image | None:
+    if image is None:
+        return None
+    cfg = GOODS_CONFIG.get(goods_type)
+    if cfg is None:
+        return None
+    cw, ch = cfg["canvas"]
+    px, py, pw, ph = cfg["area"]
+    template_path = GOODS_DIR / cfg["file"]
+    if template_path.exists():
+        template = Image.open(template_path).convert("RGBA").resize((cw, ch), Image.LANCZOS)
+    else:
+        template = _placeholder_template(goods_type, (cw, ch))
+    char = image.resize((pw, ph), Image.LANCZOS).convert("RGBA")
+    result = template.copy()
+    result.paste(char, (px, py), char)
+    return result.convert("RGB")
+
+
 # ── Gradio handler ─────────────────────────────────────────────────────────────
 
 def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progress()):
@@ -783,7 +826,8 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
-        return sheet, analysis, prompt, token_summary, style_ref_display
+        initial_goods = simulate_goods(sheet, "📸 포토카드")
+        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), initial_goods
 
     except gr.Error:
         raise
@@ -1094,6 +1138,27 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 height=500,
             )
 
+    # ── Goods simulation section ───────────────────────────────────────────────
+    with gr.Column(visible=False) as goods_section:
+        gr.Markdown("---\n### 🛍️ 굿즈 시뮬레이션")
+        with gr.Row():
+            with gr.Column(scale=1):
+                goods_selector = gr.Radio(
+                    choices=list(GOODS_CONFIG.keys()),
+                    value="📸 포토카드",
+                    label="굿즈 종류 선택",
+                )
+                gr.Markdown(
+                    "💡 `goods/` 폴더에 템플릿 이미지를 넣으면 실제 목업으로 바뀌어요.",
+                    elem_classes="tip-box",
+                )
+            with gr.Column(scale=1):
+                goods_preview = gr.Image(
+                    type="pil",
+                    label="굿즈 미리보기",
+                    height=420,
+                )
+
     # ── Style Reference panel ──────────────────────────────────────────────────
     with gr.Accordion("🎨 Style Reference (스타일 레퍼런스)", open=False):
         gr.Markdown(
@@ -1193,7 +1258,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_section, goods_preview],
+    )
+
+    goods_selector.change(
+        fn=simulate_goods,
+        inputs=[image_output, goods_selector],
+        outputs=goods_preview,
     )
 
     style_ref_btn.click(
