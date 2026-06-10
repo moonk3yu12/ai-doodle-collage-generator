@@ -826,8 +826,10 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
-        initial_goods = simulate_goods(sheet, "📸 포토카드")
-        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), initial_goods
+        _goods_dir = pathlib.Path("goods")
+        _goods_dir.mkdir(exist_ok=True)
+        sheet.save(_goods_dir / ".current.png")
+        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True)
 
     except gr.Error:
         raise
@@ -1079,7 +1081,17 @@ _HELP_HTML = """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
+with gr.Blocks(
+    title="AI Doodle Character Sheet Generator",
+    css=CSS,
+    theme=gr.themes.Soft(
+        primary_hue="pink",
+        secondary_hue="purple",
+        neutral_hue="pink",
+        font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
+        radius_size=gr.themes.sizes.radius_lg,
+    ),
+) as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
@@ -1138,26 +1150,19 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 height=500,
             )
 
-    # ── Goods simulation section ───────────────────────────────────────────────
-    with gr.Column(visible=False) as goods_section:
-        gr.Markdown("---\n### 🛍️ 굿즈 시뮬레이션")
-        with gr.Row():
-            with gr.Column(scale=1):
-                goods_selector = gr.Radio(
-                    choices=list(GOODS_CONFIG.keys()),
-                    value="📸 포토카드",
-                    label="굿즈 종류 선택",
-                )
-                gr.Markdown(
-                    "💡 `goods/` 폴더에 템플릿 이미지를 넣으면 실제 목업으로 바뀌어요.",
-                    elem_classes="tip-box",
-                )
-            with gr.Column(scale=1):
-                goods_preview = gr.Image(
-                    type="pil",
-                    label="굿즈 미리보기",
-                    height=420,
-                )
+    # ── Goods link (appears after generation) ─────────────────────────────────
+    with gr.Row(visible=False) as goods_link_row:
+        gr.HTML(
+            "<div style='text-align:center;padding:0.5rem 0 0.25rem;'>"
+            "<a href='/goods-page' target='_blank' "
+            "style='display:inline-block;"
+            "background:linear-gradient(135deg,#ff6eb4,#c084fc,#818cf8);"
+            "color:white;text-decoration:none;font-weight:800;font-size:1rem;"
+            "padding:0.75rem 2.5rem;border-radius:50px;"
+            "box-shadow:0 4px 16px rgba(192,132,252,0.45);'>"
+            "🛍️ 굿즈 만들기"
+            "</a></div>"
+        )
 
     # ── Style Reference panel ──────────────────────────────────────────────────
     with gr.Accordion("🎨 Style Reference (스타일 레퍼런스)", open=False):
@@ -1258,13 +1263,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_section, goods_preview],
-    )
-
-    goods_selector.change(
-        fn=simulate_goods,
-        inputs=[image_output, goods_selector],
-        outputs=goods_preview,
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row],
     )
 
     style_ref_btn.click(
@@ -1275,16 +1274,37 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
 
 
-# Docker / HF Spaces: bind to 0.0.0.0 on port 7860
-demo.launch(
-    server_name="0.0.0.0",
-    server_port=7860,
-    theme=gr.themes.Soft(
-        primary_hue="pink",
-        secondary_hue="purple",
-        neutral_hue="pink",
-        font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
-        radius_size=gr.themes.sizes.radius_lg,
-    ),
-    css=CSS,
-)
+# ── FastAPI app with custom routes ────────────────────────────────────────────
+
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, Response as FastAPIResponse
+import uvicorn
+
+_app = FastAPI()
+
+
+@_app.get("/goods-page", response_class=HTMLResponse)
+async def _goods_page():
+    p = pathlib.Path("goods_page.html")
+    if p.exists():
+        return HTMLResponse(p.read_text(encoding="utf-8"))
+    return HTMLResponse("<p>goods_page.html not found</p>", status_code=404)
+
+
+@_app.get("/goods-simulate")
+async def _goods_simulate(type: str = "📸 포토카드"):
+    img_path = pathlib.Path("goods/.current.png")
+    if not img_path.exists():
+        return FastAPIResponse(status_code=404)
+    image = Image.open(img_path).convert("RGB")
+    result = simulate_goods(image, type)
+    if result is None:
+        return FastAPIResponse(status_code=400)
+    buf = io.BytesIO()
+    result.save(buf, format="PNG")
+    return FastAPIResponse(content=buf.getvalue(), media_type="image/png")
+
+
+_app = gr.mount_gradio_app(_app, demo, path="/")
+
+uvicorn.run(_app, host="0.0.0.0", port=7860)

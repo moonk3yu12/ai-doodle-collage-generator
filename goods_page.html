@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛍️ 굿즈 시뮬레이션</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #ff6eb4, #c084fc, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+    header p { color: #a78bca; font-weight: 600; font-size: 0.95rem; }
+    .layout {
+      display: flex;
+      gap: 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .panel {
+      background: white;
+      border: 2px solid #f3e8ff;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 24px rgba(192,132,252,0.12);
+    }
+    .panel-left { flex: 0 0 220px; }
+    .panel-right { flex: 1; min-width: 260px; }
+    .panel h3 {
+      color: #c084fc;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .goods-btn {
+      display: block;
+      width: 100%;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.5rem;
+      background: white;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      color: #9333ea;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .goods-btn:hover { border-color: #c084fc; background: #fdf4ff; }
+    .goods-btn.active {
+      background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8);
+      border-color: transparent;
+      color: white;
+    }
+    .tip {
+      background: linear-gradient(135deg, #fdf4ff, #f5f0ff);
+      border: 1.5px solid #e9d5ff;
+      border-radius: 14px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #c084fc;
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+    .preview-wrap {
+      width: 100%;
+      min-height: 320px;
+      background: #fdf4ff;
+      border: 2px dashed #e9d5ff;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .preview-wrap img {
+      max-width: 100%;
+      max-height: 480px;
+      object-fit: contain;
+      border-radius: 12px;
+      display: none;
+    }
+    .status-msg {
+      color: #c084fc;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 1rem;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #c084fc;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    @media (max-width: 540px) {
+      .panel-left { flex: 1 0 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛍️ 굿즈 시뮬레이션</h1>
+    <p>캐릭터 이미지로 굿즈를 만들어봐요 ♡</p>
+  </header>
+
+  <div class="layout">
+    <div class="panel panel-left">
+      <h3>🎨 굿즈 종류</h3>
+      <button class="goods-btn active" onclick="pick(this,'📸 포토카드')">📸 포토카드</button>
+      <button class="goods-btn" onclick="pick(this,'🌟 스티커')">🌟 스티커</button>
+      <button class="goods-btn" onclick="pick(this,'🔑 키링')">🔑 키링</button>
+      <button class="goods-btn" onclick="pick(this,'👕 옷')">👕 옷</button>
+      <div class="tip">
+        💡 <code>goods/</code> 폴더에 템플릿 PNG를 넣으면 실제 목업으로 바뀌어요!
+      </div>
+    </div>
+
+    <div class="panel panel-right">
+      <h3>👀 미리보기</h3>
+      <div class="preview-wrap" id="wrap">
+        <div class="status-msg" id="msg">불러오는 중...</div>
+        <img id="img" alt="굿즈 미리보기">
+      </div>
+    </div>
+  </div>
+
+  <a class="back-link" href="/" target="_self">← 낙서 시트 생성 페이지로 돌아가기</a>
+
+  <script>
+    var currentType = '📸 포토카드';
+
+    function pick(btn, type) {
+      document.querySelectorAll('.goods-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentType = type;
+      load(type);
+    }
+
+    function load(type) {
+      var img = document.getElementById('img');
+      var msg = document.getElementById('msg');
+      img.style.display = 'none';
+      msg.style.display = 'block';
+      msg.textContent = '생성 중...';
+
+      img.onload = function() {
+        msg.style.display = 'none';
+        img.style.display = 'block';
+      };
+      img.onerror = function() {
+        img.style.display = 'none';
+        msg.textContent = '⚠️ 생성된 이미지가 없어요.\n먼저 낙서 시트를 만들어주세요!';
+      };
+      img.src = '/goods-simulate?type=' + encodeURIComponent(type) + '&_=' + Date.now();
+    }
+
+    window.onload = function() { load(currentType); };
+  </script>
+</body>
+</html>
