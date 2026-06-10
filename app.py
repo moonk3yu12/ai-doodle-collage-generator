@@ -800,223 +800,140 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
 
 CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 body, .gradio-container, .gradio-container * {
     font-family: 'Nunito', sans-serif !important;
     box-sizing: border-box;
 }
-
-/* ── Page background — craft paper ── */
 body, .gradio-container {
-    background-color: #e8e2d6 !important;
-    background-image:
-        radial-gradient(circle at 10% 10%, rgba(100, 120, 70, 0.07) 0%, transparent 50%),
-        radial-gradient(circle at 90% 90%, rgba(80, 100, 55, 0.05) 0%, transparent 50%) !important;
+    background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%) !important;
     min-height: 100vh;
 }
-
-/* ── Binder bar wrapper — remove default block padding ── */
-#binder-wrap > .block,
-#binder-wrap .block {
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-}
-
-/* ── Cards & blocks ── */
 .block, .form, .wrap, .panel,
 .gradio-container .block,
 section.block, div.block,
 .gradio-container .wrap {
-    background: rgba(255, 255, 255, 0.96) !important;
-    border-color: #cac0ac !important;
+    background: white !important;
+    border-color: #f3e8ff !important;
 }
-
-/* ── Upload area ── */
 .image-container, .upload-container,
 div[data-testid="image"],
 div[data-testid="image"] > div,
 .svelte-p3y7hu, .empty {
-    background: #faf7f0 !important;
-    border-color: #b8b0a0 !important;
+    background: #fdf4ff !important;
+    border-color: #e9d5ff !important;
 }
 .upload-container, .upload-button,
 .wrap.svelte-i3tvor {
-    border: 2.5px dashed #a0988a !important;
-    border-radius: 14px !important;
-    background: #faf7f0 !important;
+    border: 2px dashed #d8b4fe !important;
+    border-radius: 16px !important;
+    background: #fdf4ff !important;
 }
-
-/* ── Header ── */
 #app-header {
     text-align: center;
-    padding: 0.5rem 0 0.5rem;
+    padding: 2rem 0 0.5rem;
 }
 #app-header h1 {
-    font-family: 'Space Mono', monospace !important;
-    font-size: 1.9rem !important;
-    font-weight: 700 !important;
-    color: #2a3d1e !important;
-    -webkit-text-fill-color: #2a3d1e !important;
-    background: none !important;
-    margin-bottom: 0.3rem;
+    font-size: 2.6rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #ff6eb4, #c084fc, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
     letter-spacing: -0.5px;
 }
-#app-header p {
-    color: #5c5040 !important;
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
-}
-
-/* ── Left panel — white card ── */
-#left-panel {
+#app-header p { color: #a78bca; font-size: 1rem; font-weight: 600; }
+#left-panel, #right-panel {
     background: white !important;
-    border: 2px solid #cac0ac !important;
-    border-radius: 18px !important;
-    box-shadow: 4px 4px 0 #b8b0a0, 0 6px 24px rgba(50, 40, 20, 0.08) !important;
+    border: 2px solid #f3e8ff !important;
+    border-radius: 24px !important;
+    box-shadow: 0 4px 24px rgba(192, 132, 252, 0.12) !important;
     padding: 1.4rem !important;
 }
-
-/* ── Right panel — notebook grid paper ── */
-#right-panel {
-    background-color: #fdfaf4 !important;
-    background-image:
-        linear-gradient(rgba(90, 120, 160, 0.11) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(90, 120, 160, 0.11) 1px, transparent 1px) !important;
-    background-size: 22px 22px !important;
-    border: 2px solid #cac0ac !important;
-    border-left: 4px solid #c8a080 !important;
-    border-radius: 4px 18px 18px 4px !important;
-    box-shadow: 4px 4px 0 #b8b0a0, 0 6px 24px rgba(50, 40, 20, 0.08) !important;
-    padding: 1.4rem !important;
-}
-
-/* ── Generate button — dark forest green, flat 3D ── */
 #generate-btn {
-    background: #3e5835 !important;
-    color: #eeebd8 !important;
-    border: 2px solid #2a3d22 !important;
+    background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8) !important;
+    color: white !important;
+    border: none !important;
     font-size: 1.05rem !important;
-    font-weight: 800 !important;
-    border-radius: 10px !important;
-    padding: 0.85rem 1.5rem !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    padding: 0.75rem 1.5rem !important;
     width: 100% !important;
-    box-shadow: 0 4px 0 #1e2e18, 0 6px 16px rgba(30, 50, 20, 0.2) !important;
-    transition: all 0.12s ease !important;
-    letter-spacing: 0.4px;
-    font-family: 'Space Mono', monospace !important;
+    box-shadow: 0 4px 16px rgba(192, 132, 252, 0.4) !important;
+    transition: all 0.2s ease !important;
 }
 #generate-btn:hover {
-    background: #4a6b40 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 6px 0 #1e2e18, 0 10px 20px rgba(30, 50, 20, 0.25) !important;
+    box-shadow: 0 8px 24px rgba(192, 132, 252, 0.55) !important;
     opacity: 1 !important;
 }
-#generate-btn:active {
-    transform: translateY(3px) !important;
-    box-shadow: 0 1px 0 #1e2e18 !important;
-}
-
-/* ── Style ref button ── */
 #style-ref-btn {
-    border: 2px solid #7a8c5a !important;
-    color: #3e5835 !important;
-    border-radius: 10px !important;
+    border: 2px solid #c084fc !important;
+    color: #c084fc !important;
+    border-radius: 50px !important;
     font-weight: 700 !important;
-    background: white !important;
-    box-shadow: 2px 2px 0 #b0a880 !important;
 }
-#style-ref-btn:hover {
-    background: #f2f5e8 !important;
-    transform: translateY(-1px) !important;
-}
-
-/* ── Tip box ── */
 .tip-box {
-    background: #f5f2e4 !important;
-    border: 2px dashed #a8a07a !important;
-    border-radius: 12px !important;
-    padding: 0.8rem 1rem !important;
-    font-size: 0.87rem !important;
-    font-weight: 600 !important;
-    color: #3a3018 !important;
+    background: linear-gradient(135deg, #fdf4ff, #f5f0ff) !important;
+    border: 1.5px solid #e9d5ff !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    color: #c084fc !important;
 }
-.tip-box p, .tip-box strong { color: #3a3018 !important; }
-.tip-box * { color: #3a3018 !important; }
-
-/* ── Step boxes ── */
+.tip-box p, .tip-box strong, .tip-box * { color: #c084fc !important; }
 .step-box {
     background: white !important;
-    border: 2px solid #cac0ac !important;
-    border-radius: 16px !important;
-    padding: 1.3rem !important;
+    border: 2px solid #e9d5ff !important;
+    border-radius: 20px !important;
+    padding: 1.2rem !important;
     text-align: center !important;
-    box-shadow: 4px 4px 0 #b8b0a0 !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-    color: #2a3d1e !important;
+    box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    color: #c084fc !important;
 }
-.step-box p, .step-box strong { color: #344e28 !important; }
-.step-box * { color: #344e28 !important; }
+.step-box p, .step-box strong, .step-box * { color: #c084fc !important; }
 .step-box:hover {
-    transform: translate(-2px, -4px) !important;
-    box-shadow: 6px 8px 0 #a8a090 !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2) !important;
 }
-
-/* ── Headings ── */
 .gradio-container h3, .gradio-container h2 {
-    color: #3e5835 !important;
+    color: #c084fc !important;
     font-weight: 800 !important;
 }
-
-/* ── Accordion ── */
 details summary, details summary span,
 .accordion-header, .label-wrap span {
-    color: #4a6040 !important;
+    color: #c084fc !important;
     font-weight: 700 !important;
 }
-details, .accordion {
+.gradio-container p, .gradio-container .prose p { color: #c084fc !important; }
+hr {
+    border: none !important;
+    border-top: 2px dashed #f0e4ff !important;
+    margin: 1rem 0 !important;
+}
+textarea, input[type="text"] {
     border-radius: 14px !important;
-    border: 2px solid #cac0ac !important;
+    border: 1.5px solid #e9d5ff !important;
+    background: #fdf4ff !important;
+    font-family: 'Nunito', sans-serif !important;
+    font-size: 0.9rem !important;
+    color: #4c1d95 !important;
+}
+details, .accordion {
+    border-radius: 16px !important;
+    border: 2px solid #f3e8ff !important;
     background: white !important;
     overflow: hidden !important;
 }
-
-/* ── Body text ── */
-.gradio-container p, .gradio-container .prose p {
-    color: #2e2818 !important;
-}
-
-/* ── Divider ── */
-hr {
-    border: none !important;
-    border-top: 2px dashed #c0b8a4 !important;
-    margin: 1rem 0 !important;
-}
-
-/* ── Inputs ── */
-textarea, input[type="text"] {
-    border-radius: 10px !important;
-    border: 2px solid #cac0ac !important;
-    background: #faf8f2 !important;
-    font-family: 'Nunito', sans-serif !important;
-    font-size: 0.9rem !important;
-    color: #2a2018 !important;
-}
-textarea:focus, input[type="text"]:focus {
-    border-color: #7a8c5a !important;
-    outline: none !important;
-}
-
-/* ── Radio labels ── */
 input[type="radio"] + span, .wrap label span {
     font-weight: 600 !important;
-    color: #3e5835 !important;
+    color: #7c3aed !important;
 }
 label span, .block > label > span {
-    color: #4a5c38 !important;
+    color: #9333ea !important;
     font-weight: 700 !important;
     font-size: 0.9rem !important;
 }
@@ -1027,7 +944,7 @@ _HELP_HTML = """
 <div class="dg-help-wrap" id="dg-help-wrap">
   <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁">ⓘ</button>
   <div class="dg-help-pop" id="dg-help-pop">
-    <div class="dg-help-title">✏️ 생성 팁</div>
+    <div class="dg-help-title">💡 생성 팁</div>
     <ul class="dg-help-list">
       <li>정면 캐릭터일수록 잘 나와요</li>
       <li>얼굴이 크게 보이는 이미지가 좋아요</li>
@@ -1045,59 +962,58 @@ _HELP_HTML = """
   margin-bottom: 6px;
 }
 .dg-help-icon {
-  background: #3e5835;
-  border: 2px solid #2a3d22;
+  background: linear-gradient(135deg, #f9a8d4, #d8b4fe);
+  border: none;
   border-radius: 50%;
   width: 26px;
   height: 26px;
-  font-size: 12px;
-  color: #eeebd8;
+  font-size: 13px;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 0 #1e2e18;
+  box-shadow: 0 2px 8px rgba(192,132,252,0.35);
   transition: transform 0.15s, box-shadow 0.15s;
   font-weight: 700;
   padding: 0;
   line-height: 1;
 }
 .dg-help-icon:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 0 #1e2e18;
+  transform: scale(1.15);
+  box-shadow: 0 4px 14px rgba(192,132,252,0.55);
 }
 .dg-help-pop {
   display: none;
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  width: 260px;
-  background: #fdfaf4;
-  border: 2px solid #cac0ac;
-  border-radius: 14px;
+  width: 255px;
+  background: white;
+  border: 2px solid #e9d5ff;
+  border-radius: 16px;
   padding: 14px 16px;
-  box-shadow: 4px 4px 0 #b8b0a0;
+  box-shadow: 0 8px 28px rgba(192,132,252,0.2);
   z-index: 9999;
 }
 .dg-help-wrap:hover .dg-help-pop,
 .dg-help-pop.open { display: block; }
 .dg-help-title {
   font-weight: 800;
-  color: #3e5835 !important;
+  color: #c084fc !important;
   font-size: 0.88rem;
   margin-bottom: 8px;
-  font-family: 'Space Mono', monospace;
 }
 .dg-help-list {
   margin: 0;
   padding-left: 16px;
-  color: #3a3018 !important;
+  color: #9333ea !important;
   font-size: 0.82rem;
   font-weight: 600;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 .dg-help-list li {
-  color: #3a3018 !important;
+  color: #9333ea !important;
 }
 </style>
 <script>
@@ -1117,44 +1033,14 @@ _HELP_HTML = """
 </script>
 """
 
-_BINDER_HTML = """
-<div id="binder-bar">
-  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
-  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
-  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
-</div>
-<style>
-#binder-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 36px;
-  padding: 10px 0 9px;
-  background: linear-gradient(to bottom, #d0c8ba, #beb6a8);
-  border-bottom: 2px solid #a8a092;
-  margin: -8px -8px 4px -8px;
-}
-.ring {
-  width: 30px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(to bottom, #e8e4da 0%, #c8c0b4 60%, #b8b0a4 100%);
-  border: 2.5px solid #989088;
-  box-shadow: inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.2);
-}
-</style>
-"""
-
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
 with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
-    gr.HTML(_BINDER_HTML, elem_id="binder-wrap")
-
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# Doodle.Sheet :3 Studio\n"
-            "캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ✏️"
+            "# ✨ AI Doodle Character Sheet ✨\n"
+            "ʕ •ᴥ•ʔ 캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ♡"
         )
 
     gr.Markdown("---")
@@ -1323,24 +1209,11 @@ demo.launch(
     server_name="0.0.0.0",
     server_port=7860,
     theme=gr.themes.Soft(
-        primary_hue=gr.themes.colors.green,
-        secondary_hue=gr.themes.colors.emerald,
-        neutral_hue=gr.themes.colors.stone,
+        primary_hue="pink",
+        secondary_hue="purple",
+        neutral_hue="pink",
         font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
-        radius_size=gr.themes.sizes.radius_md,
-        spacing_size=gr.themes.sizes.spacing_md,
-    ).set(
-        body_background_fill="transparent",
-        block_background_fill="white",
-        block_border_color="#cac0ac",
-        block_shadow="4px 4px 0 #b8b0a0",
-        button_primary_background_fill="#3e5835",
-        button_primary_background_fill_hover="#4a6b40",
-        button_primary_text_color="#eeebd8",
-        input_background_fill="#faf8f2",
-        input_border_color="#cac0ac",
-        checkbox_background_color_selected="#3e5835",
-        slider_color="#5a7a4e",
+        radius_size=gr.themes.sizes.radius_lg,
     ),
     css=CSS,
 )
