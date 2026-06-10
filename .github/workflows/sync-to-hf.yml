@@ -35,25 +35,22 @@ jobs:
         run: |
           pip install huggingface_hub
           python - <<'EOF'
-          import os, glob
+          import os
+          from pathlib import Path
           from huggingface_hub import HfApi
           api = HfApi()
-          files = sorted(
-              glob.glob("styles/*.png") +
-              glob.glob("styles/*.jpg") +
-              glob.glob("styles/*.jpeg") +
-              glob.glob("test/*.png") +
-              glob.glob("test/*.jpg") +
-              glob.glob("test/*.jpeg")
-          )
-          for path in files:
-              print(f"  uploading {path}")
-              api.upload_file(
-                  path_or_fileobj=path,
-                  path_in_repo=path,
-                  repo_id="moonLeek/Character_Design_Request",
-                  repo_type="space",
-                  token=os.environ["HF_TOKEN"],
-              )
-          print(f"Done — {len(files)} file(s) uploaded.")
+          repo_id = "moonLeek/Character_Design_Request"
+          token = os.environ["HF_TOKEN"]
+          for folder in ("styles", "test"):
+              if Path(folder).exists():
+                  print(f"  uploading {folder}/...")
+                  api.upload_folder(
+                      folder_path=folder,
+                      path_in_repo=folder,
+                      repo_id=repo_id,
+                      repo_type="space",
+                      token=token,
+                  )
+                  print(f"  done — {folder}/")
+          print("All assets uploaded.")
           EOF
