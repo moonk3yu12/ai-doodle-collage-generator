@@ -800,21 +800,30 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
 
 CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 
 body, .gradio-container, .gradio-container * {
     font-family: 'Nunito', sans-serif !important;
     box-sizing: border-box;
 }
 
-/* ── Background ── */
+/* ── Page background — craft paper ── */
 body, .gradio-container {
-    background-color: #fdf4f9 !important;
+    background-color: #e8e2d6 !important;
     background-image:
-        radial-gradient(circle at 15% 20%, rgba(255, 182, 220, 0.18) 0%, transparent 45%),
-        radial-gradient(circle at 85% 75%, rgba(196, 148, 255, 0.15) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(255, 240, 248, 0.6) 0%, transparent 70%) !important;
+        radial-gradient(circle at 10% 10%, rgba(100, 120, 70, 0.07) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(80, 100, 55, 0.05) 0%, transparent 50%) !important;
     min-height: 100vh;
+}
+
+/* ── Binder bar wrapper — remove default block padding ── */
+#binder-wrap > .block,
+#binder-wrap .block {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin: 0 !important;
 }
 
 /* ── Cards & blocks ── */
@@ -822,188 +831,192 @@ body, .gradio-container {
 .gradio-container .block,
 section.block, div.block,
 .gradio-container .wrap {
-    background: rgba(255, 255, 255, 0.92) !important;
-    border-color: #fcd5e8 !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: #cac0ac !important;
 }
 
-/* ── Image upload areas ── */
+/* ── Upload area ── */
 .image-container, .upload-container,
 div[data-testid="image"],
 div[data-testid="image"] > div,
 .svelte-p3y7hu, .empty {
-    background: #fff5fb !important;
-    border-color: #f9a8d4 !important;
+    background: #faf7f0 !important;
+    border-color: #b8b0a0 !important;
 }
 .upload-container, .upload-button,
 .wrap.svelte-i3tvor {
-    border: 2.5px dashed #f472b6 !important;
-    border-radius: 20px !important;
-    background: #fff5fb !important;
+    border: 2.5px dashed #a0988a !important;
+    border-radius: 14px !important;
+    background: #faf7f0 !important;
 }
 
 /* ── Header ── */
 #app-header {
     text-align: center;
-    padding: 2.5rem 0 0.75rem;
+    padding: 0.5rem 0 0.5rem;
 }
 #app-header h1 {
-    font-family: 'Caveat', cursive !important;
-    font-size: 3.2rem !important;
-    font-weight: 700;
-    background: linear-gradient(135deg, #f43f8c 0%, #c026d3 50%, #7c3aed 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.5px;
-    line-height: 1.15;
-    filter: drop-shadow(0 2px 8px rgba(244, 63, 140, 0.2));
+    font-family: 'Space Mono', monospace !important;
+    font-size: 1.9rem !important;
+    font-weight: 700 !important;
+    color: #2a3d1e !important;
+    -webkit-text-fill-color: #2a3d1e !important;
+    background: none !important;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.5px;
 }
 #app-header p {
-    color: #be185d !important;
-    font-size: 1rem;
-    font-weight: 600;
-    opacity: 0.85;
+    color: #5c5040 !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
 }
 
-/* ── Main panels ── */
-#left-panel, #right-panel {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border: 2px solid #fce7f3 !important;
-    border-radius: 28px !important;
-    box-shadow:
-        0 4px 6px rgba(244, 63, 140, 0.06),
-        0 10px 30px rgba(192, 38, 211, 0.08),
-        0 1px 0 rgba(255, 255, 255, 0.9) inset !important;
-    padding: 1.6rem !important;
+/* ── Left panel — white card ── */
+#left-panel {
+    background: white !important;
+    border: 2px solid #cac0ac !important;
+    border-radius: 18px !important;
+    box-shadow: 4px 4px 0 #b8b0a0, 0 6px 24px rgba(50, 40, 20, 0.08) !important;
+    padding: 1.4rem !important;
 }
 
-/* ── Generate button ── */
+/* ── Right panel — notebook grid paper ── */
+#right-panel {
+    background-color: #fdfaf4 !important;
+    background-image:
+        linear-gradient(rgba(90, 120, 160, 0.11) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(90, 120, 160, 0.11) 1px, transparent 1px) !important;
+    background-size: 22px 22px !important;
+    border: 2px solid #cac0ac !important;
+    border-left: 4px solid #c8a080 !important;
+    border-radius: 4px 18px 18px 4px !important;
+    box-shadow: 4px 4px 0 #b8b0a0, 0 6px 24px rgba(50, 40, 20, 0.08) !important;
+    padding: 1.4rem !important;
+}
+
+/* ── Generate button — dark forest green, flat 3D ── */
 #generate-btn {
-    background: linear-gradient(135deg, #f43f8c 0%, #c026d3 60%, #7c3aed 100%) !important;
-    color: white !important;
-    border: none !important;
-    font-size: 1.1rem !important;
+    background: #3e5835 !important;
+    color: #eeebd8 !important;
+    border: 2px solid #2a3d22 !important;
+    font-size: 1.05rem !important;
     font-weight: 800 !important;
-    border-radius: 50px !important;
+    border-radius: 10px !important;
     padding: 0.85rem 1.5rem !important;
     width: 100% !important;
-    box-shadow:
-        0 4px 15px rgba(244, 63, 140, 0.45),
-        0 1px 0 rgba(255, 255, 255, 0.25) inset !important;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-    letter-spacing: 0.3px;
+    box-shadow: 0 4px 0 #1e2e18, 0 6px 16px rgba(30, 50, 20, 0.2) !important;
+    transition: all 0.12s ease !important;
+    letter-spacing: 0.4px;
+    font-family: 'Space Mono', monospace !important;
 }
 #generate-btn:hover {
-    transform: translateY(-3px) scale(1.02) !important;
-    box-shadow:
-        0 8px 25px rgba(244, 63, 140, 0.55),
-        0 1px 0 rgba(255, 255, 255, 0.25) inset !important;
+    background: #4a6b40 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 0 #1e2e18, 0 10px 20px rgba(30, 50, 20, 0.25) !important;
     opacity: 1 !important;
 }
 #generate-btn:active {
-    transform: translateY(0px) scale(0.99) !important;
+    transform: translateY(3px) !important;
+    box-shadow: 0 1px 0 #1e2e18 !important;
 }
 
 /* ── Style ref button ── */
 #style-ref-btn {
-    border: 2px solid #e879f9 !important;
-    color: #a21caf !important;
-    border-radius: 50px !important;
+    border: 2px solid #7a8c5a !important;
+    color: #3e5835 !important;
+    border-radius: 10px !important;
     font-weight: 700 !important;
     background: white !important;
-    transition: all 0.2s ease !important;
+    box-shadow: 2px 2px 0 #b0a880 !important;
 }
 #style-ref-btn:hover {
-    background: #fdf4ff !important;
-    border-color: #c026d3 !important;
+    background: #f2f5e8 !important;
+    transform: translateY(-1px) !important;
 }
 
 /* ── Tip box ── */
 .tip-box {
-    background: linear-gradient(135deg, #fff0f9, #faf5ff) !important;
-    border: 2px dashed #f9a8d4 !important;
-    border-radius: 18px !important;
-    padding: 0.85rem 1.1rem !important;
-    font-size: 0.88rem !important;
+    background: #f5f2e4 !important;
+    border: 2px dashed #a8a07a !important;
+    border-radius: 12px !important;
+    padding: 0.8rem 1rem !important;
+    font-size: 0.87rem !important;
     font-weight: 600 !important;
-    color: #9d174d !important;
+    color: #3a3018 !important;
 }
-.tip-box p, .tip-box strong { color: #9d174d !important; }
-.tip-box * { color: #9d174d !important; }
+.tip-box p, .tip-box strong { color: #3a3018 !important; }
+.tip-box * { color: #3a3018 !important; }
 
 /* ── Step boxes ── */
 .step-box {
     background: white !important;
-    border: 2px solid #fce7f3 !important;
-    border-radius: 22px !important;
-    padding: 1.4rem !important;
+    border: 2px solid #cac0ac !important;
+    border-radius: 16px !important;
+    padding: 1.3rem !important;
     text-align: center !important;
-    box-shadow: 0 2px 16px rgba(244, 63, 140, 0.08) !important;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
-    color: #6b21a8 !important;
+    box-shadow: 4px 4px 0 #b8b0a0 !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    color: #2a3d1e !important;
 }
-.step-box p, .step-box strong { color: #6b21a8 !important; }
-.step-box * { color: #6b21a8 !important; }
+.step-box p, .step-box strong { color: #344e28 !important; }
+.step-box * { color: #344e28 !important; }
 .step-box:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 8px 24px rgba(244, 63, 140, 0.18) !important;
-    border-color: #f9a8d4 !important;
+    transform: translate(-2px, -4px) !important;
+    box-shadow: 6px 8px 0 #a8a090 !important;
 }
 
 /* ── Headings ── */
 .gradio-container h3, .gradio-container h2 {
-    color: #be185d !important;
+    color: #3e5835 !important;
     font-weight: 800 !important;
 }
 
 /* ── Accordion ── */
 details summary, details summary span,
 .accordion-header, .label-wrap span {
-    color: #a21caf !important;
+    color: #4a6040 !important;
     font-weight: 700 !important;
 }
 details, .accordion {
-    border-radius: 18px !important;
-    border: 2px solid #fce7f3 !important;
+    border-radius: 14px !important;
+    border: 2px solid #cac0ac !important;
     background: white !important;
     overflow: hidden !important;
 }
 
-/* ── Body text — readable dark color ── */
+/* ── Body text ── */
 .gradio-container p, .gradio-container .prose p {
-    color: #4a1942 !important;
+    color: #2e2818 !important;
 }
 
 /* ── Divider ── */
 hr {
     border: none !important;
-    border-top: 2.5px dashed #fbb6ce !important;
-    margin: 1.2rem 0 !important;
+    border-top: 2px dashed #c0b8a4 !important;
+    margin: 1rem 0 !important;
 }
 
 /* ── Inputs ── */
 textarea, input[type="text"] {
-    border-radius: 14px !important;
-    border: 2px solid #fce7f3 !important;
-    background: #fff9fc !important;
+    border-radius: 10px !important;
+    border: 2px solid #cac0ac !important;
+    background: #faf8f2 !important;
     font-family: 'Nunito', sans-serif !important;
     font-size: 0.9rem !important;
-    color: #4a1942 !important;
-    transition: border-color 0.2s ease !important;
+    color: #2a2018 !important;
 }
 textarea:focus, input[type="text"]:focus {
-    border-color: #f472b6 !important;
+    border-color: #7a8c5a !important;
     outline: none !important;
 }
 
 /* ── Radio labels ── */
 input[type="radio"] + span, .wrap label span {
     font-weight: 600 !important;
-    color: #86198f !important;
+    color: #3e5835 !important;
 }
 label span, .block > label > span {
-    color: #9d174d !important;
+    color: #4a5c38 !important;
     font-weight: 700 !important;
     font-size: 0.9rem !important;
 }
@@ -1014,7 +1027,7 @@ _HELP_HTML = """
 <div class="dg-help-wrap" id="dg-help-wrap">
   <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁">ⓘ</button>
   <div class="dg-help-pop" id="dg-help-pop">
-    <div class="dg-help-title">💡 생성 팁</div>
+    <div class="dg-help-title">✏️ 생성 팁</div>
     <ul class="dg-help-list">
       <li>정면 캐릭터일수록 잘 나와요</li>
       <li>얼굴이 크게 보이는 이미지가 좋아요</li>
@@ -1032,58 +1045,59 @@ _HELP_HTML = """
   margin-bottom: 6px;
 }
 .dg-help-icon {
-  background: linear-gradient(135deg, #f9a8d4, #d8b4fe);
-  border: none;
+  background: #3e5835;
+  border: 2px solid #2a3d22;
   border-radius: 50%;
   width: 26px;
   height: 26px;
-  font-size: 13px;
-  color: white;
+  font-size: 12px;
+  color: #eeebd8;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(192,132,252,0.35);
+  box-shadow: 0 2px 0 #1e2e18;
   transition: transform 0.15s, box-shadow 0.15s;
   font-weight: 700;
   padding: 0;
   line-height: 1;
 }
 .dg-help-icon:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 14px rgba(192,132,252,0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #1e2e18;
 }
 .dg-help-pop {
   display: none;
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  width: 255px;
-  background: white;
-  border: 2px solid #e9d5ff;
-  border-radius: 16px;
+  width: 260px;
+  background: #fdfaf4;
+  border: 2px solid #cac0ac;
+  border-radius: 14px;
   padding: 14px 16px;
-  box-shadow: 0 8px 28px rgba(192,132,252,0.2);
+  box-shadow: 4px 4px 0 #b8b0a0;
   z-index: 9999;
 }
 .dg-help-wrap:hover .dg-help-pop,
 .dg-help-pop.open { display: block; }
 .dg-help-title {
   font-weight: 800;
-  color: #c084fc !important;
+  color: #3e5835 !important;
   font-size: 0.88rem;
   margin-bottom: 8px;
+  font-family: 'Space Mono', monospace;
 }
 .dg-help-list {
   margin: 0;
   padding-left: 16px;
-  color: #9333ea !important;
+  color: #3a3018 !important;
   font-size: 0.82rem;
   font-weight: 600;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 .dg-help-list li {
-  color: #9333ea !important;
+  color: #3a3018 !important;
 }
 </style>
 <script>
@@ -1103,14 +1117,44 @@ _HELP_HTML = """
 </script>
 """
 
+_BINDER_HTML = """
+<div id="binder-bar">
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+</div>
+<style>
+#binder-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+  padding: 10px 0 9px;
+  background: linear-gradient(to bottom, #d0c8ba, #beb6a8);
+  border-bottom: 2px solid #a8a092;
+  margin: -8px -8px 4px -8px;
+}
+.ring {
+  width: 30px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #e8e4da 0%, #c8c0b4 60%, #b8b0a4 100%);
+  border: 2.5px solid #989088;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -2px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.2);
+}
+</style>
+"""
+
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
 with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
+    gr.HTML(_BINDER_HTML, elem_id="binder-wrap")
+
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# ✨ AI Doodle Character Sheet ✨\n"
-            "ʕ •ᴥ•ʔ 캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ♡"
+            "# Doodle.Sheet :3 Studio\n"
+            "캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ✏️"
         )
 
     gr.Markdown("---")
@@ -1279,24 +1323,24 @@ demo.launch(
     server_name="0.0.0.0",
     server_port=7860,
     theme=gr.themes.Soft(
-        primary_hue=gr.themes.colors.pink,
-        secondary_hue=gr.themes.colors.fuchsia,
-        neutral_hue=gr.themes.colors.pink,
+        primary_hue=gr.themes.colors.green,
+        secondary_hue=gr.themes.colors.emerald,
+        neutral_hue=gr.themes.colors.stone,
         font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
-        radius_size=gr.themes.sizes.radius_lg,
-        spacing_size=gr.themes.sizes.spacing_lg,
+        radius_size=gr.themes.sizes.radius_md,
+        spacing_size=gr.themes.sizes.spacing_md,
     ).set(
         body_background_fill="transparent",
         block_background_fill="white",
-        block_border_color="#fce7f3",
-        block_shadow="0 4px 20px rgba(244,63,140,0.08)",
-        button_primary_background_fill="linear-gradient(135deg, #f43f8c, #c026d3, #7c3aed)",
-        button_primary_background_fill_hover="linear-gradient(135deg, #ec4899, #a21caf, #6d28d9)",
-        button_primary_text_color="white",
-        input_background_fill="#fff9fc",
-        input_border_color="#fce7f3",
-        checkbox_background_color_selected="#f43f8c",
-        slider_color="#f43f8c",
+        block_border_color="#cac0ac",
+        block_shadow="4px 4px 0 #b8b0a0",
+        button_primary_background_fill="#3e5835",
+        button_primary_background_fill_hover="#4a6b40",
+        button_primary_text_color="#eeebd8",
+        input_background_fill="#faf8f2",
+        input_border_color="#cac0ac",
+        checkbox_background_color_selected="#3e5835",
+        slider_color="#5a7a4e",
     ),
     css=CSS,
 )
