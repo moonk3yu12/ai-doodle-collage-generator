@@ -1079,17 +1079,7 @@ _HELP_HTML = """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(
-    title="AI Doodle Character Sheet Generator",
-    css=CSS,
-    theme=gr.themes.Soft(
-        primary_hue="pink",
-        secondary_hue="purple",
-        neutral_hue="pink",
-        font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
-        radius_size=gr.themes.sizes.radius_lg,
-    ),
-) as demo:
+with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
@@ -1272,16 +1262,26 @@ with gr.Blocks(
 
 
 
-# ── FastAPI app with custom routes ────────────────────────────────────────────
+# ── Launch with custom routes ──────────────────────────────────────────────────
 
-from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, Response as FastAPIResponse
-import uvicorn
 
-_app = FastAPI()
+_gradio_app, _, _ = demo.launch(
+    server_name="0.0.0.0",
+    server_port=7860,
+    prevent_thread_lock=True,
+    theme=gr.themes.Soft(
+        primary_hue="pink",
+        secondary_hue="purple",
+        neutral_hue="pink",
+        font=[gr.themes.GoogleFont("Nunito"), "sans-serif"],
+        radius_size=gr.themes.sizes.radius_lg,
+    ),
+    css=CSS,
+)
 
 
-@_app.get("/goods-page", response_class=HTMLResponse)
+@_gradio_app.get("/goods-page", response_class=HTMLResponse)
 async def _goods_page():
     p = pathlib.Path("goods_page.html")
     if p.exists():
@@ -1289,7 +1289,7 @@ async def _goods_page():
     return HTMLResponse("<p>goods_page.html not found</p>", status_code=404)
 
 
-@_app.get("/goods-simulate")
+@_gradio_app.get("/goods-simulate")
 async def _goods_simulate(type: str = "📸 포토카드"):
     img_path = pathlib.Path("/tmp/.current_goods.png")
     if not img_path.exists():
@@ -1303,6 +1303,4 @@ async def _goods_simulate(type: str = "📸 포토카드"):
     return FastAPIResponse(content=buf.getvalue(), media_type="image/png")
 
 
-_app = gr.mount_gradio_app(_app, demo, path="/")
-
-uvicorn.run(_app, host="0.0.0.0", port=7860)
+demo.block_thread()
