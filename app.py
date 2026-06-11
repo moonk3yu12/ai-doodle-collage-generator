@@ -1147,6 +1147,231 @@ _HELP_HTML = """
 </script>
 """
 
+_GOODS_MODAL_HTML = """
+<div>
+  <div style="text-align:center;padding:0.5rem 0 0.25rem;">
+    <button onclick="dgOpenModal()"
+      style="display:inline-block;background:#FEF08A;color:#4A3E3D;font-weight:900;
+      font-size:1rem;padding:0.75rem 2.5rem;border-radius:14px;border:2px solid #4A3E3D;
+      box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;font-family:inherit;
+      transition:all 0.15s ease;">
+      🎁 나만의 다꾸 굿즈 제작하기 ✨
+    </button>
+  </div>
+
+  <div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:12px;">
+    <div style="background:#FAF7F2;border:3px solid #4A3E3D;border-radius:20px;
+      box-shadow:5px 5px 0px #C084FC;width:100%;max-width:680px;max-height:90vh;
+      overflow-y:auto;position:relative;padding:1.4rem;">
+
+      <button onclick="dgCloseModal()"
+        style="position:absolute;top:10px;right:12px;background:none;border:none;
+        font-size:1.3rem;cursor:pointer;color:#4A3E3D;font-weight:900;line-height:1;">✕</button>
+
+      <div style="text-align:center;margin-bottom:1rem;">
+        <h2 style="font-family:'Gaegu','Fredoka',cursive;font-size:1.4rem;font-weight:900;
+          color:#4A3E3D;margin:0 0 4px;">🪄 나만의 드로잉 굿즈 디자인스튜디오</h2>
+        <p style="font-size:0.78rem;color:#7C6E6D;font-weight:600;margin:0;">
+          생성된 낙서를 원하는 제품에 맞추어 실시간으로 확인해 보세요 ♡</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:1.2rem;align-items:start;">
+
+        <!-- Live preview -->
+        <div style="background:white;border:2px dashed #8B7E7D;border-radius:14px;padding:12px;
+          min-height:240px;display:flex;flex-direction:column;align-items:center;
+          justify-content:center;position:relative;">
+          <span style="position:absolute;top:6px;left:8px;background:#4A3E3D;color:white;
+            font-size:8px;font-weight:700;padding:2px 7px;border-radius:999px;">LIVE PREVIEW</span>
+
+          <div id="dg-w-phone" style="width:110px;height:195px;border:5px solid #1E1B1B;
+            border-radius:20px;position:relative;overflow:hidden;display:flex;
+            align-items:center;justify-content:center;background:#FDE2E4;transition:background 0.3s;">
+            <div style="position:absolute;top:7px;left:7px;width:24px;height:24px;
+              background:#2D2727;border-radius:6px;z-index:10;"></div>
+            <img id="dg-img-phone" src="" style="max-width:82%;max-height:82%;object-fit:contain;transition:transform 0.1s;" />
+          </div>
+          <div id="dg-w-griptok" style="display:none;width:140px;height:140px;border-radius:50%;
+            border:4px solid #4A3E3D;overflow:hidden;align-items:center;justify-content:center;
+            background:#E8E8E8;transition:background 0.3s;">
+            <img id="dg-img-griptok" src="" style="max-width:80%;max-height:80%;object-fit:contain;border-radius:50%;transition:transform 0.1s;" />
+          </div>
+          <div id="dg-w-mug" style="display:none;width:125px;height:150px;border:5px solid #4A3E3D;
+            border-radius:10px 10px 16px 16px;position:relative;overflow:hidden;
+            align-items:center;justify-content:center;background:white;transition:background 0.3s;">
+            <div style="position:absolute;top:28px;right:-26px;width:30px;height:85px;
+              border:5px solid #4A3E3D;border-left:none;border-radius:0 28px 28px 0;z-index:-1;"></div>
+            <img id="dg-img-mug" src="" style="max-width:65%;max-height:65%;object-fit:contain;transition:transform 0.1s;" />
+          </div>
+          <div id="dg-w-keyring" style="display:none;width:110px;height:145px;
+            border:3px solid rgba(192,132,252,0.4);background:rgba(255,255,255,0.65);
+            border-radius:14px;position:relative;align-items:center;justify-content:center;
+            backdrop-filter:blur(2px);transition:background 0.3s;">
+            <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+              width:18px;height:18px;border:3px solid #94A3B8;border-radius:50%;"></div>
+            <div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+              width:6px;height:11px;background:#94A3B8;border-radius:3px;"></div>
+            <img id="dg-img-keyring" src="" style="max-width:70%;max-height:70%;object-fit:contain;transition:transform 0.1s;" />
+          </div>
+
+          <div style="margin-top:10px;">
+            <span id="dg-tag" style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;
+              font-size:9px;font-weight:700;padding:2px 10px;border-radius:5px;
+              box-shadow:2px 2px 0px #4A3E3D;">프리미엄 무광 폰케이스</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <div>
+            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:5px;">❶ 굿즈 품목 선택하기</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+              <button id="dg-bt-phone" onclick="dgSetType('phone')"
+                style="padding:6px 8px;border-radius:7px;border:2px solid #4A3E3D;background:#E9D5FF;
+                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;
+                display:flex;align-items:center;gap:4px;">📱 슬림 하드 폰케이스</button>
+              <button id="dg-bt-griptok" onclick="dgSetType('griptok')"
+                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+                display:flex;align-items:center;gap:4px;">🔘 동글 아크릴 그립톡</button>
+              <button id="dg-bt-mug" onclick="dgSetType('mug')"
+                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+                display:flex;align-items:center;gap:4px;">🥛 머그 인쇄 세라믹컵</button>
+              <button id="dg-bt-keyring" onclick="dgSetType('keyring')"
+                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+                display:flex;align-items:center;gap:4px;">🔑 디럭스 아크릴 키링</button>
+            </div>
+          </div>
+
+          <div style="background:#F4EFE6;border:2px solid #4A3E3D;border-radius:9px;padding:10px;">
+            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:7px;">❷ 세부 드로잉 레이아웃 맞춤</div>
+            <div style="margin-bottom:7px;">
+              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
+                <span>도안 스케일 크기</span><span id="dg-lbl-scale">100%</span></div>
+              <input type="range" id="dg-sl-scale" min="40" max="150" value="100"
+                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
+            </div>
+            <div style="margin-bottom:7px;">
+              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
+                <span>상하 위치 미세조정</span><span id="dg-lbl-y">0px</span></div>
+              <input type="range" id="dg-sl-y" min="-60" max="60" value="0"
+                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
+                <span>좌우 위치 미세조정</span><span id="dg-lbl-x">0px</span></div>
+              <input type="range" id="dg-sl-x" min="-40" max="40" value="0"
+                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:5px;">❸ 제품 베이스 컬러 선택하기</div>
+            <div style="display:flex;gap:7px;align-items:center;">
+              <button onclick="dgColor('#FDE2E4')" style="width:22px;height:22px;border-radius:50%;background:#FDE2E4;border:2px solid #4A3E3D;cursor:pointer;"></button>
+              <button onclick="dgColor('#D8F3DC')" style="width:22px;height:22px;border-radius:50%;background:#D8F3DC;border:2px solid #8B7E7D;cursor:pointer;"></button>
+              <button onclick="dgColor('#E0F2FE')" style="width:22px;height:22px;border-radius:50%;background:#E0F2FE;border:2px solid #8B7E7D;cursor:pointer;"></button>
+              <button onclick="dgColor('#FEF08A')" style="width:22px;height:22px;border-radius:50%;background:#FEF08A;border:2px solid #8B7E7D;cursor:pointer;"></button>
+              <button onclick="dgColor('#FFFFFF')" style="width:22px;height:22px;border-radius:50%;background:#FFFFFF;border:2px solid #8B7E7D;cursor:pointer;"></button>
+              <button onclick="dgColor('#1E1B1B')" style="width:22px;height:22px;border-radius:50%;background:#1E1B1B;border:2px solid #8B7E7D;cursor:pointer;"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:2px dashed #8B7E7D;margin:1rem 0;">
+      <div style="display:flex;gap:8px;">
+        <button onclick="dgCloseModal()"
+          style="flex:1;padding:0.7rem;background:#C084FC;color:white;border:2px solid #4A3E3D;
+          font-weight:900;font-size:0.9rem;border-radius:12px;box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;">
+          💌 주문 완료 ♡
+        </button>
+        <button onclick="dgCloseModal()"
+          style="padding:0.7rem 1.1rem;background:white;color:#4A3E3D;border:2px solid #4A3E3D;
+          font-weight:700;font-size:0.85rem;border-radius:12px;box-shadow:2px 2px 0px #4A3E3D;cursor:pointer;">
+          돌아가기
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var _dgType = 'phone';
+  var _types = ['phone','griptok','mug','keyring'];
+  var _tags = {phone:'프리미엄 무광 폰케이스', griptok:'동글 아크릴 그립톡', mug:'머그 인쇄 세라믹컵', keyring:'디럭스 아크릴 키링'};
+
+  function dgLoadImg(){
+    var src = '/current-image?_=' + Date.now();
+    _types.forEach(function(t){
+      var el = document.getElementById('dg-img-' + t);
+      if(el) el.src = src;
+    });
+  }
+
+  window.dgOpenModal = function(){
+    var m = document.getElementById('dg-modal');
+    if(m){ m.style.display = 'flex'; dgLoadImg(); }
+  };
+
+  window.dgCloseModal = function(){
+    var m = document.getElementById('dg-modal');
+    if(m) m.style.display = 'none';
+  };
+
+  window.dgSetType = function(type){
+    _dgType = type;
+    _types.forEach(function(t){
+      var w = document.getElementById('dg-w-' + t);
+      var b = document.getElementById('dg-bt-' + t);
+      if(w) w.style.display = (t === type) ? 'flex' : 'none';
+      if(b){
+        if(t === type){
+          b.style.border = '2px solid #4A3E3D';
+          b.style.background = '#E9D5FF';
+          b.style.boxShadow = '2px 2px 0px #4A3E3D';
+        } else {
+          b.style.border = '2px solid #8B7E7D';
+          b.style.background = 'white';
+          b.style.boxShadow = 'none';
+        }
+      }
+    });
+    var tag = document.getElementById('dg-tag');
+    if(tag) tag.textContent = _tags[type];
+  };
+
+  window.dgTransform = function(){
+    var s = document.getElementById('dg-sl-scale').value;
+    var y = document.getElementById('dg-sl-y').value;
+    var x = document.getElementById('dg-sl-x').value;
+    document.getElementById('dg-lbl-scale').textContent = s + '%';
+    document.getElementById('dg-lbl-y').textContent = y + 'px';
+    document.getElementById('dg-lbl-x').textContent = x + 'px';
+    var tf = 'scale(' + (s/100) + ') translate(' + x + 'px,' + y + 'px)';
+    _types.forEach(function(t){
+      var el = document.getElementById('dg-img-' + t);
+      if(el) el.style.transform = tf;
+    });
+  };
+
+  window.dgColor = function(c){
+    var w = document.getElementById('dg-w-' + _dgType);
+    if(w) w.style.background = c;
+  };
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') dgCloseModal();
+  });
+})();
+</script>
+"""
+
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
 with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
@@ -1208,21 +1433,9 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 height=500,
             )
 
-    # ── Goods link (appears after generation) ─────────────────────────────────
+    # ── Goods modal (appears after generation) ────────────────────────────────
     with gr.Row(visible=False) as goods_link_row:
-        gr.HTML(
-            "<div style='text-align:center;padding:0.5rem 0 0.25rem;'>"
-            "<a href='/goods-page' target='_blank' "
-            "style='display:inline-block;"
-            "background:#FEF08A;"
-            "color:#4A3E3D;text-decoration:none;font-weight:900;font-size:1rem;"
-            "padding:0.75rem 2.5rem;border-radius:14px;"
-            "border:2px solid #4A3E3D;"
-            "box-shadow:3px 3px 0px #4A3E3D;"
-            "transition:all 0.2s ease;'>"
-            "🎁 나만의 다꾸 굿즈 제작하기 ✨"
-            "</a></div>"
-        )
+        gr.HTML(_GOODS_MODAL_HTML)
 
     # ── Style Reference panel ──────────────────────────────────────────────────
     with gr.Accordion("🎨 Style Reference (스타일 레퍼런스)", open=False):
@@ -1359,6 +1572,14 @@ async def _goods_page():
     if p.exists():
         return HTMLResponse(p.read_text(encoding="utf-8"))
     return HTMLResponse("<p>goods_page.html not found</p>", status_code=404)
+
+
+@_gradio_app.get("/current-image")
+async def _current_image():
+    img_path = pathlib.Path("/tmp/.current_goods.png")
+    if not img_path.exists():
+        return FastAPIResponse(status_code=404)
+    return FastAPIResponse(content=img_path.read_bytes(), media_type="image/png")
 
 
 @_gradio_app.get("/goods-simulate")
