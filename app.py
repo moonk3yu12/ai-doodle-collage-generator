@@ -844,140 +844,210 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
 
 CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
 body, .gradio-container, .gradio-container * {
-    font-family: 'Nunito', sans-serif !important;
+    font-family: 'Noto Sans KR', 'Nunito', sans-serif !important;
     box-sizing: border-box;
+    color: #4A3E3D;
 }
 body, .gradio-container {
-    background: linear-gradient(135deg, #fff0f6 0%, #f5f0ff 50%, #f0f4ff 100%) !important;
+    background-color: #FAF7F2 !important;
+    background-image: none !important;
     min-height: 100vh;
 }
+
+/* Ambient watercolor blobs */
+body::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 45vw;
+    height: 45vw;
+    background: radial-gradient(circle, rgba(244,143,177,0.18) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(192,132,252,0.14) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F8F5F0; }
+::-webkit-scrollbar-thumb { background: #C084FC; border-radius: 4px; }
+
 .block, .form, .wrap, .panel,
 .gradio-container .block,
 section.block, div.block,
 .gradio-container .wrap {
     background: white !important;
-    border-color: #f3e8ff !important;
+    border-color: #4A3E3D !important;
 }
 .image-container, .upload-container,
 div[data-testid="image"],
 div[data-testid="image"] > div,
 .svelte-p3y7hu, .empty {
-    background: #fdf4ff !important;
-    border-color: #e9d5ff !important;
+    background: #FDFBF7 !important;
+    border-color: #8B7E7D !important;
 }
 .upload-container, .upload-button,
 .wrap.svelte-i3tvor {
-    border: 2px dashed #d8b4fe !important;
+    border: 2px dashed #8B7E7D !important;
     border-radius: 16px !important;
-    background: #fdf4ff !important;
+    background: #FDFBF7 !important;
 }
+
+/* Header */
 #app-header {
     text-align: center;
     padding: 2rem 0 0.5rem;
 }
 #app-header h1 {
+    font-family: 'Gaegu', 'Fredoka', cursive !important;
     font-size: 2.6rem;
     font-weight: 800;
-    background: linear-gradient(90deg, #ff6eb4, #c084fc, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #4A3E3D !important;
+    -webkit-text-fill-color: #4A3E3D !important;
     margin-bottom: 0.4rem;
     letter-spacing: -0.5px;
 }
-#app-header p { color: #a78bca; font-size: 1rem; font-weight: 600; }
+#app-header p { color: #7C6E6D !important; font-size: 1rem; font-weight: 600; }
+
+/* Sketch-card panels */
 #left-panel, #right-panel {
     background: white !important;
-    border: 2px solid #f3e8ff !important;
-    border-radius: 24px !important;
-    box-shadow: 0 4px 24px rgba(192, 132, 252, 0.12) !important;
+    border: 3px solid #4A3E3D !important;
+    border-radius: 20px !important;
+    box-shadow: 5px 5px 0px 0px #C084FC !important;
     padding: 1.4rem !important;
+    transition: all 0.2s ease !important;
 }
+#left-panel:hover, #right-panel:hover {
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 6px 6px 0px 0px #C084FC !important;
+}
+
+/* Generate button — sketch push style */
 #generate-btn {
-    background: linear-gradient(135deg, #ff6eb4, #c084fc, #818cf8) !important;
-    color: white !important;
-    border: none !important;
-    font-size: 1.05rem !important;
-    font-weight: 700 !important;
-    border-radius: 50px !important;
+    background: #E9D5FF !important;
+    color: #4A3E3D !important;
+    border: 2px solid #4A3E3D !important;
+    font-size: 1rem !important;
+    font-weight: 900 !important;
+    border-radius: 14px !important;
     padding: 0.75rem 1.5rem !important;
     width: 100% !important;
-    box-shadow: 0 4px 16px rgba(192, 132, 252, 0.4) !important;
+    box-shadow: 3px 3px 0px 0px #4A3E3D !important;
     transition: all 0.2s ease !important;
 }
 #generate-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(192, 132, 252, 0.55) !important;
+    background: #D8B4FE !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 4px 4px 0px 0px #4A3E3D !important;
     opacity: 1 !important;
 }
-#style-ref-btn {
-    border: 2px solid #c084fc !important;
-    color: #c084fc !important;
-    border-radius: 50px !important;
-    font-weight: 700 !important;
+#generate-btn:active {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 1px 1px 0px 0px #4A3E3D !important;
 }
+
+/* Style ref button */
+#style-ref-btn {
+    border: 2px solid #4A3E3D !important;
+    color: #4A3E3D !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    box-shadow: 2px 2px 0px #4A3E3D !important;
+    background: white !important;
+}
+
+/* Tip box */
 .tip-box {
-    background: linear-gradient(135deg, #fdf4ff, #f5f0ff) !important;
-    border: 1.5px solid #e9d5ff !important;
-    border-radius: 16px !important;
+    background: #F7F4EF !important;
+    border: 2px solid #4A3E3D !important;
+    border-radius: 12px !important;
     padding: 0.75rem 1rem !important;
     font-size: 0.88rem !important;
     font-weight: 700 !important;
-    color: #c084fc !important;
+    color: #4A3E3D !important;
+    box-shadow: 2px 2px 0px #4A3E3D !important;
 }
-.tip-box p, .tip-box strong, .tip-box * { color: #c084fc !important; }
+.tip-box p, .tip-box strong, .tip-box * { color: #4A3E3D !important; }
+
+/* Step boxes — sketch-card with purple shadow */
 .step-box {
     background: white !important;
-    border: 2px solid #e9d5ff !important;
-    border-radius: 20px !important;
+    border: 2px solid #4A3E3D !important;
+    border-radius: 16px !important;
     padding: 1.2rem !important;
     text-align: center !important;
-    box-shadow: 0 2px 12px rgba(192, 132, 252, 0.1) !important;
+    box-shadow: 3px 3px 0px #C084FC !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
-    color: #c084fc !important;
+    color: #4A3E3D !important;
 }
-.step-box p, .step-box strong, .step-box * { color: #c084fc !important; }
+.step-box p, .step-box strong, .step-box * { color: #4A3E3D !important; }
 .step-box:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(192, 132, 252, 0.2) !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 4px 4px 0px #C084FC !important;
 }
+
+/* Headings */
 .gradio-container h3, .gradio-container h2 {
-    color: #c084fc !important;
+    font-family: 'Gaegu', 'Fredoka', cursive !important;
+    color: #4A3E3D !important;
     font-weight: 800 !important;
 }
 details summary, details summary span,
 .accordion-header, .label-wrap span {
-    color: #c084fc !important;
+    color: #4A3E3D !important;
     font-weight: 700 !important;
 }
-.gradio-container p, .gradio-container .prose p { color: #c084fc !important; }
+.gradio-container p, .gradio-container .prose p { color: #4A3E3D !important; }
+
+/* HR */
 hr {
     border: none !important;
-    border-top: 2px dashed #f0e4ff !important;
+    border-top: 2px dashed #8B7E7D !important;
     margin: 1rem 0 !important;
 }
+
+/* Text inputs */
 textarea, input[type="text"] {
-    border-radius: 14px !important;
-    border: 1.5px solid #e9d5ff !important;
-    background: #fdf4ff !important;
-    font-family: 'Nunito', sans-serif !important;
+    border-radius: 10px !important;
+    border: 2px solid #8B7E7D !important;
+    background: #FDFBF7 !important;
+    font-family: 'Noto Sans KR', sans-serif !important;
     font-size: 0.9rem !important;
-    color: #4c1d95 !important;
+    color: #4A3E3D !important;
 }
+
+/* Accordion panels — sketch-card style */
 details, .accordion {
     border-radius: 16px !important;
-    border: 2px solid #f3e8ff !important;
+    border: 2px solid #4A3E3D !important;
     background: white !important;
     overflow: hidden !important;
+    box-shadow: 3px 3px 0px #C084FC !important;
+    margin-bottom: 0.5rem !important;
 }
+
+/* Radio / label text */
 input[type="radio"] + span, .wrap label span {
     font-weight: 600 !important;
-    color: #7c3aed !important;
+    color: #4A3E3D !important;
 }
 label span, .block > label > span {
-    color: #9333ea !important;
+    color: #4A3E3D !important;
     font-weight: 700 !important;
     font-size: 0.9rem !important;
 }
@@ -1006,26 +1076,26 @@ _HELP_HTML = """
   margin-bottom: 6px;
 }
 .dg-help-icon {
-  background: linear-gradient(135deg, #f9a8d4, #d8b4fe);
-  border: none;
+  background: #E9D5FF;
+  border: 2px solid #4A3E3D;
   border-radius: 50%;
   width: 26px;
   height: 26px;
   font-size: 13px;
-  color: white;
+  color: #4A3E3D;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(192,132,252,0.35);
+  box-shadow: 2px 2px 0px #4A3E3D;
   transition: transform 0.15s, box-shadow 0.15s;
   font-weight: 700;
   padding: 0;
   line-height: 1;
 }
 .dg-help-icon:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 14px rgba(192,132,252,0.55);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #4A3E3D;
 }
 .dg-help-pop {
   display: none;
@@ -1033,31 +1103,31 @@ _HELP_HTML = """
   bottom: calc(100% + 8px);
   right: 0;
   width: 255px;
-  background: white;
-  border: 2px solid #e9d5ff;
+  background: #FAF7F2;
+  border: 2px solid #4A3E3D;
   border-radius: 16px;
   padding: 14px 16px;
-  box-shadow: 0 8px 28px rgba(192,132,252,0.2);
+  box-shadow: 4px 4px 0px #C084FC;
   z-index: 9999;
 }
 .dg-help-wrap:hover .dg-help-pop,
 .dg-help-pop.open { display: block; }
 .dg-help-title {
   font-weight: 800;
-  color: #c084fc !important;
+  color: #4A3E3D !important;
   font-size: 0.88rem;
   margin-bottom: 8px;
 }
 .dg-help-list {
   margin: 0;
   padding-left: 16px;
-  color: #9333ea !important;
+  color: #4A3E3D !important;
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.65;
 }
 .dg-help-list li {
-  color: #9333ea !important;
+  color: #4A3E3D !important;
 }
 </style>
 <script>
@@ -1144,11 +1214,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
             "<div style='text-align:center;padding:0.5rem 0 0.25rem;'>"
             "<a href='/goods-page' target='_blank' "
             "style='display:inline-block;"
-            "background:linear-gradient(135deg,#ff6eb4,#c084fc,#818cf8);"
-            "color:white;text-decoration:none;font-weight:800;font-size:1rem;"
-            "padding:0.75rem 2.5rem;border-radius:50px;"
-            "box-shadow:0 4px 16px rgba(192,132,252,0.45);'>"
-            "🛍️ 굿즈 만들기"
+            "background:#FEF08A;"
+            "color:#4A3E3D;text-decoration:none;font-weight:900;font-size:1rem;"
+            "padding:0.75rem 2.5rem;border-radius:14px;"
+            "border:2px solid #4A3E3D;"
+            "box-shadow:3px 3px 0px #4A3E3D;"
+            "transition:all 0.2s ease;'>"
+            "🎁 나만의 다꾸 굿즈 제작하기 ✨"
             "</a></div>"
         )
 
@@ -1242,7 +1314,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
 
     gr.Markdown(
         "---\n"
-        "<p style='text-align:center; color:#c084fc; font-size:0.85rem;'>"
+        "<p style='text-align:center; color:#7C6E6D; font-size:0.85rem; font-weight:700;'>"
         "Made with ♡ using Gradio · OpenAI GPT-4o · gpt-image-1 · Hugging Face Spaces"
         "</p>"
     )
