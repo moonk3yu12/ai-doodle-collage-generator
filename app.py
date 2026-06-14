@@ -1059,6 +1059,30 @@ details, .accordion {
     position: fixed !important; top: -9999px !important; left: 0 !important;
 }
 
+/* Empty state — absolute overlay on top of image output */
+#dg-output-empty {
+    position: absolute !important;
+    top: 60px !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 420px !important;
+    background: #FDFBF7 !important;
+    border: 2px dashed #8B7E7D !important;
+    border-radius: 12px !important;
+    z-index: 5 !important;
+    pointer-events: none;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+#dg-output-empty.hidden { display: none !important; }
+
+/* Action buttons row inside right panel */
+#dg-action-row { display: block !important; }
+#dg-action-row > div { width: 100% !important; }
+
 /* Override Gradio CSS variables that cause crimson/dark background */
 :root, html {
     --block-background-fill: white !important;
@@ -1180,19 +1204,40 @@ _QUALITY_BUTTONS_HTML = """
 </div>
 """
 
-_GOODS_MODAL_HTML = """
-<div>
-  <div style="text-align:center;padding:0.5rem 0 0.25rem;">
-    <button onclick="dgOpenModal()"
-      style="display:inline-block;background:#FEF08A;color:#4A3E3D;font-weight:900;
-      font-size:1rem;padding:0.75rem 2.5rem;border-radius:14px;border:2px solid #4A3E3D;
-      box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;font-family:inherit;
-      transition:all 0.15s ease;">
-      🎁 나만의 다꾸 굿즈 제작하기 ✨
+_ACTION_BUTTONS_HTML = """
+<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
+  <button onclick="dgOpenModal()"
+    style="width:100%;background:#FEF08A;color:#4A3E3D;border:2px solid #4A3E3D;
+    border-radius:12px;font-weight:900;font-size:0.9rem;padding:10px 16px;
+    box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;font-family:inherit;transition:all 0.15s;"
+    onmouseover="this.style.transform='translate(-1px,-1px)';this.style.boxShadow='4px 4px 0px #4A3E3D'"
+    onmouseout="this.style.transform='none';this.style.boxShadow='3px 3px 0px #4A3E3D'">
+    🎁 나만의 다꾸 굿즈 제작하기 ✨
+  </button>
+  <div style="display:flex;gap:8px;">
+    <button onclick="dgSaveImage()"
+      style="flex:1;background:#2D2727;color:white;border:2px solid #4A3E3D;
+      border-radius:10px;font-weight:700;font-size:0.85rem;padding:9px 16px;
+      box-shadow:2px 2px 0px #4A3E3D;cursor:pointer;font-family:inherit;transition:all 0.15s;"
+      onmouseover="this.style.transform='translate(-1px,-1px)'"
+      onmouseout="this.style.transform='none'">
+      ⬇ 스케치북에 저장
+    </button>
+    <button onclick="dgResetImage()"
+      style="background:white;color:#4A3E3D;border:2px solid #4A3E3D;border-radius:50%;
+      font-weight:900;font-size:1rem;width:42px;height:42px;min-width:42px;
+      box-shadow:2px 2px 0px #4A3E3D;cursor:pointer;font-family:inherit;transition:all 0.15s;
+      display:flex;align-items:center;justify-content:center;"
+      onmouseover="this.style.transform='translate(-1px,-1px)'"
+      onmouseout="this.style.transform='none'">
+      ↺
     </button>
   </div>
+</div>
+"""
 
-  <div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
+_GOODS_MODAL_HTML = """
+<div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
     backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:12px;">
     <div style="background:#FAF7F2;border:3px solid #4A3E3D;border-radius:20px;
       box-shadow:5px 5px 0px #C084FC;width:100%;max-width:680px;max-height:90vh;
@@ -1330,7 +1375,6 @@ _GOODS_MODAL_HTML = """
         </button>
       </div>
     </div>
-  </div>
 </div>
 """
 
@@ -1455,11 +1499,25 @@ function dgColor(c) {
 }
 
 function toggleStyleRef() {
-  // Gradio accordion renders as <details>
   var det = document.querySelector('#style-ref-box details');
   if (det) { det.open = !det.open; return; }
-  // Fallback: click the toggle button
   var btn = document.querySelector('#style-ref-box button[aria-expanded], #style-ref-box summary');
+  if (btn) btn.click();
+}
+
+function dgSaveImage() {
+  var img = document.querySelector('#dg-image-out img');
+  if (!img || !img.src) return;
+  var a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'doodle_character_' + Date.now() + '.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function dgResetImage() {
+  var btn = document.getElementById('dg-reset-hidden');
   if (btn) btn.click();
 }
 
@@ -1468,23 +1526,19 @@ function toggleStyleRef() {
   function check() {
     var overlay = document.getElementById('dg-output-empty');
     if (!overlay) return;
-    var img = document.querySelector('#right-panel div[data-testid="image"] img');
+    var img = document.querySelector('#dg-image-out img') ||
+              document.querySelector('#right-panel div[data-testid="image"] img');
     overlay.classList.toggle('hidden', !!(img && img.src && img.src !== window.location.href));
   }
   var observer = new MutationObserver(check);
   function init() {
-    var target = document.querySelector('#right-panel div[data-testid="image"]');
+    var target = document.querySelector('#dg-image-out div[data-testid="image"]') ||
+                 document.querySelector('#right-panel div[data-testid="image"]');
     if (target) { observer.observe(target, {childList:true,subtree:true,attributes:true}); check(); }
     else setTimeout(init, 800);
   }
   setTimeout(init, 1500);
 })();
-
-document.addEventListener('click', function(e) {
-  var pop = document.getElementById('dg-help-pop');
-  var wrap = document.getElementById('dg-help-wrap');
-  if (pop && wrap && !wrap.contains(e.target)) pop.classList.remove('open');
-});
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') dgCloseModal();
@@ -1559,7 +1613,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             )
 
         with gr.Column(scale=1, elem_id="right-panel"):
-            gr.HTML("""<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+            gr.HTML("""<div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
   <span style="background:#FEF08A;border:2px solid #4A3E3D;color:#4A3E3D;font-size:12px;
     font-weight:800;padding:4px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
     box-shadow:1px 1px 0px #4A3E3D;">
@@ -1567,8 +1621,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
   <span style="background:#C084FC;color:white;font-size:9px;font-weight:700;
     padding:2px 10px;border-radius:999px;border:1px solid #4A3E3D;box-shadow:1px 1px 0px #4A3E3D;">AI Output Canvas</span>
 </div>
-<div id="dg-output-empty" style="display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 20px;pointer-events:none;">
+<div id="dg-output-empty">
   <div style="width:48px;height:48px;background:white;border:2px solid #4A3E3D;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-size:22px;
     box-shadow:2px 2px 0px #4A3E3D;margin-bottom:12px;">🎨</div>
@@ -1583,10 +1636,10 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
                 show_label=False,
                 elem_id="dg-image-out",
             )
-
-    # ── Goods modal (appears after generation) ────────────────────────────────
-    with gr.Row(visible=False) as goods_link_row:
-        gr.HTML(_GOODS_MODAL_HTML)
+            reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
+            with gr.Row(visible=False) as goods_link_row:
+                gr.HTML(_ACTION_BUTTONS_HTML)
+                gr.HTML(_GOODS_MODAL_HTML)
 
     # ── Bottom tabs ───────────────────────────────────────────────────────────
     with gr.Tabs(elem_id="bottom-tabs"):
@@ -1757,6 +1810,12 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row],
+    )
+
+    reset_btn.click(
+        fn=lambda: (None, "", "", "", "", gr.update(visible=False)),
+        inputs=None,
         outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row],
     )
 
