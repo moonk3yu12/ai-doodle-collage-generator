@@ -1041,14 +1041,12 @@ details, .accordion {
     margin-bottom: 0.5rem !important;
 }
 
-/* Hide Gradio radio groups — replaced by custom HTML buttons */
+/* Gradio radio groups — off-screen but fully rendered so JS can click them */
 #mode-radio-group,
 #quality-radio-group {
-    position: absolute !important;
-    left: -9999px !important;
-    width: 1px !important;
-    height: 1px !important;
-    overflow: hidden !important;
+    position: fixed !important;
+    top: -9999px !important;
+    left: 0 !important;
 }
 """
 
@@ -1188,6 +1186,19 @@ _MODE_BUTTONS_HTML = """
 </div>
 <script>
 (function(){
+  function dgClickRadio(groupId, idx) {
+    var g = document.getElementById(groupId);
+    if (!g) return;
+    var labels = g.querySelectorAll('label');
+    if (labels[idx]) { labels[idx].click(); return; }
+    var inputs = g.querySelectorAll('input[type="radio"]');
+    if (inputs[idx]) {
+      inputs[idx].checked = true;
+      inputs[idx].click();
+      inputs[idx].dispatchEvent(new Event('change', {bubbles:true}));
+      inputs[idx].dispatchEvent(new Event('input', {bubbles:true}));
+    }
+  }
   window.setGenMode = function(btn, idx) {
     document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
       b.style.background = 'white';
@@ -1197,8 +1208,7 @@ _MODE_BUTTONS_HTML = """
     btn.style.background = '#E9D5FF';
     btn.style.boxShadow = '2px 2px 0px #4A3E3D';
     btn.style.transform = 'translate(-1px,-1px)';
-    var radios = document.querySelectorAll('#mode-radio-group input[type="radio"]');
-    if (radios[idx]) radios[idx].click();
+    dgClickRadio('mode-radio-group', idx);
   };
 })();
 </script>
@@ -1228,6 +1238,19 @@ _QUALITY_BUTTONS_HTML = """
 </div>
 <script>
 (function(){
+  function dgClickRadio(groupId, idx) {
+    var g = document.getElementById(groupId);
+    if (!g) return;
+    var labels = g.querySelectorAll('label');
+    if (labels[idx]) { labels[idx].click(); return; }
+    var inputs = g.querySelectorAll('input[type="radio"]');
+    if (inputs[idx]) {
+      inputs[idx].checked = true;
+      inputs[idx].click();
+      inputs[idx].dispatchEvent(new Event('change', {bubbles:true}));
+      inputs[idx].dispatchEvent(new Event('input', {bubbles:true}));
+    }
+  }
   window.setQuality = function(btn, idx) {
     document.querySelectorAll('#quality-tabs button').forEach(function(b) {
       b.style.background = 'transparent';
@@ -1239,8 +1262,7 @@ _QUALITY_BUTTONS_HTML = """
     btn.style.border = '1px solid #4A3E3D';
     btn.style.boxShadow = '1px 1px 0px #4A3E3D';
     btn.style.color = '#4A3E3D';
-    var radios = document.querySelectorAll('#quality-radio-group input[type="radio"]');
-    if (radios[idx]) radios[idx].click();
+    dgClickRadio('quality-radio-group', idx);
   };
 })();
 </script>
