@@ -1257,7 +1257,7 @@ _GOODS_MODAL_HTML = """
 <div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.62);
     backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:8px;">
   <div style="background:#FAF7F2;border:3px solid #4A3E3D;border-radius:20px;
-    box-shadow:5px 5px 0px #C084FC;width:100%;max-width:980px;max-height:94vh;
+    box-shadow:5px 5px 0px #C084FC;width:100%;max-width:1240px;max-height:94vh;
     overflow-y:auto;position:relative;padding:1rem 1.2rem 1.2rem;">
 
     <button onclick="dgCloseModal()" style="position:absolute;top:10px;right:12px;
@@ -1276,26 +1276,26 @@ _GOODS_MODAL_HTML = """
       <div style="display:flex;gap:5px;flex-wrap:wrap;">
         <button id="dg-bt-phone" onclick="dgSetType('phone')"
           style="padding:5px 9px;border-radius:7px;border:2px solid #4A3E3D;background:#E9D5FF;
-          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">📱 폰케이스</button>
+          font-size:12px;font-weight:900;color:#4A3E3D;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">📱 폰케이스</button>
         <button id="dg-bt-griptok" onclick="dgSetType('griptok')"
           style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔘 그립톡</button>
+          font-size:12px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔘 그립톡</button>
         <button id="dg-bt-mug" onclick="dgSetType('mug')"
           style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🥛 머그컵</button>
+          font-size:12px;font-weight:900;color:#4A3E3D;cursor:pointer;">🥛 머그컵</button>
         <button id="dg-bt-keyring" onclick="dgSetType('keyring')"
           style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔑 키링</button>
+          font-size:12px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔑 키링</button>
         <button id="dg-bt-tshirt" onclick="dgSetType('tshirt')"
           style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">👕 티셔츠</button>
+          font-size:12px;font-weight:900;color:#4A3E3D;cursor:pointer;">👕 티셔츠</button>
       </div>
       <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;">
-        <span style="font-size:9.5px;font-weight:700;color:#4A3E3D;">✨ 누끼따기</span>
+        <span style="font-size:12px;font-weight:700;color:#4A3E3D;">✨ 누끼따기</span>
         <div style="position:relative;width:40px;height:20px;flex-shrink:0;">
           <input type="checkbox" id="dg-bg-toggle" onchange="dgToggleBg(this.checked)"
             style="opacity:0;width:0;height:0;position:absolute;">
-          <div id="dg-bg-track" onclick="var cb=document.getElementById('dg-bg-toggle');cb.checked=!cb.checked;dgToggleBg(cb.checked);"
+          <div id="dg-bg-track"
             style="position:absolute;inset:0;background:#D1D5DB;border-radius:20px;border:2px solid #4A3E3D;cursor:pointer;transition:background 0.2s;">
             <div id="dg-bg-knob" style="position:absolute;top:1px;left:1px;width:14px;height:14px;
               background:white;border-radius:50%;transition:transform 0.2s;pointer-events:none;"></div>
@@ -1309,30 +1309,30 @@ _GOODS_MODAL_HTML = """
 
       <!-- Panel 1: Sticker Cropper -->
       <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
-        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">✂️ 스티커 크롭</div>
+        <div style="font-size:13px;font-weight:900;color:#4A3E3D;margin-bottom:8px;">✂️ 스티커 크롭</div>
         <div style="position:relative;width:100%;aspect-ratio:1/1;background:#F8F5F0;
           border-radius:8px;border:1px dashed #8B7E7D;overflow:hidden;">
           <canvas id="dg-crop-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
           <canvas id="dg-crop-sel" style="position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;"></canvas>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;">
-          <button onclick="dgPresetCrop(0,0,1,0.42)" style="padding:4px;border-radius:6px;
-            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">🔝 상단</button>
-          <button onclick="dgPresetCrop(0,0.3,1,0.42)" style="padding:4px;border-radius:6px;
-            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">⬛ 중단</button>
-          <button onclick="dgPresetCrop(0,0.58,1,0.42)" style="padding:4px;border-radius:6px;
-            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">🔽 하단</button>
-          <button onclick="dgPresetCrop(0,0,1,1)" style="padding:4px;border-radius:6px;
-            border:1px solid #4A3E3D;background:#E9D5FF;font-size:9px;font-weight:700;cursor:pointer;">📋 전체</button>
+          <button onclick="dgPresetCrop(0,0,1,0.42)" style="padding:5px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:11px;font-weight:700;cursor:pointer;">🔝 상단</button>
+          <button onclick="dgPresetCrop(0,0.3,1,0.42)" style="padding:5px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:11px;font-weight:700;cursor:pointer;">⬛ 중단</button>
+          <button onclick="dgPresetCrop(0,0.58,1,0.42)" style="padding:5px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:11px;font-weight:700;cursor:pointer;">🔽 하단</button>
+          <button onclick="dgPresetCrop(0,0,1,1)" style="padding:5px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#E9D5FF;font-size:11px;font-weight:700;cursor:pointer;">📋 전체</button>
         </div>
-        <button onclick="dgAddToPocket()" style="width:100%;margin-top:6px;padding:7px;background:#C084FC;
-          color:white;border:2px solid #4A3E3D;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;
+        <button onclick="dgAddToPocket()" style="width:100%;margin-top:6px;padding:8px;background:#C084FC;
+          color:white;border:2px solid #4A3E3D;border-radius:8px;font-size:12px;font-weight:900;cursor:pointer;
           box-shadow:2px 2px 0px #4A3E3D;">+ 보관함에 추가 ♡</button>
       </div>
 
       <!-- Panel 2: Goods Preview Canvas -->
       <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
-        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">🎨 굿즈 프리뷰</div>
+        <div style="font-size:13px;font-weight:900;color:#4A3E3D;margin-bottom:8px;">🎨 굿즈 프리뷰</div>
         <div style="display:flex;justify-content:center;align-items:center;
           background:#F8F5F0;border-radius:8px;border:1px dashed #8B7E7D;
           padding:12px;position:relative;min-height:270px;">
@@ -1340,17 +1340,17 @@ _GOODS_MODAL_HTML = """
           <div id="dg-sticker-ctrl" style="display:none;position:absolute;bottom:4px;left:4px;right:4px;
             background:white;border:1.5px solid #C084FC;border-radius:8px;padding:6px 8px;">
             <div style="display:flex;align-items:center;gap:6px;">
-              <span style="font-size:9px;font-weight:700;color:#4A3E3D;white-space:nowrap;">크기</span>
+              <span style="font-size:11px;font-weight:700;color:#4A3E3D;white-space:nowrap;">크기</span>
               <input type="range" id="dg-st-scale" min="10" max="80" value="30"
                 oninput="dgScaleSticker(this.value)"
                 style="flex:1;accent-color:#C084FC;cursor:pointer;height:4px;">
               <button onclick="dgDeleteSticker()" style="background:#4A3E3D;color:white;border:none;
-                border-radius:4px;padding:2px 7px;font-size:9px;cursor:pointer;white-space:nowrap;">✕ 삭제</button>
+                border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;white-space:nowrap;">✕ 삭제</button>
             </div>
           </div>
         </div>
         <div style="margin-top:8px;">
-          <div style="font-size:9px;font-weight:700;color:#7C6E6D;margin-bottom:4px;">제품 컬러</div>
+          <div style="font-size:11px;font-weight:700;color:#7C6E6D;margin-bottom:5px;">제품 컬러</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
             <button onclick="dgColor('#FDE2E4')" style="width:22px;height:22px;border-radius:50%;background:#FDE2E4;border:2.5px solid #4A3E3D;cursor:pointer;" title="핑크"></button>
             <button onclick="dgColor('#D8F3DC')" style="width:22px;height:22px;border-radius:50%;background:#D8F3DC;border:2px solid #8B7E7D;cursor:pointer;" title="민트"></button>
@@ -1361,27 +1361,27 @@ _GOODS_MODAL_HTML = """
             <button onclick="dgColor('#1E1B1B')" style="width:22px;height:22px;border-radius:50%;background:#1E1B1B;border:2px solid #8B7E7D;cursor:pointer;" title="블랙"></button>
           </div>
         </div>
-        <button onclick="dgExportGoods()" style="width:100%;margin-top:8px;padding:7px;
+        <button onclick="dgExportGoods()" style="width:100%;margin-top:8px;padding:8px;
           background:#2D2727;color:white;border:2px solid #4A3E3D;border-radius:8px;
-          font-size:10px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">⬇ 굿즈 디자인 저장</button>
+          font-size:12px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">⬇ 굿즈 디자인 저장</button>
       </div>
 
       <!-- Panel 3: Sticker Pocket -->
       <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
-        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">🗂 스티커 보관함</div>
+        <div style="font-size:13px;font-weight:900;color:#4A3E3D;margin-bottom:8px;">🗂 스티커 보관함</div>
         <div id="dg-pocket" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;
           min-height:90px;max-height:210px;overflow-y:auto;">
-          <div id="dg-pocket-empty" style="color:#8B7E7D;font-size:9px;font-weight:600;
+          <div id="dg-pocket-empty" style="color:#8B7E7D;font-size:11px;font-weight:600;
             text-align:center;grid-column:1/-1;padding:20px 4px;line-height:1.7;">
             크롭 후 추가하면<br>여기 모여요 ♡</div>
         </div>
         <div style="background:#FEF3C7;border:1px solid #4A3E3D;border-radius:6px;
-          padding:5px 7px;margin-top:6px;font-size:8.5px;color:#4A3E3D;font-weight:600;line-height:1.6;">
+          padding:6px 8px;margin-top:6px;font-size:10.5px;color:#4A3E3D;font-weight:600;line-height:1.6;">
           💡 스티커를 굿즈로<br>드래그해서 배치!<br>클릭 후 이동·크기 조절
         </div>
-        <button onclick="dgClearPocket()" style="width:100%;margin-top:6px;padding:5px;
+        <button onclick="dgClearPocket()" style="width:100%;margin-top:6px;padding:6px;
           background:white;color:#7C6E6D;border:1px solid #8B7E7D;border-radius:6px;
-          font-size:9px;font-weight:700;cursor:pointer;">🗑 보관함 비우기</button>
+          font-size:11px;font-weight:700;cursor:pointer;">🗑 보관함 비우기</button>
       </div>
     </div>
 
