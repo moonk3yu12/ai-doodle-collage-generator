@@ -827,7 +827,8 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
         sheet.save(pathlib.Path("/tmp/.current_goods.png"))
-        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)
+        # goods_link_row=show, empty_state_row=hide, loading_row=hide, image_row=show
+        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), gr.update(visible=False), gr.update(visible=False), gr.update(visible=True)
 
     except gr.Error:
         raise
@@ -886,7 +887,7 @@ div[data-testid="image"] .icon-wrap svg {
     color: #8B7E7D !important;
     fill: #8B7E7D !important;
 }
-#dg-output-empty {
+#dg-output-empty, #dg-loading {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -897,6 +898,16 @@ div[data-testid="image"] .icon-wrap svg {
     border: 2px dashed #8B7E7D;
     border-radius: 12px;
     padding: 40px 20px;
+}
+@keyframes dg-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+#dg-loading .dg-spin {
+    font-size: 40px;
+    animation: dg-bounce 1.2s ease-in-out infinite;
+    display: inline-block;
+    margin-bottom: 14px;
 }
 
 /* Header */
@@ -1623,6 +1634,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
   <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.7;font-weight:600;">
     왼쪽 보드에 원본 사진을 넣고,<br>"낙서 시트 그리기" 버튼을 꼭 눌러주세요.</div>
 </div>""")
+            with gr.Row(visible=False) as loading_row:
+                gr.HTML("""<div id="dg-loading">
+  <div class="dg-spin">✏️</div>
+  <div style="font-weight:800;font-size:15px;color:#7C6E6D;margin-bottom:8px;">AI가 낙서를 그리는 중...</div>
+  <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.9;font-weight:600;">
+    캐릭터 분석 → 프롬프트 빌드 → 이미지 생성<br>약 30~60초 걸려요 ♡ 잠깐만요!</div>
+</div>""")
             with gr.Row(visible=False) as image_row:
                 image_output = gr.Image(
                     type="pil",
@@ -1801,16 +1819,22 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 """)
 
     # ── Button wiring ──────────────────────────────────────────────────────────
+    # Step 1: instant UI switch to loading state (no server queue wait)
+    # Step 2: run pipeline, then switch to image state
     generate_btn.click(
+        fn=lambda: (gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)),
+        inputs=[],
+        outputs=[empty_state_row, loading_row, image_row],
+    ).then(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, image_row],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row, image_row],
     )
 
     reset_btn.click(
-        fn=lambda: (None, "", "", "", "", gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)),
+        fn=lambda: (None, "", "", "", "", gr.update(visible=False), gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)),
         inputs=None,
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, image_row],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row, image_row],
     )
 
     style_ref_btn.click(
