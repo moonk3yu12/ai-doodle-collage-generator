@@ -916,8 +916,7 @@ div[data-testid="image"] .icon-wrap svg {
     transition: all 0.2s ease !important;
 }
 #left-panel:hover, #right-panel:hover {
-    transform: translate(-1px, -1px) !important;
-    box-shadow: 6px 6px 0px 0px #C084FC !important;
+    box-shadow: 7px 7px 0px 0px #C084FC !important;
 }
 
 /* Washi tapes */
@@ -1555,6 +1554,10 @@ document.addEventListener('keydown', function(e) {
 
 with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as demo:
 
+    # Goods modal at DOM root — must NOT be inside any element with CSS transform
+    # (position:fixed breaks when ancestor has transform applied)
+    gr.HTML(_GOODS_MODAL_HTML)
+
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
             "# ✏️ AI Doodle Character Sheet 🎨✨\n"
@@ -1646,7 +1649,6 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
                 gr.HTML(_ACTION_BUTTONS_HTML)
-                gr.HTML(_GOODS_MODAL_HTML)
 
     # ── Bottom tabs ───────────────────────────────────────────────────────────
     with gr.Tabs(elem_id="bottom-tabs"):
