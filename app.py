@@ -1521,24 +1521,15 @@ function dgResetImage() {
   if (btn) btn.click();
 }
 
-// Hide/show output empty state when image loads
-(function watchOutputImage() {
-  function check() {
-    var overlay = document.getElementById('dg-output-empty');
-    if (!overlay) return;
-    var img = document.querySelector('#dg-image-out img') ||
-              document.querySelector('#right-panel div[data-testid="image"] img');
-    overlay.classList.toggle('hidden', !!(img && img.src && img.src !== window.location.href));
-  }
-  var observer = new MutationObserver(check);
-  function init() {
-    var target = document.querySelector('#dg-image-out div[data-testid="image"]') ||
-                 document.querySelector('#right-panel div[data-testid="image"]');
-    if (target) { observer.observe(target, {childList:true,subtree:true,attributes:true}); check(); }
-    else setTimeout(init, 800);
-  }
-  setTimeout(init, 1500);
-})();
+// Poll every 300ms to show/hide empty state based on whether image has loaded
+setInterval(function() {
+  var overlay = document.getElementById('dg-output-empty');
+  if (!overlay) return;
+  var img = document.querySelector('#dg-image-out img') ||
+            document.querySelector('#right-panel div[data-testid="image"] img');
+  var hasImage = !!(img && img.naturalWidth > 0);
+  overlay.classList.toggle('hidden', hasImage);
+}, 300);
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') dgCloseModal();
