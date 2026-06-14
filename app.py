@@ -849,201 +849,173 @@ CSS = """
 body, .gradio-container, .gradio-container * {
     font-family: 'Noto Sans KR', 'Nunito', sans-serif !important;
     box-sizing: border-box;
-    color: #4A3E3D;
+    color: #3D3352;
 }
 body, .gradio-container {
-    background-color: #FAF7F2 !important;
-    background-image: none !important;
+    background: linear-gradient(135deg, #FFF5F8 0%, #F3F0FF 55%, #FFFBF0 100%) !important;
     min-height: 100vh;
-}
-
-/* Ambient watercolor blobs */
-body::before {
-    content: '';
-    position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 45vw;
-    height: 45vw;
-    background: radial-gradient(circle, rgba(244,143,177,0.18) 0%, transparent 70%);
-    z-index: -1;
-    pointer-events: none;
-}
-body::after {
-    content: '';
-    position: fixed;
-    bottom: -10%;
-    right: -10%;
-    width: 50vw;
-    height: 50vw;
-    background: radial-gradient(circle, rgba(192,132,252,0.14) 0%, transparent 70%);
-    z-index: -1;
-    pointer-events: none;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #F8F5F0; }
-::-webkit-scrollbar-thumb { background: #C084FC; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #F3F0FF; }
+::-webkit-scrollbar-thumb { background: #C4B5FD; border-radius: 4px; }
 
-.block, .form, .wrap, .panel,
-.gradio-container .block,
-section.block, div.block,
-.gradio-container .wrap {
-    background: white !important;
-    border-color: #4A3E3D !important;
-}
-.image-container, .upload-container,
-div[data-testid="image"],
-div[data-testid="image"] > div,
-.svelte-p3y7hu, .empty {
-    background: #FDFBF7 !important;
-    border-color: #8B7E7D !important;
-}
-.upload-container, .upload-button,
-.wrap.svelte-i3tvor {
-    border: 2px dashed #8B7E7D !important;
+/* Upload / image area */
+.upload-container, .upload-button, .wrap.svelte-i3tvor {
+    border: 2px dashed #C4B5FD !important;
     border-radius: 16px !important;
-    background: #FDFBF7 !important;
+    background: #FAFBFF !important;
+}
+div[data-testid="image"], div[data-testid="image"] > div {
+    background: #FAFBFF !important;
+    border-color: #E2D9F3 !important;
 }
 
 /* Header */
 #app-header {
     text-align: center;
-    padding: 2rem 0 0.5rem;
+    padding: 1.5rem 0 0.25rem;
 }
 #app-header h1 {
     font-family: 'Gaegu', 'Fredoka', cursive !important;
-    font-size: 2.6rem;
+    font-size: 2.4rem;
     font-weight: 800;
-    color: #4A3E3D !important;
-    -webkit-text-fill-color: #4A3E3D !important;
-    margin-bottom: 0.4rem;
-    letter-spacing: -0.5px;
+    color: #5B21B6 !important;
+    -webkit-text-fill-color: #5B21B6 !important;
+    margin-bottom: 0.3rem;
 }
-#app-header p { color: #7C6E6D !important; font-size: 1rem; font-weight: 600; }
+#app-header p { color: #7C6E8A !important; font-size: 0.9rem; font-weight: 600; }
 
-/* Sketch-card panels */
+/* Panels */
 #left-panel, #right-panel {
     background: white !important;
-    border: 3px solid #4A3E3D !important;
+    border: 2px solid #E2D9F3 !important;
     border-radius: 20px !important;
-    box-shadow: 5px 5px 0px 0px #C084FC !important;
+    box-shadow: 0 4px 24px rgba(139,92,246,0.10) !important;
     padding: 1.4rem !important;
-    transition: all 0.2s ease !important;
+    transition: box-shadow 0.2s, transform 0.2s !important;
 }
 #left-panel:hover, #right-panel:hover {
-    transform: translate(-1px, -1px) !important;
-    box-shadow: 6px 6px 0px 0px #C084FC !important;
+    box-shadow: 0 8px 32px rgba(139,92,246,0.16) !important;
+    transform: translateY(-1px) !important;
 }
 
-/* Generate button — sketch push style */
+/* Generate button */
 #generate-btn {
-    background: #E9D5FF !important;
-    color: #4A3E3D !important;
-    border: 2px solid #4A3E3D !important;
+    background: linear-gradient(135deg, #DDD6FE 0%, #FBCFE8 100%) !important;
+    color: #4C1D95 !important;
+    border: none !important;
     font-size: 1rem !important;
     font-weight: 900 !important;
     border-radius: 14px !important;
-    padding: 0.75rem 1.5rem !important;
+    padding: 0.85rem !important;
     width: 100% !important;
-    box-shadow: 3px 3px 0px 0px #4A3E3D !important;
+    box-shadow: 0 4px 16px rgba(139,92,246,0.25) !important;
     transition: all 0.2s ease !important;
+    letter-spacing: 0.3px !important;
 }
 #generate-btn:hover {
-    background: #D8B4FE !important;
-    transform: translate(-1px, -1px) !important;
-    box-shadow: 4px 4px 0px 0px #4A3E3D !important;
+    background: linear-gradient(135deg, #C4B5FD 0%, #F9A8D4 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(139,92,246,0.35) !important;
     opacity: 1 !important;
-}
-#generate-btn:active {
-    transform: translate(2px, 2px) !important;
-    box-shadow: 1px 1px 0px 0px #4A3E3D !important;
 }
 
 /* Style ref button */
 #style-ref-btn {
-    border: 2px solid #4A3E3D !important;
-    color: #4A3E3D !important;
+    border: 1.5px solid #DDD6FE !important;
+    color: #6D28D9 !important;
     border-radius: 10px !important;
     font-weight: 700 !important;
-    box-shadow: 2px 2px 0px #4A3E3D !important;
     background: white !important;
 }
 
 /* Tip box */
 .tip-box {
-    background: #F7F4EF !important;
-    border: 2px solid #4A3E3D !important;
+    background: linear-gradient(135deg, #FFF5F8, #F3F0FF) !important;
+    border: 1.5px solid #E2D9F3 !important;
     border-radius: 12px !important;
-    padding: 0.75rem 1rem !important;
-    font-size: 0.88rem !important;
-    font-weight: 700 !important;
-    color: #4A3E3D !important;
-    box-shadow: 2px 2px 0px #4A3E3D !important;
+    padding: 0.7rem 1rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #5B21B6 !important;
 }
-.tip-box p, .tip-box strong, .tip-box * { color: #4A3E3D !important; }
+.tip-box p, .tip-box strong, .tip-box * { color: #5B21B6 !important; }
 
-/* Step boxes — sketch-card with purple shadow */
+/* Step boxes */
 .step-box {
     background: white !important;
-    border: 2px solid #4A3E3D !important;
+    border: 1.5px solid #E2D9F3 !important;
     border-radius: 16px !important;
     padding: 1.2rem !important;
     text-align: center !important;
-    box-shadow: 3px 3px 0px #C084FC !important;
-    transition: transform 0.2s, box-shadow 0.2s !important;
-    color: #4A3E3D !important;
+    box-shadow: 0 2px 12px rgba(139,92,246,0.08) !important;
+    transition: box-shadow 0.2s, transform 0.2s !important;
+    color: #3D3352 !important;
 }
-.step-box p, .step-box strong, .step-box * { color: #4A3E3D !important; }
+.step-box p, .step-box strong, .step-box * { color: #3D3352 !important; }
 .step-box:hover {
-    transform: translate(-1px, -1px) !important;
-    box-shadow: 4px 4px 0px #C084FC !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(139,92,246,0.14) !important;
 }
 
 /* Headings */
 .gradio-container h3, .gradio-container h2 {
     font-family: 'Gaegu', 'Fredoka', cursive !important;
-    color: #4A3E3D !important;
+    color: #5B21B6 !important;
     font-weight: 800 !important;
 }
-details summary, details summary span,
-.accordion-header, .label-wrap span {
-    color: #4A3E3D !important;
+details summary, details summary span, .accordion-header, .label-wrap span {
+    color: #5B21B6 !important;
     font-weight: 700 !important;
 }
-.gradio-container p, .gradio-container .prose p { color: #4A3E3D !important; }
+.gradio-container p, .gradio-container .prose p { color: #3D3352 !important; }
 
 /* HR */
-hr {
-    border: none !important;
-    border-top: 2px dashed #8B7E7D !important;
-    margin: 1rem 0 !important;
-}
+hr { border: none !important; border-top: 2px dashed #E2D9F3 !important; margin: 1rem 0 !important; }
 
 /* Text inputs */
 textarea, input[type="text"] {
     border-radius: 10px !important;
-    border: 2px solid #8B7E7D !important;
-    background: #FDFBF7 !important;
+    border: 1.5px solid #E2D9F3 !important;
+    background: white !important;
     font-family: 'Noto Sans KR', sans-serif !important;
     font-size: 0.9rem !important;
-    color: #4A3E3D !important;
+    color: #3D3352 !important;
 }
 
-/* Accordion panels — sketch-card style */
+/* Accordion panels */
 details, .accordion {
-    border-radius: 16px !important;
-    border: 2px solid #4A3E3D !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #E2D9F3 !important;
     background: white !important;
     overflow: hidden !important;
-    box-shadow: 3px 3px 0px #C084FC !important;
+    box-shadow: 0 2px 10px rgba(139,92,246,0.06) !important;
     margin-bottom: 0.5rem !important;
 }
 
-/* Gradio radio groups — off-screen but fully rendered so JS can click them */
-#mode-radio-group,
-#quality-radio-group {
+/* Tabs */
+.tabs .tab-nav {
+    border-bottom: 2px solid #E2D9F3 !important;
+    background: transparent !important;
+    gap: 4px !important;
+}
+.tabs .tab-nav button {
+    font-weight: 700 !important;
+    font-family: 'Noto Sans KR', sans-serif !important;
+    border-radius: 10px 10px 0 0 !important;
+    color: #7C6E8A !important;
+    font-size: 0.88rem !important;
+}
+.tabs .tab-nav button.selected {
+    color: #5B21B6 !important;
+    border-bottom: 3px solid #8B5CF6 !important;
+    background: #F5F3FF !important;
+}
+
+/* Radio groups — hidden off-screen but in DOM so JS can click them */
+#mode-radio-group, #quality-radio-group {
     position: fixed !important;
     top: -9999px !important;
     left: 0 !important;
@@ -1054,7 +1026,7 @@ details, .accordion {
 _HELP_HTML = """
 <div class="dg-help-wrap" id="dg-help-wrap">
   <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁"
-    onclick="event.stopPropagation(); document.getElementById('dg-help-pop').classList.toggle('open');">ⓘ</button>
+    onclick="event.stopPropagation(); document.getElementById('dg-help-pop').classList.toggle('open');">✨</button>
   <div class="dg-help-pop" id="dg-help-pop">
     <div class="dg-help-title">💡 생성 팁</div>
     <ul class="dg-help-list">
@@ -1074,26 +1046,24 @@ _HELP_HTML = """
   margin-bottom: 6px;
 }
 .dg-help-icon {
-  background: #E9D5FF;
-  border: 2px solid #4A3E3D;
+  background: #FEF08A;
+  border: 1.5px solid #EAB308;
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 13px;
-  color: #4A3E3D;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 2px 2px 0px #4A3E3D;
+  box-shadow: 0 2px 8px rgba(234,179,8,0.3);
   transition: transform 0.15s, box-shadow 0.15s;
-  font-weight: 700;
   padding: 0;
   line-height: 1;
 }
 .dg-help-icon:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px #4A3E3D;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(234,179,8,0.45);
 }
 .dg-help-pop {
   display: none;
@@ -1101,31 +1071,31 @@ _HELP_HTML = """
   bottom: calc(100% + 8px);
   right: 0;
   width: 255px;
-  background: #FAF7F2;
-  border: 2px solid #4A3E3D;
+  background: white;
+  border: 1.5px solid #E2D9F3;
   border-radius: 16px;
   padding: 14px 16px;
-  box-shadow: 4px 4px 0px #C084FC;
+  box-shadow: 0 8px 24px rgba(139,92,246,0.15);
   z-index: 9999;
 }
 .dg-help-wrap:hover .dg-help-pop,
 .dg-help-pop.open { display: block; }
 .dg-help-title {
   font-weight: 800;
-  color: #4A3E3D !important;
+  color: #5B21B6 !important;
   font-size: 0.88rem;
   margin-bottom: 8px;
 }
 .dg-help-list {
   margin: 0;
   padding-left: 16px;
-  color: #4A3E3D !important;
+  color: #3D3352 !important;
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.65;
 }
 .dg-help-list li {
-  color: #4A3E3D !important;
+  color: #3D3352 !important;
 }
 </style>
 """
@@ -1133,64 +1103,59 @@ _HELP_HTML = """
 _MODE_BUTTONS_HTML = """
 <div style="margin-top:8px;">
   <div style="margin-bottom:6px;">
-    <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
-      font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;
-      box-shadow:2px 2px 0px #4A3E3D;">2단계: 드로잉 레이아웃 콘셉트</span>
+    <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:10px;
+      font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;">
+      2단계: 드로잉 레이아웃 콘셉트</span>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="gen-mode-grid">
-    <button type="button" onclick="setGenMode(this,0)"
-      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:#E9D5FF;
-      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;gap:4px;
-      box-shadow:2px 2px 0px #4A3E3D;transform:translate(-1px,-1px);transition:all 0.15s;">
-      🌸 풀 캐릭터 시트</button>
-    <button type="button" onclick="setGenMode(this,1)"
-      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
-      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;gap:4px;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
-      🖼️ 포트레이트 낙서</button>
-    <button type="button" onclick="setGenMode(this,2)"
-      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
-      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;gap:4px;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
-      🧜‍♀️ 상반신 캐릭터</button>
-    <button type="button" onclick="setGenMode(this,3)"
-      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
-      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;gap:4px;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
-      🍀 치비 스티커</button>
-    <button type="button" onclick="setGenMode(this,4)"
-      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
-      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
-      align-items:center;justify-content:center;gap:4px;grid-column:span 2;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
-      ✨ 심플 클린 포트레이트</button>
+  <div id="gen-mode-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+      <button type="button" onclick="setGenMode(this,0)"
+        style="padding:8px 4px;border-radius:10px;border:1.5px solid #C4B5FD;background:#EDE9FE;
+        color:#4C1D95;font-weight:700;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:0 2px 8px rgba(139,92,246,0.2);transform:translateY(-1px);transition:all 0.15s;">
+        🌸 풀 캐릭터 시트</button>
+      <button type="button" onclick="setGenMode(this,1)"
+        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
+        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        🖼️ 포트레이트 낙서</button>
+      <button type="button" onclick="setGenMode(this,2)"
+        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
+        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        🧜‍♀️ 상반신 캐릭터</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
+      <button type="button" onclick="setGenMode(this,3)"
+        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
+        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        🍀 치비 스티커</button>
+      <button type="button" onclick="setGenMode(this,4)"
+        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
+        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        ✨ 심플 클린 포트레이트</button>
+    </div>
   </div>
 </div>
 """
 
 _QUALITY_BUTTONS_HTML = """
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-  <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
-    font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;
-    box-shadow:2px 2px 0px #4A3E3D;">3단계: 드로잉 퀄리티</span>
-  <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
-    border:2px solid #4A3E3D;" id="quality-tabs">
+  <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:10px;
+    font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;">
+    3단계: 드로잉 퀄리티</span>
+  <div style="display:flex;gap:2px;background:#F3F0FF;padding:3px;border-radius:10px;
+    border:1.5px solid #E2D9F3;" id="quality-tabs">
     <button type="button" onclick="setQuality(this,0)"
-      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
-      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:7px;border:none;background:transparent;
+      font-size:10px;font-weight:800;color:#9CA3AF;cursor:pointer;transition:all 0.15s;">
       Low</button>
     <button type="button" onclick="setQuality(this,1)"
-      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
-      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:7px;border:none;background:transparent;
+      font-size:10px;font-weight:800;color:#9CA3AF;cursor:pointer;transition:all 0.15s;">
       Medium</button>
     <button type="button" onclick="setQuality(this,2)"
-      style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
-      font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:7px;border:1.5px solid #DDD6FE;background:white;
+      font-size:10px;font-weight:800;color:#4C1D95;cursor:pointer;
+      box-shadow:0 1px 4px rgba(139,92,246,0.15);transition:all 0.15s;">
       High</button>
   </div>
 </div>
@@ -1370,12 +1335,16 @@ function dgClickRadio(groupId, idx) {
 function setGenMode(btn, idx) {
   document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
     b.style.background = 'white';
-    b.style.boxShadow = '1px 1px 0px #4A3E3D';
+    b.style.border = '1.5px solid #E5E7EB';
+    b.style.color = '#6B7280';
+    b.style.boxShadow = 'none';
     b.style.transform = 'none';
   });
-  btn.style.background = '#E9D5FF';
-  btn.style.boxShadow = '2px 2px 0px #4A3E3D';
-  btn.style.transform = 'translate(-1px,-1px)';
+  btn.style.background = '#EDE9FE';
+  btn.style.border = '1.5px solid #C4B5FD';
+  btn.style.color = '#4C1D95';
+  btn.style.boxShadow = '0 2px 8px rgba(139,92,246,0.2)';
+  btn.style.transform = 'translateY(-1px)';
   dgClickRadio('mode-radio-group', idx);
 }
 
@@ -1384,12 +1353,12 @@ function setQuality(btn, idx) {
     b.style.background = 'transparent';
     b.style.border = 'none';
     b.style.boxShadow = 'none';
-    b.style.color = '#7C6E6D';
+    b.style.color = '#9CA3AF';
   });
   btn.style.background = 'white';
-  btn.style.border = '1px solid #4A3E3D';
-  btn.style.boxShadow = '1px 1px 0px #4A3E3D';
-  btn.style.color = '#4A3E3D';
+  btn.style.border = '1.5px solid #DDD6FE';
+  btn.style.boxShadow = '0 1px 4px rgba(139,92,246,0.15)';
+  btn.style.color = '#4C1D95';
   dgClickRadio('quality-radio-group', idx);
 }
 
@@ -1472,8 +1441,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
-            "# ✨ AI Doodle Character Sheet ✨\n"
-            "ʕ •ᴥ•ʔ 캐릭터 사진을 올리면 → 귀여운 낙서 콜라주로 만들어드려요 ♡"
+            "# ✏️ AI Doodle Character Sheet 🎨✨\n"
+            "캐릭터 사진 한 장으로 완성하는 고품질 손그림 다이어리 콜라주 ♡"
         )
 
     gr.Markdown("---")
@@ -1481,7 +1450,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     with gr.Row(equal_height=False):
 
         with gr.Column(scale=1, elem_id="left-panel"):
-            gr.Markdown("### 📸 사진 올리기")
+            gr.HTML("""<div style="margin-bottom:12px;">
+  <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:12px;
+    font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
+    ✏️ 작업 지시서 작성</span>
+</div>
+<p style="font-size:10px;color:#9CA3AF;font-weight:600;margin:0 0 4px;">
+  1단계: 스케치 원본 올리기</p>""")
             image_input = gr.Image(
                 type="pil",
                 label="캐릭터 또는 인물 사진",
@@ -1515,7 +1490,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             gr.HTML(_QUALITY_BUTTONS_HTML)
             gr.HTML(_HELP_HTML)
             generate_btn = gr.Button(
-                "✨  낙서 시트 만들기  ♡",
+                "✨  낙서 시트 그리기  ♡",
                 variant="primary",
                 elem_id="generate-btn",
             )
@@ -1526,10 +1501,14 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             )
 
         with gr.Column(scale=1, elem_id="right-panel"):
-            gr.Markdown("### 🎨 완성된 낙서 시트 ♡")
+            gr.HTML("""<div style="margin-bottom:12px;">
+  <span style="background:#EDE9FE;border:1.5px solid #DDD6FE;color:#5B21B6;font-size:12px;
+    font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
+    🎨 완성된 낙서 스케치북</span>
+</div>""")
             image_output = gr.Image(
                 type="pil",
-                label="생성된 캐릭터 시트",
+                label="AI Output Canvas",
                 height=500,
             )
 
@@ -1537,77 +1516,77 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     with gr.Row(visible=False) as goods_link_row:
         gr.HTML(_GOODS_MODAL_HTML)
 
-    # ── Style Reference panel ──────────────────────────────────────────────────
-    with gr.Accordion("🎨 Style Reference (스타일 레퍼런스)", open=False):
-        gr.Markdown(
-            "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
-            "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
-            "**사용법:** `styles/sample01.png` ~ `styles/sample10.png` 형식으로 넣기"
-        )
-        with gr.Row():
-            style_ref_btn = gr.Button(
-                "🖼️ styles/ 폴더에서 Style Reference 생성",
-                variant="secondary",
-                elem_id="style-ref-btn",
+    # ── Bottom tabs ───────────────────────────────────────────────────────────
+    with gr.Tabs(elem_id="bottom-tabs"):
+
+        with gr.Tab("🎀 낙서 스타일 장착실"):
+            gr.Markdown(
+                "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
+                "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
+                "**사용법:** `styles/sample01.png` ~ `styles/sample10.png` 형식으로 넣기"
             )
-            style_ref_status = gr.Textbox(
-                label="상태",
+            with gr.Row():
+                style_ref_btn = gr.Button(
+                    "🖼️ styles/ 폴더에서 Style Reference 생성",
+                    variant="secondary",
+                    elem_id="style-ref-btn",
+                )
+                style_ref_status = gr.Textbox(
+                    label="상태",
+                    interactive=False,
+                    lines=1,
+                    placeholder="버튼을 눌러 style_reference.txt를 생성하세요",
+                    value=f"✅ style_reference.txt 로드됨 ({len(_style_cache)} chars)" if _style_cache else "⚠️ style_reference.txt 없음",
+                )
+            style_ref_content = gr.Textbox(
+                label="현재 Style Reference 내용",
+                value=_style_cache if _style_cache else "(비어있음 — 생성 버튼을 눌러주세요)",
+                lines=12,
                 interactive=False,
-                lines=1,
-                placeholder="버튼을 눌러 style_reference.txt를 생성하세요",
-                value=f"✅ style_reference.txt 로드됨 ({len(_style_cache)} chars)" if _style_cache else "⚠️ style_reference.txt 없음",
             )
-        style_ref_content = gr.Textbox(
-            label="현재 Style Reference 내용",
-            value=_style_cache if _style_cache else "(비어있음 — 생성 버튼을 눌러주세요)",
-            lines=12,
-            interactive=False,
-        )
 
-    # ── Gallery panel ─────────────────────────────────────────────────────────
-    with gr.Accordion("🖼️ 전시관 Gallery", open=False):
-        gr.Markdown(
-            f"test/ 폴더에서 {len(_gallery_images)}장을 불러왔어요 ♡",
-            elem_classes="tip-box",
-        )
-        gr.Gallery(
-            value=_gallery_images,
-            label="",
-            columns=3,
-            height=600,
-            object_fit="contain",
-            show_label=False,
-        )
+        with gr.Tab("🖼️ 낙서 전시관"):
+            gr.Markdown(
+                f"test/ 폴더에서 {len(_gallery_images)}장을 불러왔어요 ♡",
+                elem_classes="tip-box",
+            )
+            gr.Gallery(
+                value=_gallery_images,
+                label="",
+                columns=3,
+                height=600,
+                object_fit="contain",
+                show_label=False,
+            )
 
-    # ── Analysis, Prompt & Token Usage panel ──────────────────────────────────
-    with gr.Accordion("📋 Analysis, Prompt & Token Usage", open=False):
-        style_ref_out = gr.Textbox(
-            label="🎨 삽입된 Style Reference",
-            lines=5,
-            interactive=False,
-            placeholder="생성 후 여기에 실제 삽입된 style reference가 표시됩니다…",
-        )
-        with gr.Row():
-            analysis_out = gr.Textbox(
-                label="🔍 Character Analysis (GPT-4o Vision)",
+        with gr.Tab("⚙️ 백엔드 설계실"):
+            style_ref_out = gr.Textbox(
+                label="🎨 삽입된 Style Reference",
+                lines=5,
+                interactive=False,
+                placeholder="생성 후 여기에 실제 삽입된 style reference가 표시됩니다…",
+            )
+            with gr.Row():
+                analysis_out = gr.Textbox(
+                    label="🔍 Character Analysis (GPT-4o Vision)",
+                    lines=7,
+                    interactive=False,
+                    placeholder="Analysis will appear here after generation…",
+                )
+                prompt_out = gr.Textbox(
+                    label="✍️ Image Generation Prompt (gpt-image-1)",
+                    lines=7,
+                    interactive=False,
+                    placeholder="Generated prompt will appear here…",
+                )
+            token_out = gr.Textbox(
+                label="📊 Token Usage",
                 lines=7,
                 interactive=False,
-                placeholder="Analysis will appear here after generation…",
+                placeholder="Token usage will appear here after generation…",
             )
-            prompt_out = gr.Textbox(
-                label="✍️ Image Generation Prompt (gpt-image-1)",
-                lines=7,
-                interactive=False,
-                placeholder="Generated prompt will appear here…",
-            )
-        token_out = gr.Textbox(
-            label="📊 Token Usage",
-            lines=7,
-            interactive=False,
-            placeholder="Token usage will appear here after generation…",
-        )
 
-    gr.Markdown("---\n### ✨ 어떻게 만들어지나요?")
+    gr.Markdown("---\n### ✨ 어떻게 그려지나요?")
     with gr.Row():
         gr.Markdown(
             "**1단계 · 분석 🔍**  \nGPT-4o가 사진에서 머리카락, 눈, 의상, "
@@ -1627,7 +1606,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
     gr.Markdown(
         "---\n"
-        "<p style='text-align:center; color:#7C6E6D; font-size:0.85rem; font-weight:700;'>"
+        "<p style='text-align:center; color:#9CA3AF; font-size:0.85rem; font-weight:600;'>"
         "Made with ♡ using Gradio · OpenAI GPT-4o · gpt-image-1 · Hugging Face Spaces"
         "</p>"
     )
