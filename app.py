@@ -1059,6 +1059,21 @@ details, .accordion {
     position: fixed !important; top: -9999px !important; left: 0 !important;
 }
 
+/* Hide output image toolbar buttons (fullscreen, download, share icons) */
+#dg-image-out button,
+#dg-image-out .icon-button,
+#dg-image-out .icon-wrap,
+#dg-image-out .toolbar,
+#dg-image-out .overlay-icons,
+#dg-image-out [class*="toolbar"] {
+    display: none !important;
+}
+/* Hide input image label */
+#left-panel div[data-testid="image"] .label-wrap,
+#left-panel div[data-testid="image"] .block-label {
+    display: none !important;
+}
+
 /* Empty state — absolute overlay on top of image output */
 #dg-output-empty {
     position: absolute !important;
@@ -1563,7 +1578,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
   1단계: 스케치 원본 올리기</span>""")
             image_input = gr.Image(
                 type="pil",
-                label="캐릭터 또는 인물 사진",
+                label="",
+                show_label=False,
                 height=280,
             )
             mode_selector = gr.Radio(
