@@ -826,9 +826,11 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
 
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
+        import time as _time
         sheet.save(pathlib.Path("/tmp/.current_goods.png"))
+        img_html = f'<img src="/current-image?t={int(_time.time())}" alt="generated doodle" />'
         return (
-            sheet, analysis, prompt, token_summary, style_ref_display,
+            img_html, analysis, prompt, token_summary, style_ref_display,
             gr.update(visible=True),   # goods_link_row
             gr.update(visible=False),  # empty_state_row
             gr.update(visible=False),  # loading_row
@@ -1079,18 +1081,15 @@ details, .accordion {
     position: fixed !important; top: -9999px !important; left: 0 !important;
 }
 
-/* Hide image output until JS detects a real image src */
-#dg-image-out:not(.dg-loaded) {
-    display: none;
-}
-/* Hide output image toolbar buttons (fullscreen, download, share icons) */
-#dg-image-out button,
-#dg-image-out .icon-button,
-#dg-image-out .icon-wrap,
-#dg-image-out .toolbar,
-#dg-image-out .overlay-icons,
-#dg-image-out [class*="toolbar"] {
-    display: none !important;
+/* Custom image display (replaces gr.Image) */
+#dg-image-display img {
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 2px dashed #8B7E7D;
+    display: block;
 }
 /* Hide input image label */
 #left-panel div[data-testid="image"] .label-wrap,
@@ -1121,9 +1120,7 @@ details, .accordion {
 .gradio-container [data-testid="image"] *,
 .gradio-container [data-testid="image"] > div,
 .gradio-container [data-testid="image"] .wrap,
-.gradio-container [data-testid="image"] .empty,
-#dg-image-out,
-#dg-image-out * {
+.gradio-container [data-testid="image"] .empty {
     background: white !important;
     background-color: white !important;
 }
@@ -1526,9 +1523,7 @@ function toggleStyleRef() {
 }
 
 function dgSaveImage() {
-  var img = document.querySelector('#dg-image-out img');
-  if (!img || !img.src) return;
-  fetch(img.src)
+  fetch('/current-image')
     .then(function(r) { return r.blob(); })
     .then(function(blob) {
       var url = URL.createObjectURL(blob);
@@ -1550,15 +1545,6 @@ function dgResetImage() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') dgCloseModal();
 });
-
-// Show/hide image output based on whether a real image src is present
-setInterval(function() {
-  var c = document.getElementById('dg-image-out');
-  if (!c) return;
-  var img = c.querySelector('img');
-  var hasSrc = !!(img && img.getAttribute('src') && img.getAttribute('src').length > 10);
-  c.classList.toggle('dg-loaded', hasSrc);
-}, 300);
 """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
@@ -1658,14 +1644,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
   <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.9;font-weight:600;">
     캐릭터 분석 → 프롬프트 빌드 → 이미지 생성<br>약 30~60초 걸려요 ♡ 잠깐만요!</div>
 </div>""")
-            image_output = gr.Image(
-                type="pil",
-                label="",
-                height=400,
-                show_label=False,
-                elem_id="dg-image-out",
-                interactive=False,
-            )
+            image_display = gr.HTML("", elem_id="dg-image-display")
             reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
                 gr.HTML(_ACTION_BUTTONS_HTML)
@@ -1845,18 +1824,18 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     ).then(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row],
+        outputs=[image_display, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row],
     )
 
     reset_btn.click(
         fn=lambda: (
-            None, "", "", "", "",
+            "", "", "", "", "",
             gr.update(visible=False),  # goods_link_row
             gr.update(visible=True),   # empty_state_row
             gr.update(visible=False),  # loading_row
         ),
         inputs=None,
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row],
+        outputs=[image_display, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row],
     )
 
     style_ref_btn.click(
