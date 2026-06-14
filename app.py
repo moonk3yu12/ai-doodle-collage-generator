@@ -1041,15 +1041,56 @@ details, .accordion {
     margin-bottom: 0.5rem !important;
 }
 
-/* Radio / label text */
-input[type="radio"] + span, .wrap label span {
-    font-weight: 600 !important;
-    color: #4A3E3D !important;
+/* ── Radio buttons → sketch-style toggle buttons ─────────────────────────── */
+
+/* Hide raw radio circle */
+input[type="radio"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: absolute !important;
 }
-label span, .block > label > span {
+
+/* Any label wrapping a radio → sketch button */
+label:has(input[type="radio"]) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 6px 14px !important;
+    border: 2px solid #4A3E3D !important;
+    border-radius: 8px !important;
+    background: white !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    box-shadow: 1px 1px 0px #4A3E3D !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    color: #4A3E3D !important;
+    margin: 2px !important;
+}
+
+/* Selected → purple active state */
+label:has(input[type="radio"]:checked) {
+    background: #E9D5FF !important;
+    box-shadow: 2px 2px 0px #4A3E3D !important;
+    transform: translate(-1px, -1px) !important;
+}
+
+/* Hover on non-selected */
+label:has(input[type="radio"]:not(:checked)):hover {
+    background: #FAF0FF !important;
+}
+
+/* Span text inside radio labels */
+label:has(input[type="radio"]) span {
     color: #4A3E3D !important;
     font-weight: 700 !important;
-    font-size: 0.9rem !important;
+    font-size: 0.82rem !important;
 }
 """
 
