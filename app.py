@@ -1014,6 +1014,35 @@ details, .accordion {
     background: #F5F3FF !important;
 }
 
+/* Panel tape marks at top */
+#left-panel, #right-panel { position: relative !important; overflow: visible !important; }
+#left-panel::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-1.5deg);
+    width: 90px;
+    height: 16px;
+    background: rgba(244,114,182,0.55);
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 5;
+}
+#right-panel::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(1.5deg);
+    width: 90px;
+    height: 16px;
+    background: rgba(250,204,21,0.65);
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 5;
+}
+
 /* Radio groups — hidden off-screen but in DOM so JS can click them */
 #mode-radio-group, #quality-radio-group {
     position: fixed !important;
@@ -1103,8 +1132,8 @@ _HELP_HTML = """
 _MODE_BUTTONS_HTML = """
 <div style="margin-top:8px;">
   <div style="margin-bottom:6px;">
-    <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:10px;
-      font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;">
+    <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
+      font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;">
       2단계: 드로잉 레이아웃 콘셉트</span>
   </div>
   <div id="gen-mode-grid">
@@ -1139,8 +1168,8 @@ _MODE_BUTTONS_HTML = """
 
 _QUALITY_BUTTONS_HTML = """
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-  <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:10px;
-    font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;">
+  <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
+    font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;">
     3단계: 드로잉 퀄리티</span>
   <div style="display:flex;gap:2px;background:#F3F0FF;padding:3px;border-radius:10px;
     border:1.5px solid #E2D9F3;" id="quality-tabs">
@@ -1455,8 +1484,9 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
     ✏️ 작업 지시서 작성</span>
 </div>
-<p style="font-size:10px;color:#9CA3AF;font-weight:600;margin:0 0 4px;">
-  1단계: 스케치 원본 올리기</p>""")
+<span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
+  font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;">
+  1단계: 스케치 원본 올리기</span>""")
             image_input = gr.Image(
                 type="pil",
                 label="캐릭터 또는 인물 사진",
@@ -1520,6 +1550,34 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     with gr.Tabs(elem_id="bottom-tabs"):
 
         with gr.Tab("🎀 낙서 스타일 장착실"):
+            gr.HTML("""
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 0 8px;">
+  <div style="background:#FECDD3;border-radius:14px;padding:14px 12px;border:1.5px solid #FDA4AF;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+    <div style="font-size:28px;text-align:center;margin-bottom:6px;">🎨</div>
+    <div style="font-weight:900;font-size:11px;color:#9F1239;margin-bottom:2px;">Watercolor</div>
+    <div style="font-weight:800;font-size:12px;color:#BE123C;margin-bottom:6px;">파스텔 수채화</div>
+    <div style="font-size:10px;color:#9F1239;line-height:1.55;">밝고 가벼운 수채재연한 정감과 포실포실한 파스텔 감성</div>
+  </div>
+  <div style="background:#FEF3C7;border-radius:14px;padding:14px 12px;border:1.5px solid #FCD34D;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+    <div style="font-size:28px;text-align:center;margin-bottom:6px;">✏️</div>
+    <div style="font-weight:900;font-size:11px;color:#92400E;margin-bottom:2px;">Pencil Sketch</div>
+    <div style="font-weight:800;font-size:12px;color:#B45309;margin-bottom:6px;">연필 연필화</div>
+    <div style="font-size:10px;color:#92400E;line-height:1.55;">아날로그 노트에 까만 심으로 섬세하게 그린 직책 단선 느낌</div>
+  </div>
+  <div style="background:#BAE6FD;border-radius:14px;padding:14px 12px;border:1.5px solid #38BDF8;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+    <div style="font-size:28px;text-align:center;margin-bottom:6px;">⭐</div>
+    <div style="font-weight:900;font-size:11px;color:#075985;margin-bottom:2px;">Sticker Pack</div>
+    <div style="font-weight:800;font-size:12px;color:#0369A1;margin-bottom:6px;">카와이 스티커</div>
+    <div style="font-size:10px;color:#075985;line-height:1.55;">화사한 윤선 가이드라인 테두리를 두른 다이어리 스티커 북</div>
+  </div>
+  <div style="background:#FEF08A;border-radius:14px;padding:14px 12px;border:1.5px solid #FDE047;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+    <div style="font-size:28px;text-align:center;margin-bottom:6px;">🖍️</div>
+    <div style="font-weight:900;font-size:11px;color:#854D0E;margin-bottom:2px;">Crayon Doodle</div>
+    <div style="font-weight:800;font-size:12px;color:#A16207;margin-bottom:6px;">크레용 손낙서</div>
+    <div style="font-size:10px;color:#854D0E;line-height:1.55;">울퉁하고 보숭한 아린 시각 크레파스 동화 직접 구사</div>
+  </div>
+</div>
+""")
             gr.Markdown(
                 "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
                 "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
@@ -1586,23 +1644,39 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
                 placeholder="Token usage will appear here after generation…",
             )
 
-    gr.Markdown("---\n### ✨ 어떻게 그려지나요?")
-    with gr.Row():
-        gr.Markdown(
-            "**1단계 · 분석 🔍**  \nGPT-4o가 사진에서 머리카락, 눈, 의상, "
-            "색상 팔레트 등 모든 특징을 추출해요.",
-            elem_classes="step-box",
-        )
-        gr.Markdown(
-            "**2단계 · 프롬프트 ✍️**  \nStyle Reference + 캐릭터 분석 결과를 "
-            "합쳐서 이미지 생성 프롬프트를 만들어요.",
-            elem_classes="step-box",
-        )
-        gr.Markdown(
-            "**3단계 · 생성 🎨**  \ngpt-image-1이 스케치북 낙서 느낌의 "
-            "캐릭터 시트를 그려줘요 ♡",
-            elem_classes="step-box",
-        )
+    gr.HTML("""
+<div style="text-align:center;padding:0.5rem 0 1rem;">
+  <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:11px;
+    font-weight:800;padding:4px 16px;border-radius:20px;display:inline-block;">
+    ✨ AI 낙서 생성 파이프라인 소개</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding-bottom:1rem;">
+  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
+    <div style="background:#DDD6FE;border-radius:50%;width:36px;height:36px;min-width:36px;
+      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#5B21B6;">1</div>
+    <div>
+      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">1단계 · 분석 🔍</div>
+      <div style="font-size:11px;color:#6B7280;line-height:1.55;">GPT-4o가 머릿결, 헤어, 패션 등 고유 특징 정보 파싱</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
+    <div style="background:#FBCFE8;border-radius:50%;width:36px;height:36px;min-width:36px;
+      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#9D174D;">2</div>
+    <div>
+      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">2단계 · 빌드 🔥</div>
+      <div style="font-size:11px;color:#6B7280;line-height:1.55;">선택한 스타일 정보와 원본 데이터를 결합하여 프롬프트 정렬</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
+    <div style="background:#FEF08A;border-radius:50%;width:36px;height:36px;min-width:36px;
+      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#854D0E;">3</div>
+    <div>
+      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">3단계 · 그리기 🖌️</div>
+      <div style="font-size:11px;color:#6B7280;line-height:1.55;">gpt-image-1 드로잉 AI가 수채 채색 다구 디자인 완성</div>
+    </div>
+  </div>
+</div>
+""")
 
     gr.Markdown(
         "---\n"
