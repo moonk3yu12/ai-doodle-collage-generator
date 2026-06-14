@@ -1674,14 +1674,12 @@ function _dgRender() {
   var ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,cfg.cw,cfg.ch);
   _dgShape(ctx,t,_dgSt.color);
-  if (_dgSt.mainImg) {
-    ctx.drawImage(_dgSt.removeBg?_dgBgRemove(_dgSt.mainImg):_dgSt.mainImg, cfg.ax,cfg.ay,cfg.aw,cfg.ah);
-  }
   _dgSt.stickers.forEach(function(st) {
     if (!st._img) return;
     var sz=(st.scale/100)*Math.min(cfg.cw,cfg.ch);
+    var src=_dgSt.removeBg?_dgBgRemove(st._img):st._img;
     ctx.save(); ctx.translate(st.cx,st.cy);
-    ctx.drawImage(st._img,-sz/2,-sz/2,sz,sz);
+    ctx.drawImage(src,-sz/2,-sz/2,sz,sz);
     if (_dgSt.selId===st.id) {
       ctx.strokeStyle='#C084FC'; ctx.lineWidth=2; ctx.setLineDash([3,2]);
       ctx.strokeRect(-sz/2-3,-sz/2-3,sz+6,sz+6); ctx.setLineDash([]);
