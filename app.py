@@ -861,16 +861,38 @@ body, .gradio-container {
 ::-webkit-scrollbar-track { background: #F3F0FF; }
 ::-webkit-scrollbar-thumb { background: #C4B5FD; border-radius: 4px; }
 
-/* Upload / image area */
-.upload-container, .upload-button, .wrap.svelte-i3tvor {
+/* Image component areas */
+div[data-testid="image"],
+div[data-testid="image"] > div,
+div[data-testid="image"] .upload-container,
+div[data-testid="image"] .image-container,
+div[data-testid="image"] .wrap,
+.upload-container, .upload-button {
     border: 2px dashed #C4B5FD !important;
     border-radius: 16px !important;
     background: #FAFBFF !important;
 }
-div[data-testid="image"], div[data-testid="image"] > div {
-    background: #FAFBFF !important;
-    border-color: #E2D9F3 !important;
+div[data-testid="image"] > div > div,
+div[data-testid="image"] .wrap > div {
+    border: none !important;
+    background: transparent !important;
 }
+/* Empty state icon/text color */
+div[data-testid="image"] .empty svg,
+div[data-testid="image"] .icon-wrap svg {
+    color: #C4B5FD !important;
+    fill: #C4B5FD !important;
+}
+/* Output empty state overlay */
+#dg-output-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    pointer-events: none;
+}
+#dg-output-empty.hidden { display: none; }
 
 /* Header */
 #app-header {
@@ -1453,6 +1475,32 @@ function dgColor(c) {
   if (w) w.style.background = c;
 }
 
+function toggleStyleRef() {
+  // Gradio accordion renders as <details>
+  var det = document.querySelector('#style-ref-box details');
+  if (det) { det.open = !det.open; return; }
+  // Fallback: click the toggle button
+  var btn = document.querySelector('#style-ref-box button[aria-expanded], #style-ref-box summary');
+  if (btn) btn.click();
+}
+
+// Hide/show output empty state when image loads
+(function watchOutputImage() {
+  function check() {
+    var overlay = document.getElementById('dg-output-empty');
+    if (!overlay) return;
+    var img = document.querySelector('#right-panel div[data-testid="image"] img');
+    overlay.classList.toggle('hidden', !!(img && img.src && img.src !== window.location.href));
+  }
+  var observer = new MutationObserver(check);
+  function init() {
+    var target = document.querySelector('#right-panel div[data-testid="image"]');
+    if (target) { observer.observe(target, {childList:true,subtree:true,attributes:true}); check(); }
+    else setTimeout(init, 800);
+  }
+  setTimeout(init, 1500);
+})();
+
 document.addEventListener('click', function(e) {
   var pop = document.getElementById('dg-help-pop');
   var wrap = document.getElementById('dg-help-wrap');
@@ -1531,15 +1579,25 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             )
 
         with gr.Column(scale=1, elem_id="right-panel"):
-            gr.HTML("""<div style="margin-bottom:12px;">
+            gr.HTML("""<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
   <span style="background:#EDE9FE;border:1.5px solid #DDD6FE;color:#5B21B6;font-size:12px;
     font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
     🎨 완성된 낙서 스케치북</span>
+  <span style="background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:700;
+    padding:2px 10px;border-radius:20px;border:1px solid #C4B5FD;">AI Output Canvas</span>
+</div>
+<div id="dg-output-empty" style="display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 20px;pointer-events:none;">
+  <div style="font-size:52px;margin-bottom:12px;">🎨</div>
+  <div style="font-weight:800;font-size:15px;color:#6B7280;margin-bottom:8px;">스케치북이 비어있어요</div>
+  <div style="font-size:12px;color:#9CA3AF;text-align:center;line-height:1.7;">
+    왼쪽 보드에 원본 사진을 넣고,<br>"낙서 시트 그리기" 버튼을 꼭 눌러주세요.</div>
 </div>""")
             image_output = gr.Image(
                 type="pil",
-                label="AI Output Canvas",
-                height=500,
+                label="",
+                height=400,
+                show_label=False,
             )
 
     # ── Goods modal (appears after generation) ────────────────────────────────
@@ -1551,57 +1609,45 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
         with gr.Tab("🎀 낙서 스타일 장착실"):
             gr.HTML("""
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 0 8px;">
-  <div style="background:#FECDD3;border-radius:14px;padding:14px 12px;border:1.5px solid #FDA4AF;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-    <div style="font-size:28px;text-align:center;margin-bottom:6px;">🎨</div>
-    <div style="font-weight:900;font-size:11px;color:#9F1239;margin-bottom:2px;">Watercolor</div>
-    <div style="font-weight:800;font-size:12px;color:#BE123C;margin-bottom:6px;">파스텔 수채화</div>
-    <div style="font-size:10px;color:#9F1239;line-height:1.55;">밝고 가벼운 수채재연한 정감과 포실포실한 파스텔 감성</div>
-  </div>
-  <div style="background:#FEF3C7;border-radius:14px;padding:14px 12px;border:1.5px solid #FCD34D;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-    <div style="font-size:28px;text-align:center;margin-bottom:6px;">✏️</div>
-    <div style="font-weight:900;font-size:11px;color:#92400E;margin-bottom:2px;">Pencil Sketch</div>
-    <div style="font-weight:800;font-size:12px;color:#B45309;margin-bottom:6px;">연필 연필화</div>
-    <div style="font-size:10px;color:#92400E;line-height:1.55;">아날로그 노트에 까만 심으로 섬세하게 그린 직책 단선 느낌</div>
-  </div>
-  <div style="background:#BAE6FD;border-radius:14px;padding:14px 12px;border:1.5px solid #38BDF8;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-    <div style="font-size:28px;text-align:center;margin-bottom:6px;">⭐</div>
-    <div style="font-weight:900;font-size:11px;color:#075985;margin-bottom:2px;">Sticker Pack</div>
-    <div style="font-weight:800;font-size:12px;color:#0369A1;margin-bottom:6px;">카와이 스티커</div>
-    <div style="font-size:10px;color:#075985;line-height:1.55;">화사한 윤선 가이드라인 테두리를 두른 다이어리 스티커 북</div>
-  </div>
-  <div style="background:#FEF08A;border-radius:14px;padding:14px 12px;border:1.5px solid #FDE047;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-    <div style="font-size:28px;text-align:center;margin-bottom:6px;">🖍️</div>
-    <div style="font-weight:900;font-size:11px;color:#854D0E;margin-bottom:2px;">Crayon Doodle</div>
-    <div style="font-weight:800;font-size:12px;color:#A16207;margin-bottom:6px;">크레용 손낙서</div>
-    <div style="font-size:10px;color:#854D0E;line-height:1.55;">울퉁하고 보숭한 아린 시각 크레파스 동화 직접 구사</div>
+<div onclick="toggleStyleRef()" id="dg-doodle-card"
+  style="cursor:pointer;background:linear-gradient(135deg,#EDE9FE 0%,#FCE7F3 100%);
+    border:2px solid #C4B5FD;border-radius:16px;padding:20px 24px;
+    display:flex;align-items:center;gap:16px;margin-bottom:12px;
+    box-shadow:0 2px 12px rgba(139,92,246,0.1);transition:all 0.2s;user-select:none;"
+  onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(139,92,246,0.2)'"
+  onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 12px rgba(139,92,246,0.1)'">
+  <div style="font-size:38px;line-height:1;">🎨</div>
+  <div style="flex:1;">
+    <div style="font-weight:900;font-size:18px;color:#5B21B6;margin-bottom:3px;">Doodle</div>
+    <div style="font-size:12px;color:#7C3AED;font-weight:600;">스타일 레퍼런스 설정 · 클릭하여 열기 ▾</div>
   </div>
 </div>
 """)
-            gr.Markdown(
-                "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
-                "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
-                "**사용법:** `styles/sample01.png` ~ `styles/sample10.png` 형식으로 넣기"
-            )
-            with gr.Row():
-                style_ref_btn = gr.Button(
-                    "🖼️ styles/ 폴더에서 Style Reference 생성",
-                    variant="secondary",
-                    elem_id="style-ref-btn",
+            with gr.Accordion("📝 Style Reference 설정", open=False, elem_id="style-ref-box"):
+                gr.Markdown(
+                    "styles/ 폴더에 샘플 이미지 10장을 넣고 아래 버튼을 누르면 "
+                    "공통 스타일을 추출해서 모든 이미지 생성 프롬프트 맨 앞에 자동 삽입해요.\n\n"
+                    "**사용법:** `styles/sample01.png` ~ `styles/sample10.png` 형식으로 넣기"
                 )
-                style_ref_status = gr.Textbox(
-                    label="상태",
+                with gr.Row():
+                    style_ref_btn = gr.Button(
+                        "🖼️ styles/ 폴더에서 Style Reference 생성",
+                        variant="secondary",
+                        elem_id="style-ref-btn",
+                    )
+                    style_ref_status = gr.Textbox(
+                        label="상태",
+                        interactive=False,
+                        lines=1,
+                        placeholder="버튼을 눌러 style_reference.txt를 생성하세요",
+                        value=f"✅ style_reference.txt 로드됨 ({len(_style_cache)} chars)" if _style_cache else "⚠️ style_reference.txt 없음",
+                    )
+                style_ref_content = gr.Textbox(
+                    label="현재 Style Reference 내용",
+                    value=_style_cache if _style_cache else "(비어있음 — 생성 버튼을 눌러주세요)",
+                    lines=12,
                     interactive=False,
-                    lines=1,
-                    placeholder="버튼을 눌러 style_reference.txt를 생성하세요",
-                    value=f"✅ style_reference.txt 로드됨 ({len(_style_cache)} chars)" if _style_cache else "⚠️ style_reference.txt 없음",
                 )
-            style_ref_content = gr.Textbox(
-                label="현재 Style Reference 내용",
-                value=_style_cache if _style_cache else "(비어있음 — 생성 버튼을 눌러주세요)",
-                lines=12,
-                interactive=False,
-            )
 
         with gr.Tab("🖼️ 낙서 전시관"):
             gr.Markdown(
