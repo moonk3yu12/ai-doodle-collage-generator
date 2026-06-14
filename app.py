@@ -1053,7 +1053,8 @@ details, .accordion {
 
 _HELP_HTML = """
 <div class="dg-help-wrap" id="dg-help-wrap">
-  <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁">ⓘ</button>
+  <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁"
+    onclick="event.stopPropagation(); document.getElementById('dg-help-pop').classList.toggle('open');">ⓘ</button>
   <div class="dg-help-pop" id="dg-help-pop">
     <div class="dg-help-title">💡 생성 팁</div>
     <ul class="dg-help-list">
@@ -1127,21 +1128,6 @@ _HELP_HTML = """
   color: #4A3E3D !important;
 }
 </style>
-<script>
-(function(){
-  var wrap = document.getElementById('dg-help-wrap');
-  var btn  = document.getElementById('dg-help-btn');
-  var pop  = document.getElementById('dg-help-pop');
-  if(!btn||!pop) return;
-  btn.addEventListener('click', function(e){
-    e.stopPropagation();
-    pop.classList.toggle('open');
-  });
-  document.addEventListener('click', function(e){
-    if(wrap && !wrap.contains(e.target)) pop.classList.remove('open');
-  });
-})();
-</script>
 """
 
 _MODE_BUTTONS_HTML = """
@@ -1184,34 +1170,6 @@ _MODE_BUTTONS_HTML = """
       ✨ 심플 클린 포트레이트</button>
   </div>
 </div>
-<script>
-(function(){
-  function dgClickRadio(groupId, idx) {
-    var g = document.getElementById(groupId);
-    if (!g) return;
-    var labels = g.querySelectorAll('label');
-    if (labels[idx]) { labels[idx].click(); return; }
-    var inputs = g.querySelectorAll('input[type="radio"]');
-    if (inputs[idx]) {
-      inputs[idx].checked = true;
-      inputs[idx].click();
-      inputs[idx].dispatchEvent(new Event('change', {bubbles:true}));
-      inputs[idx].dispatchEvent(new Event('input', {bubbles:true}));
-    }
-  }
-  window.setGenMode = function(btn, idx) {
-    document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
-      b.style.background = 'white';
-      b.style.boxShadow = '1px 1px 0px #4A3E3D';
-      b.style.transform = 'none';
-    });
-    btn.style.background = '#E9D5FF';
-    btn.style.boxShadow = '2px 2px 0px #4A3E3D';
-    btn.style.transform = 'translate(-1px,-1px)';
-    dgClickRadio('mode-radio-group', idx);
-  };
-})();
-</script>
 """
 
 _QUALITY_BUTTONS_HTML = """
@@ -1236,36 +1194,6 @@ _QUALITY_BUTTONS_HTML = """
       High</button>
   </div>
 </div>
-<script>
-(function(){
-  function dgClickRadio(groupId, idx) {
-    var g = document.getElementById(groupId);
-    if (!g) return;
-    var labels = g.querySelectorAll('label');
-    if (labels[idx]) { labels[idx].click(); return; }
-    var inputs = g.querySelectorAll('input[type="radio"]');
-    if (inputs[idx]) {
-      inputs[idx].checked = true;
-      inputs[idx].click();
-      inputs[idx].dispatchEvent(new Event('change', {bubbles:true}));
-      inputs[idx].dispatchEvent(new Event('input', {bubbles:true}));
-    }
-  }
-  window.setQuality = function(btn, idx) {
-    document.querySelectorAll('#quality-tabs button').forEach(function(b) {
-      b.style.background = 'transparent';
-      b.style.border = 'none';
-      b.style.boxShadow = 'none';
-      b.style.color = '#7C6E6D';
-    });
-    btn.style.background = 'white';
-    btn.style.border = '1px solid #4A3E3D';
-    btn.style.boxShadow = '1px 1px 0px #4A3E3D';
-    btn.style.color = '#4A3E3D';
-    dgClickRadio('quality-radio-group', idx);
-  };
-})();
-</script>
 """
 
 _GOODS_MODAL_HTML = """
@@ -1420,82 +1348,127 @@ _GOODS_MODAL_HTML = """
     </div>
   </div>
 </div>
+"""
 
-<script>
-(function(){
-  var _dgType = 'phone';
-  var _types = ['phone','griptok','mug','keyring'];
-  var _tags = {phone:'프리미엄 무광 폰케이스', griptok:'동글 아크릴 그립톡', mug:'머그 인쇄 세라믹컵', keyring:'디럭스 아크릴 키링'};
+# ── Global JS (runs after Gradio mounts; defines all onclick handler functions) ─
 
-  function dgLoadImg(){
+_CUSTOM_JS = """
+function dgClickRadio(groupId, idx) {
+  var g = document.getElementById(groupId);
+  if (!g) return;
+  var labels = g.querySelectorAll('label');
+  if (labels[idx]) { labels[idx].click(); return; }
+  var inputs = g.querySelectorAll('input[type="radio"]');
+  if (inputs[idx]) {
+    inputs[idx].checked = true;
+    inputs[idx].click();
+    inputs[idx].dispatchEvent(new Event('change', {bubbles:true}));
+    inputs[idx].dispatchEvent(new Event('input', {bubbles:true}));
+  }
+}
+
+function setGenMode(btn, idx) {
+  document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
+    b.style.background = 'white';
+    b.style.boxShadow = '1px 1px 0px #4A3E3D';
+    b.style.transform = 'none';
+  });
+  btn.style.background = '#E9D5FF';
+  btn.style.boxShadow = '2px 2px 0px #4A3E3D';
+  btn.style.transform = 'translate(-1px,-1px)';
+  dgClickRadio('mode-radio-group', idx);
+}
+
+function setQuality(btn, idx) {
+  document.querySelectorAll('#quality-tabs button').forEach(function(b) {
+    b.style.background = 'transparent';
+    b.style.border = 'none';
+    b.style.boxShadow = 'none';
+    b.style.color = '#7C6E6D';
+  });
+  btn.style.background = 'white';
+  btn.style.border = '1px solid #4A3E3D';
+  btn.style.boxShadow = '1px 1px 0px #4A3E3D';
+  btn.style.color = '#4A3E3D';
+  dgClickRadio('quality-radio-group', idx);
+}
+
+var _dgGoodsType = 'phone';
+var _dgTypes = ['phone','griptok','mug','keyring'];
+var _dgTags = {phone:'프리미엄 무광 폰케이스', griptok:'동글 아크릴 그립톡', mug:'머그 인쇄 세라믹컵', keyring:'디럭스 아크릴 키링'};
+
+function dgOpenModal() {
+  var m = document.getElementById('dg-modal');
+  if (m) {
+    m.style.display = 'flex';
     var src = '/current-image?_=' + Date.now();
-    _types.forEach(function(t){
+    _dgTypes.forEach(function(t) {
       var el = document.getElementById('dg-img-' + t);
-      if(el) el.src = src;
+      if (el) el.src = src;
     });
   }
+}
 
-  window.dgOpenModal = function(){
-    var m = document.getElementById('dg-modal');
-    if(m){ m.style.display = 'flex'; dgLoadImg(); }
-  };
+function dgCloseModal() {
+  var m = document.getElementById('dg-modal');
+  if (m) m.style.display = 'none';
+}
 
-  window.dgCloseModal = function(){
-    var m = document.getElementById('dg-modal');
-    if(m) m.style.display = 'none';
-  };
-
-  window.dgSetType = function(type){
-    _dgType = type;
-    _types.forEach(function(t){
-      var w = document.getElementById('dg-w-' + t);
-      var b = document.getElementById('dg-bt-' + t);
-      if(w) w.style.display = (t === type) ? 'flex' : 'none';
-      if(b){
-        if(t === type){
-          b.style.border = '2px solid #4A3E3D';
-          b.style.background = '#E9D5FF';
-          b.style.boxShadow = '2px 2px 0px #4A3E3D';
-        } else {
-          b.style.border = '2px solid #8B7E7D';
-          b.style.background = 'white';
-          b.style.boxShadow = 'none';
-        }
+function dgSetType(type) {
+  _dgGoodsType = type;
+  _dgTypes.forEach(function(t) {
+    var w = document.getElementById('dg-w-' + t);
+    var b = document.getElementById('dg-bt-' + t);
+    if (w) w.style.display = (t === type) ? 'flex' : 'none';
+    if (b) {
+      if (t === type) {
+        b.style.border = '2px solid #4A3E3D';
+        b.style.background = '#E9D5FF';
+        b.style.boxShadow = '2px 2px 0px #4A3E3D';
+      } else {
+        b.style.border = '2px solid #8B7E7D';
+        b.style.background = 'white';
+        b.style.boxShadow = 'none';
       }
-    });
-    var tag = document.getElementById('dg-tag');
-    if(tag) tag.textContent = _tags[type];
-  };
-
-  window.dgTransform = function(){
-    var s = document.getElementById('dg-sl-scale').value;
-    var y = document.getElementById('dg-sl-y').value;
-    var x = document.getElementById('dg-sl-x').value;
-    document.getElementById('dg-lbl-scale').textContent = s + '%';
-    document.getElementById('dg-lbl-y').textContent = y + 'px';
-    document.getElementById('dg-lbl-x').textContent = x + 'px';
-    var tf = 'scale(' + (s/100) + ') translate(' + x + 'px,' + y + 'px)';
-    _types.forEach(function(t){
-      var el = document.getElementById('dg-img-' + t);
-      if(el) el.style.transform = tf;
-    });
-  };
-
-  window.dgColor = function(c){
-    var w = document.getElementById('dg-w-' + _dgType);
-    if(w) w.style.background = c;
-  };
-
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') dgCloseModal();
+    }
   });
-})();
-</script>
+  var tag = document.getElementById('dg-tag');
+  if (tag) tag.textContent = _dgTags[type];
+}
+
+function dgTransform() {
+  var s = document.getElementById('dg-sl-scale').value;
+  var y = document.getElementById('dg-sl-y').value;
+  var x = document.getElementById('dg-sl-x').value;
+  document.getElementById('dg-lbl-scale').textContent = s + '%';
+  document.getElementById('dg-lbl-y').textContent = y + 'px';
+  document.getElementById('dg-lbl-x').textContent = x + 'px';
+  var tf = 'scale(' + (s/100) + ') translate(' + x + 'px,' + y + 'px)';
+  _dgTypes.forEach(function(t) {
+    var el = document.getElementById('dg-img-' + t);
+    if (el) el.style.transform = tf;
+  });
+}
+
+function dgColor(c) {
+  var w = document.getElementById('dg-w-' + _dgGoodsType);
+  if (w) w.style.background = c;
+}
+
+document.addEventListener('click', function(e) {
+  var pop = document.getElementById('dg-help-pop');
+  var wrap = document.getElementById('dg-help-wrap');
+  if (pop && wrap && !wrap.contains(e.target)) pop.classList.remove('open');
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') dgCloseModal();
+});
 """
 
 # ── UI Layout ──────────────────────────────────────────────────────────────────
 
-with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
+with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as demo:
 
     with gr.Column(elem_id="app-header"):
         gr.Markdown(
