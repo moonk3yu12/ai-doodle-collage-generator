@@ -861,23 +861,27 @@ body, .gradio-container {
 ::-webkit-scrollbar-track { background: #F3F0FF; }
 ::-webkit-scrollbar-thumb { background: #C4B5FD; border-radius: 4px; }
 
-/* Image component areas */
+/* Image component areas — reset ALL backgrounds to prevent dark theme bleed */
 div[data-testid="image"],
+div[data-testid="image"] *,
 div[data-testid="image"] > div,
 div[data-testid="image"] .upload-container,
 div[data-testid="image"] .image-container,
 div[data-testid="image"] .wrap,
+div[data-testid="image"] .empty,
+div[data-testid="image"] .placeholder,
 .upload-container, .upload-button {
+    background: white !important;
+    background-color: white !important;
+}
+div[data-testid="image"] {
     border: 2px dashed #C4B5FD !important;
     border-radius: 16px !important;
-    background: #FAFBFF !important;
+    overflow: hidden !important;
 }
-div[data-testid="image"] > div > div,
-div[data-testid="image"] .wrap > div {
+div[data-testid="image"] > div {
     border: none !important;
-    background: transparent !important;
 }
-/* Empty state icon/text color */
 div[data-testid="image"] .empty svg,
 div[data-testid="image"] .icon-wrap svg {
     color: #C4B5FD !important;
