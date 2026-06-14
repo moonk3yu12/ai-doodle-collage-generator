@@ -849,19 +849,20 @@ CSS = """
 body, .gradio-container, .gradio-container * {
     font-family: 'Noto Sans KR', 'Nunito', sans-serif !important;
     box-sizing: border-box;
-    color: #3D3352;
+    color: #4A3E3D;
 }
 body, .gradio-container {
-    background: linear-gradient(135deg, #FFF5F8 0%, #F3F0FF 55%, #FFFBF0 100%) !important;
+    background-color: #FAF7F2 !important;
+    background-image: none !important;
     min-height: 100vh;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #F3F0FF; }
-::-webkit-scrollbar-thumb { background: #C4B5FD; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #F8F5F0; }
+::-webkit-scrollbar-thumb { background: #C084FC; border-radius: 4px; }
 
-/* Image component areas — reset ALL backgrounds to prevent dark theme bleed */
+/* Image component areas */
 div[data-testid="image"],
 div[data-testid="image"] *,
 div[data-testid="image"] > div,
@@ -875,317 +876,241 @@ div[data-testid="image"] .placeholder,
     background-color: white !important;
 }
 div[data-testid="image"] {
-    border: 2px dashed #C4B5FD !important;
-    border-radius: 16px !important;
+    border: 2px dashed #8B7E7D !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
 }
-div[data-testid="image"] > div {
-    border: none !important;
-}
+div[data-testid="image"] > div { border: none !important; }
 div[data-testid="image"] .empty svg,
 div[data-testid="image"] .icon-wrap svg {
-    color: #C4B5FD !important;
-    fill: #C4B5FD !important;
+    color: #8B7E7D !important;
+    fill: #8B7E7D !important;
 }
-/* Output empty state overlay */
 #dg-output-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    pointer-events: none;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 20px; pointer-events: none;
 }
 #dg-output-empty.hidden { display: none; }
 
 /* Header */
-#app-header {
-    text-align: center;
-    padding: 1.5rem 0 0.25rem;
-}
+#app-header { text-align: center; padding: 1.5rem 0 0.25rem; }
 #app-header h1 {
     font-family: 'Gaegu', 'Fredoka', cursive !important;
-    font-size: 2.4rem;
-    font-weight: 800;
-    color: #5B21B6 !important;
-    -webkit-text-fill-color: #5B21B6 !important;
+    font-size: 2.4rem; font-weight: 800;
+    color: #4A3E3D !important;
+    -webkit-text-fill-color: #4A3E3D !important;
     margin-bottom: 0.3rem;
 }
-#app-header p { color: #7C6E8A !important; font-size: 0.9rem; font-weight: 600; }
+#app-header p { color: #7C6E6D !important; font-size: 0.9rem; font-weight: 600; }
 
-/* Panels */
+/* Panels — sketch card style */
 #left-panel, #right-panel {
     background: white !important;
-    border: 2px solid #E2D9F3 !important;
+    border: 3px solid #4A3E3D !important;
     border-radius: 20px !important;
-    box-shadow: 0 4px 24px rgba(139,92,246,0.10) !important;
+    box-shadow: 5px 5px 0px 0px #C084FC !important;
     padding: 1.4rem !important;
-    transition: box-shadow 0.2s, transform 0.2s !important;
+    position: relative !important;
+    overflow: visible !important;
+    transition: all 0.2s ease !important;
 }
 #left-panel:hover, #right-panel:hover {
-    box-shadow: 0 8px 32px rgba(139,92,246,0.16) !important;
-    transform: translateY(-1px) !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 6px 6px 0px 0px #C084FC !important;
+}
+
+/* Washi tapes */
+#left-panel::before {
+    content: '';
+    position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%) rotate(-1.5deg);
+    width: 100px; height: 20px;
+    background-color: rgba(244, 143, 177, 0.8);
+    border-left: 2px dashed rgba(255,255,255,0.4);
+    border-right: 2px dashed rgba(255,255,255,0.4);
+    z-index: 10; pointer-events: none;
+}
+#right-panel::before {
+    content: '';
+    position: absolute; top: -10px; left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 100px; height: 20px;
+    background-color: rgba(255, 213, 79, 0.8);
+    border-left: 2px dashed rgba(255,255,255,0.4);
+    border-right: 2px dashed rgba(255,255,255,0.4);
+    z-index: 10; pointer-events: none;
 }
 
 /* Generate button */
 #generate-btn {
-    background: linear-gradient(135deg, #DDD6FE 0%, #FBCFE8 100%) !important;
-    color: #4C1D95 !important;
-    border: none !important;
-    font-size: 1rem !important;
-    font-weight: 900 !important;
-    border-radius: 14px !important;
-    padding: 0.85rem !important;
+    background: #E9D5FF !important;
+    color: #4A3E3D !important;
+    border: 2px solid #4A3E3D !important;
+    font-size: 1rem !important; font-weight: 900 !important;
+    border-radius: 12px !important; padding: 0.75rem !important;
     width: 100% !important;
-    box-shadow: 0 4px 16px rgba(139,92,246,0.25) !important;
+    box-shadow: 3px 3px 0px 0px #4A3E3D !important;
     transition: all 0.2s ease !important;
-    letter-spacing: 0.3px !important;
 }
 #generate-btn:hover {
-    background: linear-gradient(135deg, #C4B5FD 0%, #F9A8D4 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(139,92,246,0.35) !important;
+    background: #D8B4FE !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 4px 4px 0px 0px #4A3E3D !important;
     opacity: 1 !important;
+}
+#generate-btn:active {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 1px 1px 0px 0px #4A3E3D !important;
 }
 
 /* Style ref button */
 #style-ref-btn {
-    border: 1.5px solid #DDD6FE !important;
-    color: #6D28D9 !important;
+    border: 2px solid #4A3E3D !important;
+    color: #4A3E3D !important;
     border-radius: 10px !important;
     font-weight: 700 !important;
+    box-shadow: 2px 2px 0px #4A3E3D !important;
     background: white !important;
 }
 
 /* Tip box */
 .tip-box {
-    background: linear-gradient(135deg, #FFF5F8, #F3F0FF) !important;
-    border: 1.5px solid #E2D9F3 !important;
+    background: #F7F4EF !important;
+    border: 2px solid #4A3E3D !important;
     border-radius: 12px !important;
-    padding: 0.7rem 1rem !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    color: #5B21B6 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.88rem !important; font-weight: 700 !important;
+    color: #4A3E3D !important;
+    box-shadow: 2px 2px 0px #4A3E3D !important;
 }
-.tip-box p, .tip-box strong, .tip-box * { color: #5B21B6 !important; }
-
-/* Step boxes */
-.step-box {
-    background: white !important;
-    border: 1.5px solid #E2D9F3 !important;
-    border-radius: 16px !important;
-    padding: 1.2rem !important;
-    text-align: center !important;
-    box-shadow: 0 2px 12px rgba(139,92,246,0.08) !important;
-    transition: box-shadow 0.2s, transform 0.2s !important;
-    color: #3D3352 !important;
-}
-.step-box p, .step-box strong, .step-box * { color: #3D3352 !important; }
-.step-box:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(139,92,246,0.14) !important;
-}
+.tip-box p, .tip-box strong, .tip-box * { color: #4A3E3D !important; }
 
 /* Headings */
 .gradio-container h3, .gradio-container h2 {
     font-family: 'Gaegu', 'Fredoka', cursive !important;
-    color: #5B21B6 !important;
-    font-weight: 800 !important;
+    color: #4A3E3D !important; font-weight: 800 !important;
 }
 details summary, details summary span, .accordion-header, .label-wrap span {
-    color: #5B21B6 !important;
-    font-weight: 700 !important;
+    color: #4A3E3D !important; font-weight: 700 !important;
 }
-.gradio-container p, .gradio-container .prose p { color: #3D3352 !important; }
+.gradio-container p, .gradio-container .prose p { color: #4A3E3D !important; }
 
 /* HR */
-hr { border: none !important; border-top: 2px dashed #E2D9F3 !important; margin: 1rem 0 !important; }
+hr { border: none !important; border-top: 2px dashed #8B7E7D !important; margin: 1rem 0 !important; }
 
 /* Text inputs */
 textarea, input[type="text"] {
     border-radius: 10px !important;
-    border: 1.5px solid #E2D9F3 !important;
-    background: white !important;
+    border: 2px solid #8B7E7D !important;
+    background: #FDFBF7 !important;
     font-family: 'Noto Sans KR', sans-serif !important;
-    font-size: 0.9rem !important;
-    color: #3D3352 !important;
+    font-size: 0.9rem !important; color: #4A3E3D !important;
 }
 
-/* Accordion panels */
+/* Accordion */
 details, .accordion {
-    border-radius: 14px !important;
-    border: 1.5px solid #E2D9F3 !important;
+    border-radius: 16px !important;
+    border: 2px solid #4A3E3D !important;
     background: white !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 10px rgba(139,92,246,0.06) !important;
+    box-shadow: 3px 3px 0px #C084FC !important;
     margin-bottom: 0.5rem !important;
 }
 
 /* Tabs */
-.tabs .tab-nav {
-    border-bottom: 2px solid #E2D9F3 !important;
-    background: transparent !important;
-    gap: 4px !important;
-}
+.tabs .tab-nav { border-bottom: 2px solid #4A3E3D !important; background: #F7F4EF !important; }
 .tabs .tab-nav button {
     font-weight: 700 !important;
     font-family: 'Noto Sans KR', sans-serif !important;
-    border-radius: 10px 10px 0 0 !important;
-    color: #7C6E8A !important;
+    color: #7C6E6D !important;
+    border-right: 1px solid #D6CFC8 !important;
     font-size: 0.88rem !important;
 }
 .tabs .tab-nav button.selected {
-    color: #5B21B6 !important;
-    border-bottom: 3px solid #8B5CF6 !important;
-    background: #F5F3FF !important;
+    color: #C084FC !important;
+    background: white !important;
+    font-weight: 900 !important;
 }
 
-/* Panel tape marks at top */
-#left-panel, #right-panel { position: relative !important; overflow: visible !important; }
-#left-panel::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-1.5deg);
-    width: 90px;
-    height: 16px;
-    background: rgba(244,114,182,0.55);
-    border-radius: 5px;
-    pointer-events: none;
-    z-index: 5;
+/* Help tooltip — CSS hover only */
+.dg-help-wrap { position: relative; display: flex; justify-content: flex-end; margin-bottom: 6px; }
+.dg-help-icon {
+    background: #FEF08A; border: 2px solid #4A3E3D; border-radius: 50%;
+    width: 26px; height: 26px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 1px 1px 0px #4A3E3D; transition: transform 0.15s;
+    padding: 0; line-height: 1;
 }
-#right-panel::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%) rotate(1.5deg);
-    width: 90px;
-    height: 16px;
-    background: rgba(250,204,21,0.65);
-    border-radius: 5px;
-    pointer-events: none;
-    z-index: 5;
+.dg-help-icon:hover { transform: scale(1.05); }
+.dg-help-pop {
+    display: none; position: absolute; bottom: calc(100% + 8px); right: 0;
+    width: 240px; background: white; border: 2px solid #4A3E3D;
+    border-radius: 12px; padding: 12px 14px;
+    box-shadow: 3px 3px 0px 0px #C084FC; z-index: 9999;
 }
+.dg-help-wrap:hover .dg-help-pop { display: block; }
+.dg-help-title { font-weight: 800; color: #4A3E3D !important; font-size: 0.85rem; margin-bottom: 6px; }
+.dg-help-list { margin: 0; padding-left: 14px; color: #4A3E3D !important; font-size: 0.8rem; font-weight: 600; line-height: 1.6; }
+.dg-help-list li { color: #4A3E3D !important; }
 
-/* Radio groups — hidden off-screen but in DOM so JS can click them */
+/* Radio groups hidden */
 #mode-radio-group, #quality-radio-group {
-    position: fixed !important;
-    top: -9999px !important;
-    left: 0 !important;
+    position: fixed !important; top: -9999px !important; left: 0 !important;
 }
 """
 
 
 _HELP_HTML = """
 <div class="dg-help-wrap" id="dg-help-wrap">
-  <button class="dg-help-icon" id="dg-help-btn" aria-label="생성 팁"
-    onclick="event.stopPropagation(); document.getElementById('dg-help-pop').classList.toggle('open');">✨</button>
-  <div class="dg-help-pop" id="dg-help-pop">
-    <div class="dg-help-title">💡 생성 팁</div>
+  <button class="dg-help-icon" aria-label="생성 팁">💡</button>
+  <div class="dg-help-pop">
+    <div class="dg-help-title">💡 낙서 작화 마스터 꿀팁!</div>
     <ul class="dg-help-list">
-      <li>정면 캐릭터일수록 잘 나와요</li>
-      <li>얼굴이 크게 보이는 이미지가 좋아요</li>
-      <li>머리 장식이 선명할수록 특징 보존이 잘 됩니다</li>
-      <li>캐릭터가 화면에서 차지하는 비율이 클수록 좋아요</li>
-      <li>Full Character Sheet는 생성마다 결과가 달라질 수 있어요</li>
+      <li>얼굴이 정면에 가깝고 선명할수록 사랑스러운 낙서가 나옵니다.</li>
+      <li>어둡거나 흔들린 사진보다 밝고 선명한 실내/자연광 컷이 좋습니다.</li>
+      <li>Full Character Sheet는 생성마다 결과가 달라질 수 있어요.</li>
+      <li>파스텔 수채화 스타일은 부드러운 다꾸 표현에 가장 예쁘게 어울립니다.</li>
     </ul>
   </div>
 </div>
-<style>
-.dg-help-wrap {
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 6px;
-}
-.dg-help-icon {
-  background: #FEF08A;
-  border: 1.5px solid #EAB308;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(234,179,8,0.3);
-  transition: transform 0.15s, box-shadow 0.15s;
-  padding: 0;
-  line-height: 1;
-}
-.dg-help-icon:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(234,179,8,0.45);
-}
-.dg-help-pop {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 0;
-  width: 255px;
-  background: white;
-  border: 1.5px solid #E2D9F3;
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 8px 24px rgba(139,92,246,0.15);
-  z-index: 9999;
-}
-.dg-help-wrap:hover .dg-help-pop,
-.dg-help-pop.open { display: block; }
-.dg-help-title {
-  font-weight: 800;
-  color: #5B21B6 !important;
-  font-size: 0.88rem;
-  margin-bottom: 8px;
-}
-.dg-help-list {
-  margin: 0;
-  padding-left: 16px;
-  color: #3D3352 !important;
-  font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.65;
-}
-.dg-help-list li {
-  color: #3D3352 !important;
-}
-</style>
 """
 
 _MODE_BUTTONS_HTML = """
 <div style="margin-top:8px;">
   <div style="margin-bottom:6px;">
-    <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
-      font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;">
+    <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
+      font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;box-shadow:2px 2px 0px #4A3E3D;">
       2단계: 드로잉 레이아웃 콘셉트</span>
   </div>
   <div id="gen-mode-grid">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
       <button type="button" onclick="setGenMode(this,0)"
-        style="padding:8px 4px;border-radius:10px;border:1.5px solid #C4B5FD;background:#EDE9FE;
-        color:#4C1D95;font-weight:700;font-size:11px;cursor:pointer;text-align:center;
-        box-shadow:0 2px 8px rgba(139,92,246,0.2);transform:translateY(-1px);transition:all 0.15s;">
+        style="padding:8px 4px;border-radius:10px;border:2px solid #4A3E3D;background:#E9D5FF;
+        color:#4A3E3D;font-weight:800;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:3px 3px 0px #4A3E3D;transform:translate(-1px,-1px);transition:all 0.15s;">
         🌸 풀 캐릭터 시트</button>
       <button type="button" onclick="setGenMode(this,1)"
-        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
-        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        style="padding:8px 4px;border-radius:10px;border:2px solid #4A3E3D;background:white;
+        color:#4A3E3D;font-weight:800;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
         🖼️ 포트레이트 낙서</button>
       <button type="button" onclick="setGenMode(this,2)"
-        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
-        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        style="padding:8px 4px;border-radius:10px;border:2px solid #4A3E3D;background:white;
+        color:#4A3E3D;font-weight:800;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
         🧜‍♀️ 상반신 캐릭터</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">
       <button type="button" onclick="setGenMode(this,3)"
-        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
-        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        style="padding:8px 4px;border-radius:10px;border:2px solid #4A3E3D;background:white;
+        color:#4A3E3D;font-weight:800;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
         🍀 치비 스티커</button>
       <button type="button" onclick="setGenMode(this,4)"
-        style="padding:8px 4px;border-radius:10px;border:1.5px solid #E5E7EB;background:white;
-        color:#6B7280;font-weight:700;font-size:11px;cursor:pointer;text-align:center;transition:all 0.15s;">
+        style="padding:8px 4px;border-radius:10px;border:2px solid #4A3E3D;background:white;
+        color:#4A3E3D;font-weight:800;font-size:11px;cursor:pointer;text-align:center;
+        box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
         ✨ 심플 클린 포트레이트</button>
     </div>
   </div>
@@ -1194,23 +1119,23 @@ _MODE_BUTTONS_HTML = """
 
 _QUALITY_BUTTONS_HTML = """
 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-  <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
-    font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;">
+  <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
+    font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;box-shadow:2px 2px 0px #4A3E3D;">
     3단계: 드로잉 퀄리티</span>
-  <div style="display:flex;gap:2px;background:#F3F0FF;padding:3px;border-radius:10px;
-    border:1.5px solid #E2D9F3;" id="quality-tabs">
+  <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
+    border:2px solid #4A3E3D;" id="quality-tabs">
     <button type="button" onclick="setQuality(this,0)"
-      style="padding:4px 14px;border-radius:7px;border:none;background:transparent;
-      font-size:10px;font-weight:800;color:#9CA3AF;cursor:pointer;transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
       Low</button>
     <button type="button" onclick="setQuality(this,1)"
-      style="padding:4px 14px;border-radius:7px;border:none;background:transparent;
-      font-size:10px;font-weight:800;color:#9CA3AF;cursor:pointer;transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
       Medium</button>
     <button type="button" onclick="setQuality(this,2)"
-      style="padding:4px 14px;border-radius:7px;border:1.5px solid #DDD6FE;background:white;
-      font-size:10px;font-weight:800;color:#4C1D95;cursor:pointer;
-      box-shadow:0 1px 4px rgba(139,92,246,0.15);transition:all 0.15s;">
+      style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
+      font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
       High</button>
   </div>
 </div>
@@ -1390,16 +1315,16 @@ function dgClickRadio(groupId, idx) {
 function setGenMode(btn, idx) {
   document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
     b.style.background = 'white';
-    b.style.border = '1.5px solid #E5E7EB';
-    b.style.color = '#6B7280';
-    b.style.boxShadow = 'none';
+    b.style.border = '2px solid #4A3E3D';
+    b.style.color = '#4A3E3D';
+    b.style.boxShadow = '1px 1px 0px #4A3E3D';
     b.style.transform = 'none';
   });
-  btn.style.background = '#EDE9FE';
-  btn.style.border = '1.5px solid #C4B5FD';
-  btn.style.color = '#4C1D95';
-  btn.style.boxShadow = '0 2px 8px rgba(139,92,246,0.2)';
-  btn.style.transform = 'translateY(-1px)';
+  btn.style.background = '#E9D5FF';
+  btn.style.border = '2px solid #4A3E3D';
+  btn.style.color = '#4A3E3D';
+  btn.style.boxShadow = '3px 3px 0px #4A3E3D';
+  btn.style.transform = 'translate(-1px,-1px)';
   dgClickRadio('mode-radio-group', idx);
 }
 
@@ -1408,13 +1333,24 @@ function setQuality(btn, idx) {
     b.style.background = 'transparent';
     b.style.border = 'none';
     b.style.boxShadow = 'none';
-    b.style.color = '#9CA3AF';
+    b.style.color = '#7C6E6D';
   });
   btn.style.background = 'white';
-  btn.style.border = '1.5px solid #DDD6FE';
-  btn.style.boxShadow = '0 1px 4px rgba(139,92,246,0.15)';
-  btn.style.color = '#4C1D95';
+  btn.style.border = '1px solid #4A3E3D';
+  btn.style.boxShadow = '1px 1px 0px #4A3E3D';
+  btn.style.color = '#4A3E3D';
   dgClickRadio('quality-radio-group', idx);
+}
+
+function setStyleCard(el, style) {
+  document.querySelectorAll('.dg-style-card').forEach(function(c) {
+    c.style.border = '2px solid #8B7E7D';
+    c.style.boxShadow = '1px 1px 0px #8B7E7D';
+    c.style.background = 'white';
+  });
+  el.style.border = '2px solid #4A3E3D';
+  el.style.boxShadow = '2px 2px 0px #4A3E3D';
+  el.style.background = '#FCFAF6';
 }
 
 var _dgGoodsType = 'phone';
@@ -1532,12 +1468,14 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
         with gr.Column(scale=1, elem_id="left-panel"):
             gr.HTML("""<div style="margin-bottom:12px;">
-  <span style="background:#FCE7F3;border:1.5px solid #FBCFE8;color:#BE185D;font-size:12px;
-    font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
+  <span style="background:#FCE7F3;border:2px solid #4A3E3D;color:#4A3E3D;font-size:12px;
+    font-weight:800;padding:4px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+    box-shadow:1px 1px 0px #4A3E3D;">
     ✏️ 작업 지시서 작성</span>
 </div>
-<span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:10px;
-  font-weight:700;padding:2px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;">
+<span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
+  font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:8px;
+  box-shadow:2px 2px 0px #4A3E3D;">
   1단계: 스케치 원본 올리기</span>""")
             image_input = gr.Image(
                 type="pil",
@@ -1584,17 +1522,20 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
         with gr.Column(scale=1, elem_id="right-panel"):
             gr.HTML("""<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
-  <span style="background:#EDE9FE;border:1.5px solid #DDD6FE;color:#5B21B6;font-size:12px;
-    font-weight:800;padding:4px 14px;border-radius:20px;display:inline-block;">
+  <span style="background:#FEF08A;border:2px solid #4A3E3D;color:#4A3E3D;font-size:12px;
+    font-weight:800;padding:4px 14px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+    box-shadow:1px 1px 0px #4A3E3D;">
     🎨 완성된 낙서 스케치북</span>
-  <span style="background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:700;
-    padding:2px 10px;border-radius:20px;border:1px solid #C4B5FD;">AI Output Canvas</span>
+  <span style="background:#C084FC;color:white;font-size:9px;font-weight:700;
+    padding:2px 10px;border-radius:999px;border:1px solid #4A3E3D;box-shadow:1px 1px 0px #4A3E3D;">AI Output Canvas</span>
 </div>
 <div id="dg-output-empty" style="display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:60px 20px;pointer-events:none;">
-  <div style="font-size:52px;margin-bottom:12px;">🎨</div>
-  <div style="font-weight:800;font-size:15px;color:#6B7280;margin-bottom:8px;">스케치북이 비어있어요</div>
-  <div style="font-size:12px;color:#9CA3AF;text-align:center;line-height:1.7;">
+  <div style="width:48px;height:48px;background:white;border:2px solid #4A3E3D;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    box-shadow:2px 2px 0px #4A3E3D;margin-bottom:12px;">🎨</div>
+  <div style="font-weight:800;font-size:15px;color:#7C6E6D;margin-bottom:8px;">스케치북이 비어있어요</div>
+  <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.7;font-weight:600;">
     왼쪽 보드에 원본 사진을 넣고,<br>"낙서 시트 그리기" 버튼을 꼭 눌러주세요.</div>
 </div>""")
             image_output = gr.Image(
@@ -1613,17 +1554,46 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 
         with gr.Tab("🎀 낙서 스타일 장착실"):
             gr.HTML("""
-<div onclick="toggleStyleRef()" id="dg-doodle-card"
-  style="cursor:pointer;background:linear-gradient(135deg,#EDE9FE 0%,#FCE7F3 100%);
-    border:2px solid #C4B5FD;border-radius:16px;padding:20px 24px;
-    display:flex;align-items:center;gap:16px;margin-bottom:12px;
-    box-shadow:0 2px 12px rgba(139,92,246,0.1);transition:all 0.2s;user-select:none;"
-  onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(139,92,246,0.2)'"
-  onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 12px rgba(139,92,246,0.1)'">
-  <div style="font-size:38px;line-height:1;">🎨</div>
-  <div style="flex:1;">
-    <div style="font-weight:900;font-size:18px;color:#5B21B6;margin-bottom:3px;">Doodle</div>
-    <div style="font-size:12px;color:#7C3AED;font-weight:600;">스타일 레퍼런스 설정 · 클릭하여 열기 ▾</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+  <div class="dg-style-card" onclick="setStyleCard(this,'pastel_watercolor')"
+    style="cursor:pointer;border:2px solid #4A3E3D;border-radius:12px;background:#FCFAF6;
+    box-shadow:2px 2px 0px #4A3E3D;overflow:hidden;transition:all 0.2s;"
+    onmouseover="this.style.transform='translateY(-2px)'"
+    onmouseout="this.style.transform='none'">
+    <div style="background:#FFF0F5;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🍦</div>
+    <div style="padding:8px 10px;text-align:center;">
+      <div style="font-size:11px;font-weight:800;color:#4A3E3D;">파스텔 수채화</div>
+    </div>
+  </div>
+  <div class="dg-style-card" onclick="setStyleCard(this,'pencil_sketch')"
+    style="cursor:pointer;border:2px solid #8B7E7D;border-radius:12px;background:white;
+    box-shadow:1px 1px 0px #8B7E7D;overflow:hidden;transition:all 0.2s;"
+    onmouseover="this.style.transform='translateY(-2px)'"
+    onmouseout="this.style.transform='none'">
+    <div style="background:#F8FAFC;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">✏️</div>
+    <div style="padding:8px 10px;text-align:center;">
+      <div style="font-size:11px;font-weight:800;color:#4A3E3D;">연필 스케치</div>
+    </div>
+  </div>
+  <div class="dg-style-card" onclick="setStyleCard(this,'kawaii_sticker')"
+    style="cursor:pointer;border:2px solid #8B7E7D;border-radius:12px;background:white;
+    box-shadow:1px 1px 0px #8B7E7D;overflow:hidden;transition:all 0.2s;"
+    onmouseover="this.style.transform='translateY(-2px)'"
+    onmouseout="this.style.transform='none'">
+    <div style="background:#E0F2FE;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🎟️</div>
+    <div style="padding:8px 10px;text-align:center;">
+      <div style="font-size:11px;font-weight:800;color:#4A3E3D;">스티커 팩</div>
+    </div>
+  </div>
+  <div class="dg-style-card" onclick="setStyleCard(this,'crayon_doodle')"
+    style="cursor:pointer;border:2px solid #8B7E7D;border-radius:12px;background:white;
+    box-shadow:1px 1px 0px #8B7E7D;overflow:hidden;transition:all 0.2s;"
+    onmouseover="this.style.transform='translateY(-2px)'"
+    onmouseout="this.style.transform='none'">
+    <div style="background:#FEF3C7;height:60px;display:flex;align-items:center;justify-content:center;font-size:28px;">🖍️</div>
+    <div style="padding:8px 10px;text-align:center;">
+      <div style="font-size:11px;font-weight:800;color:#4A3E3D;">크레용 낙서</div>
+    </div>
   </div>
 </div>
 """)
@@ -1695,45 +1665,54 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             )
 
     gr.HTML("""
-<div style="text-align:center;padding:0.5rem 0 1rem;">
-  <span style="background:#EDE9FE;border:1.5px solid #C4B5FD;color:#5B21B6;font-size:11px;
-    font-weight:800;padding:4px 16px;border-radius:20px;display:inline-block;">
+<div style="text-align:center;padding:0.5rem 0 0.75rem;">
+  <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:11px;
+    font-weight:800;padding:3px 14px;border-radius:6px;display:inline-block;box-shadow:2px 2px 0px #4A3E3D;">
     ✨ AI 낙서 생성 파이프라인 소개</span>
 </div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding-bottom:1rem;">
-  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
-    <div style="background:#DDD6FE;border-radius:50%;width:36px;height:36px;min-width:36px;
-      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#5B21B6;">1</div>
-    <div>
-      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">1단계 · 분석 🔍</div>
-      <div style="font-size:11px;color:#6B7280;line-height:1.55;">GPT-4o가 머릿결, 헤어, 패션 등 고유 특징 정보 파싱</div>
+<div style="background:rgba(255,255,255,0.6);border:2px dashed #8B7E7D;border-radius:16px;
+  padding:16px;margin-bottom:1rem;">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="background:#FCE7F3;border:1px solid #4A3E3D;border-radius:50%;
+        width:24px;height:24px;min-width:24px;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:900;font-size:11px;color:#4A3E3D;margin-top:1px;">1</div>
+      <div>
+        <div style="font-weight:900;color:#4A3E3D;font-size:13px;margin-bottom:3px;">1단계 · 분석 🔍</div>
+        <div style="font-size:11px;color:#7C6E6D;line-height:1.55;font-weight:600;">GPT-4o가 머릿결, 헤어, 패션 등 고유 특징 정보 파싱</div>
+      </div>
     </div>
-  </div>
-  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
-    <div style="background:#FBCFE8;border-radius:50%;width:36px;height:36px;min-width:36px;
-      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#9D174D;">2</div>
-    <div>
-      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">2단계 · 빌드 🔥</div>
-      <div style="font-size:11px;color:#6B7280;line-height:1.55;">선택한 스타일 정보와 원본 데이터를 결합하여 프롬프트 정렬</div>
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="background:#FEF08A;border:1px solid #4A3E3D;border-radius:50%;
+        width:24px;height:24px;min-width:24px;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:900;font-size:11px;color:#4A3E3D;margin-top:1px;">2</div>
+      <div>
+        <div style="font-weight:900;color:#4A3E3D;font-size:13px;margin-bottom:3px;">2단계 · 빌드 🔥</div>
+        <div style="font-size:11px;color:#7C6E6D;line-height:1.55;font-weight:600;">선택한 스타일 정보와 원본 데이터를 결합하여 프롬프트 정렬</div>
+      </div>
     </div>
-  </div>
-  <div style="display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid #E2D9F3;border-radius:16px;padding:16px;">
-    <div style="background:#FEF08A;border-radius:50%;width:36px;height:36px;min-width:36px;
-      display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#854D0E;">3</div>
-    <div>
-      <div style="font-weight:800;color:#3D3352;font-size:13px;margin-bottom:4px;">3단계 · 그리기 🖌️</div>
-      <div style="font-size:11px;color:#6B7280;line-height:1.55;">gpt-image-1 드로잉 AI가 수채 채색 다구 디자인 완성</div>
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="background:#D9F99D;border:1px solid #4A3E3D;border-radius:50%;
+        width:24px;height:24px;min-width:24px;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:900;font-size:11px;color:#4A3E3D;margin-top:1px;">3</div>
+      <div>
+        <div style="font-weight:900;color:#4A3E3D;font-size:13px;margin-bottom:3px;">3단계 · 그리기 🖌️</div>
+        <div style="font-size:11px;color:#7C6E6D;line-height:1.55;font-weight:600;">gpt-image-1 드로잉 AI가 수채 채색 다꾸 디자인 완성</div>
+      </div>
     </div>
   </div>
 </div>
 """)
 
-    gr.Markdown(
-        "---\n"
-        "<p style='text-align:center; color:#9CA3AF; font-size:0.85rem; font-weight:600;'>"
-        "Made with ♡ using Gradio · OpenAI GPT-4o · gpt-image-1 · Hugging Face Spaces"
-        "</p>"
-    )
+    gr.HTML("""
+<hr style="border:none;border-top:2px dashed #8B7E7D;margin:0.5rem 0;">
+<p style="text-align:center;color:#7C6E6D;font-size:11px;font-weight:600;padding:0.5rem 0 1rem;">
+  Premium Single-File SPA · Gradio Layout Rework · Powered by GPT-4o &amp; gpt-image-1
+</p>
+""")
 
     # ── Button wiring ──────────────────────────────────────────────────────────
     generate_btn.click(
