@@ -1254,144 +1254,147 @@ _ACTION_BUTTONS_HTML = """
 """
 
 _GOODS_MODAL_HTML = """
-<div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
-    backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:12px;">
-    <div style="background:#FAF7F2;border:3px solid #4A3E3D;border-radius:20px;
-      box-shadow:5px 5px 0px #C084FC;width:100%;max-width:680px;max-height:90vh;
-      overflow-y:auto;position:relative;padding:1.4rem;">
+<div id="dg-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.62);
+    backdrop-filter:blur(4px);z-index:99999;align-items:center;justify-content:center;padding:8px;">
+  <div style="background:#FAF7F2;border:3px solid #4A3E3D;border-radius:20px;
+    box-shadow:5px 5px 0px #C084FC;width:100%;max-width:980px;max-height:94vh;
+    overflow-y:auto;position:relative;padding:1rem 1.2rem 1.2rem;">
 
-      <button onclick="dgCloseModal()"
-        style="position:absolute;top:10px;right:12px;background:none;border:none;
-        font-size:1.3rem;cursor:pointer;color:#4A3E3D;font-weight:900;line-height:1;">✕</button>
+    <button onclick="dgCloseModal()" style="position:absolute;top:10px;right:12px;
+      background:none;border:none;font-size:1.3rem;cursor:pointer;color:#4A3E3D;font-weight:900;">✕</button>
 
-      <div style="text-align:center;margin-bottom:1rem;">
-        <h2 style="font-family:'Gaegu','Fredoka',cursive;font-size:1.4rem;font-weight:900;
-          color:#4A3E3D;margin:0 0 4px;">🪄 나만의 드로잉 굿즈 디자인스튜디오</h2>
-        <p style="font-size:0.78rem;color:#7C6E6D;font-weight:600;margin:0;">
-          생성된 낙서를 원하는 제품에 맞추어 실시간으로 확인해 보세요 ♡</p>
+    <div style="text-align:center;margin-bottom:10px;">
+      <h2 style="font-family:'Gaegu','Fredoka',cursive;font-size:1.3rem;font-weight:900;color:#4A3E3D;margin:0 0 2px;">
+        🪄 나만의 드로잉 굿즈 디자인스튜디오</h2>
+      <p style="font-size:0.72rem;color:#7C6E6D;font-weight:600;margin:0;">
+        생성된 낙서로 나만의 다꾸 굿즈를 직접 꾸며보세요 ♡</p>
+    </div>
+
+    <!-- Top bar: goods type + bg removal -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+      background:white;border:2px solid #4A3E3D;border-radius:12px;padding:8px 12px;margin-bottom:10px;">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        <button id="dg-bt-phone" onclick="dgSetType('phone')"
+          style="padding:5px 9px;border-radius:7px;border:2px solid #4A3E3D;background:#E9D5FF;
+          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">📱 폰케이스</button>
+        <button id="dg-bt-griptok" onclick="dgSetType('griptok')"
+          style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔘 그립톡</button>
+        <button id="dg-bt-mug" onclick="dgSetType('mug')"
+          style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🥛 머그컵</button>
+        <button id="dg-bt-keyring" onclick="dgSetType('keyring')"
+          style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">🔑 키링</button>
+        <button id="dg-bt-tshirt" onclick="dgSetType('tshirt')"
+          style="padding:5px 9px;border-radius:7px;border:2px solid #8B7E7D;background:white;
+          font-size:9.5px;font-weight:900;color:#4A3E3D;cursor:pointer;">👕 티셔츠</button>
       </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:1.2rem;align-items:start;">
-
-        <!-- Live preview -->
-        <div style="background:white;border:2px dashed #8B7E7D;border-radius:14px;padding:12px;
-          min-height:240px;display:flex;flex-direction:column;align-items:center;
-          justify-content:center;position:relative;">
-          <span style="position:absolute;top:6px;left:8px;background:#4A3E3D;color:white;
-            font-size:8px;font-weight:700;padding:2px 7px;border-radius:999px;">LIVE PREVIEW</span>
-
-          <div id="dg-w-phone" style="width:110px;height:195px;border:5px solid #1E1B1B;
-            border-radius:20px;position:relative;overflow:hidden;display:flex;
-            align-items:center;justify-content:center;background:#FDE2E4;transition:background 0.3s;">
-            <div style="position:absolute;top:7px;left:7px;width:24px;height:24px;
-              background:#2D2727;border-radius:6px;z-index:10;"></div>
-            <img id="dg-img-phone" src="" style="max-width:82%;max-height:82%;object-fit:contain;transition:transform 0.1s;" />
-          </div>
-          <div id="dg-w-griptok" style="display:none;width:140px;height:140px;border-radius:50%;
-            border:4px solid #4A3E3D;overflow:hidden;align-items:center;justify-content:center;
-            background:#E8E8E8;transition:background 0.3s;">
-            <img id="dg-img-griptok" src="" style="max-width:80%;max-height:80%;object-fit:contain;border-radius:50%;transition:transform 0.1s;" />
-          </div>
-          <div id="dg-w-mug" style="display:none;width:125px;height:150px;border:5px solid #4A3E3D;
-            border-radius:10px 10px 16px 16px;position:relative;overflow:hidden;
-            align-items:center;justify-content:center;background:white;transition:background 0.3s;">
-            <div style="position:absolute;top:28px;right:-26px;width:30px;height:85px;
-              border:5px solid #4A3E3D;border-left:none;border-radius:0 28px 28px 0;z-index:-1;"></div>
-            <img id="dg-img-mug" src="" style="max-width:65%;max-height:65%;object-fit:contain;transition:transform 0.1s;" />
-          </div>
-          <div id="dg-w-keyring" style="display:none;width:110px;height:145px;
-            border:3px solid rgba(192,132,252,0.4);background:rgba(255,255,255,0.65);
-            border-radius:14px;position:relative;align-items:center;justify-content:center;
-            backdrop-filter:blur(2px);transition:background 0.3s;">
-            <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);
-              width:18px;height:18px;border:3px solid #94A3B8;border-radius:50%;"></div>
-            <div style="position:absolute;top:-7px;left:50%;transform:translateX(-50%);
-              width:6px;height:11px;background:#94A3B8;border-radius:3px;"></div>
-            <img id="dg-img-keyring" src="" style="max-width:70%;max-height:70%;object-fit:contain;transition:transform 0.1s;" />
-          </div>
-
-          <div style="margin-top:10px;">
-            <span id="dg-tag" style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;
-              font-size:9px;font-weight:700;padding:2px 10px;border-radius:5px;
-              box-shadow:2px 2px 0px #4A3E3D;">프리미엄 무광 폰케이스</span>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;">
+        <span style="font-size:9.5px;font-weight:700;color:#4A3E3D;">✨ 누끼따기</span>
+        <div style="position:relative;width:40px;height:20px;flex-shrink:0;">
+          <input type="checkbox" id="dg-bg-toggle" onchange="dgToggleBg(this.checked)"
+            style="opacity:0;width:0;height:0;position:absolute;">
+          <div id="dg-bg-track" onclick="var cb=document.getElementById('dg-bg-toggle');cb.checked=!cb.checked;dgToggleBg(cb.checked);"
+            style="position:absolute;inset:0;background:#D1D5DB;border-radius:20px;border:2px solid #4A3E3D;cursor:pointer;transition:background 0.2s;">
+            <div id="dg-bg-knob" style="position:absolute;top:1px;left:1px;width:14px;height:14px;
+              background:white;border-radius:50%;transition:transform 0.2s;pointer-events:none;"></div>
           </div>
         </div>
+      </label>
+    </div>
 
-        <!-- Controls -->
-        <div style="display:flex;flex-direction:column;gap:10px;">
+    <!-- 3-panel body -->
+    <div style="display:grid;grid-template-columns:1fr 1.15fr 200px;gap:10px;align-items:start;">
 
-          <div>
-            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:5px;">❶ 굿즈 품목 선택하기</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-              <button id="dg-bt-phone" onclick="dgSetType('phone')"
-                style="padding:6px 8px;border-radius:7px;border:2px solid #4A3E3D;background:#E9D5FF;
-                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;
-                display:flex;align-items:center;gap:4px;">📱 슬림 하드 폰케이스</button>
-              <button id="dg-bt-griptok" onclick="dgSetType('griptok')"
-                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
-                display:flex;align-items:center;gap:4px;">🔘 동글 아크릴 그립톡</button>
-              <button id="dg-bt-mug" onclick="dgSetType('mug')"
-                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
-                display:flex;align-items:center;gap:4px;">🥛 머그 인쇄 세라믹컵</button>
-              <button id="dg-bt-keyring" onclick="dgSetType('keyring')"
-                style="padding:6px 8px;border-radius:7px;border:2px solid #8B7E7D;background:white;
-                font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
-                display:flex;align-items:center;gap:4px;">🔑 디럭스 아크릴 키링</button>
-            </div>
-          </div>
+      <!-- Panel 1: Sticker Cropper -->
+      <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
+        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">✂️ 스티커 크롭</div>
+        <div style="position:relative;width:100%;aspect-ratio:1/1;background:#F8F5F0;
+          border-radius:8px;border:1px dashed #8B7E7D;overflow:hidden;">
+          <canvas id="dg-crop-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+          <canvas id="dg-crop-sel" style="position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;"></canvas>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;">
+          <button onclick="dgPresetCrop(0,0,1,0.42)" style="padding:4px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">🔝 상단</button>
+          <button onclick="dgPresetCrop(0,0.3,1,0.42)" style="padding:4px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">⬛ 중단</button>
+          <button onclick="dgPresetCrop(0,0.58,1,0.42)" style="padding:4px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#FEF3C7;font-size:9px;font-weight:700;cursor:pointer;">🔽 하단</button>
+          <button onclick="dgPresetCrop(0,0,1,1)" style="padding:4px;border-radius:6px;
+            border:1px solid #4A3E3D;background:#E9D5FF;font-size:9px;font-weight:700;cursor:pointer;">📋 전체</button>
+        </div>
+        <button onclick="dgAddToPocket()" style="width:100%;margin-top:6px;padding:7px;background:#C084FC;
+          color:white;border:2px solid #4A3E3D;border-radius:8px;font-size:10px;font-weight:900;cursor:pointer;
+          box-shadow:2px 2px 0px #4A3E3D;">+ 보관함에 추가 ♡</button>
+      </div>
 
-          <div style="background:#F4EFE6;border:2px solid #4A3E3D;border-radius:9px;padding:10px;">
-            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:7px;">❷ 세부 드로잉 레이아웃 맞춤</div>
-            <div style="margin-bottom:7px;">
-              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
-                <span>도안 스케일 크기</span><span id="dg-lbl-scale">100%</span></div>
-              <input type="range" id="dg-sl-scale" min="40" max="150" value="100"
-                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
-            </div>
-            <div style="margin-bottom:7px;">
-              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
-                <span>상하 위치 미세조정</span><span id="dg-lbl-y">0px</span></div>
-              <input type="range" id="dg-sl-y" min="-60" max="60" value="0"
-                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:#7C6E6D;margin-bottom:2px;">
-                <span>좌우 위치 미세조정</span><span id="dg-lbl-x">0px</span></div>
-              <input type="range" id="dg-sl-x" min="-40" max="40" value="0"
-                oninput="dgTransform()" style="width:100%;cursor:pointer;accent-color:#C084FC;">
-            </div>
-          </div>
-
-          <div>
-            <div style="font-size:11px;font-weight:900;color:#4A3E3D;margin-bottom:5px;">❸ 제품 베이스 컬러 선택하기</div>
-            <div style="display:flex;gap:7px;align-items:center;">
-              <button onclick="dgColor('#FDE2E4')" style="width:22px;height:22px;border-radius:50%;background:#FDE2E4;border:2px solid #4A3E3D;cursor:pointer;"></button>
-              <button onclick="dgColor('#D8F3DC')" style="width:22px;height:22px;border-radius:50%;background:#D8F3DC;border:2px solid #8B7E7D;cursor:pointer;"></button>
-              <button onclick="dgColor('#E0F2FE')" style="width:22px;height:22px;border-radius:50%;background:#E0F2FE;border:2px solid #8B7E7D;cursor:pointer;"></button>
-              <button onclick="dgColor('#FEF08A')" style="width:22px;height:22px;border-radius:50%;background:#FEF08A;border:2px solid #8B7E7D;cursor:pointer;"></button>
-              <button onclick="dgColor('#FFFFFF')" style="width:22px;height:22px;border-radius:50%;background:#FFFFFF;border:2px solid #8B7E7D;cursor:pointer;"></button>
-              <button onclick="dgColor('#1E1B1B')" style="width:22px;height:22px;border-radius:50%;background:#1E1B1B;border:2px solid #8B7E7D;cursor:pointer;"></button>
+      <!-- Panel 2: Goods Preview Canvas -->
+      <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
+        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">🎨 굿즈 프리뷰</div>
+        <div style="display:flex;justify-content:center;align-items:center;
+          background:#F8F5F0;border-radius:8px;border:1px dashed #8B7E7D;
+          padding:12px;position:relative;min-height:270px;">
+          <canvas id="dg-goods-canvas" style="max-width:100%;max-height:310px;cursor:crosshair;display:block;"></canvas>
+          <div id="dg-sticker-ctrl" style="display:none;position:absolute;bottom:4px;left:4px;right:4px;
+            background:white;border:1.5px solid #C084FC;border-radius:8px;padding:6px 8px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:9px;font-weight:700;color:#4A3E3D;white-space:nowrap;">크기</span>
+              <input type="range" id="dg-st-scale" min="10" max="80" value="30"
+                oninput="dgScaleSticker(this.value)"
+                style="flex:1;accent-color:#C084FC;cursor:pointer;height:4px;">
+              <button onclick="dgDeleteSticker()" style="background:#4A3E3D;color:white;border:none;
+                border-radius:4px;padding:2px 7px;font-size:9px;cursor:pointer;white-space:nowrap;">✕ 삭제</button>
             </div>
           </div>
         </div>
+        <div style="margin-top:8px;">
+          <div style="font-size:9px;font-weight:700;color:#7C6E6D;margin-bottom:4px;">제품 컬러</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+            <button onclick="dgColor('#FDE2E4')" style="width:22px;height:22px;border-radius:50%;background:#FDE2E4;border:2.5px solid #4A3E3D;cursor:pointer;" title="핑크"></button>
+            <button onclick="dgColor('#D8F3DC')" style="width:22px;height:22px;border-radius:50%;background:#D8F3DC;border:2px solid #8B7E7D;cursor:pointer;" title="민트"></button>
+            <button onclick="dgColor('#E0F2FE')" style="width:22px;height:22px;border-radius:50%;background:#E0F2FE;border:2px solid #8B7E7D;cursor:pointer;" title="스카이"></button>
+            <button onclick="dgColor('#FEF08A')" style="width:22px;height:22px;border-radius:50%;background:#FEF08A;border:2px solid #8B7E7D;cursor:pointer;" title="레몬"></button>
+            <button onclick="dgColor('#E2D5F0')" style="width:22px;height:22px;border-radius:50%;background:#E2D5F0;border:2px solid #8B7E7D;cursor:pointer;" title="라벤더"></button>
+            <button onclick="dgColor('#FFFFFF')" style="width:22px;height:22px;border-radius:50%;background:#FFFFFF;border:2px solid #8B7E7D;cursor:pointer;" title="화이트"></button>
+            <button onclick="dgColor('#1E1B1B')" style="width:22px;height:22px;border-radius:50%;background:#1E1B1B;border:2px solid #8B7E7D;cursor:pointer;" title="블랙"></button>
+          </div>
+        </div>
+        <button onclick="dgExportGoods()" style="width:100%;margin-top:8px;padding:7px;
+          background:#2D2727;color:white;border:2px solid #4A3E3D;border-radius:8px;
+          font-size:10px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0px #4A3E3D;">⬇ 굿즈 디자인 저장</button>
       </div>
 
-      <hr style="border:none;border-top:2px dashed #8B7E7D;margin:1rem 0;">
-      <div style="display:flex;gap:8px;">
-        <button onclick="dgCloseModal()"
-          style="flex:1;padding:0.7rem;background:#C084FC;color:white;border:2px solid #4A3E3D;
-          font-weight:900;font-size:0.9rem;border-radius:12px;box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;">
-          💌 주문 완료 ♡
-        </button>
-        <button onclick="dgCloseModal()"
-          style="padding:0.7rem 1.1rem;background:white;color:#4A3E3D;border:2px solid #4A3E3D;
-          font-weight:700;font-size:0.85rem;border-radius:12px;box-shadow:2px 2px 0px #4A3E3D;cursor:pointer;">
-          돌아가기
-        </button>
+      <!-- Panel 3: Sticker Pocket -->
+      <div style="background:white;border:2px solid #4A3E3D;border-radius:12px;padding:10px;">
+        <div style="font-size:10px;font-weight:900;color:#4A3E3D;margin-bottom:6px;">🗂 스티커 보관함</div>
+        <div id="dg-pocket" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;
+          min-height:90px;max-height:210px;overflow-y:auto;">
+          <div id="dg-pocket-empty" style="color:#8B7E7D;font-size:9px;font-weight:600;
+            text-align:center;grid-column:1/-1;padding:20px 4px;line-height:1.7;">
+            크롭 후 추가하면<br>여기 모여요 ♡</div>
+        </div>
+        <div style="background:#FEF3C7;border:1px solid #4A3E3D;border-radius:6px;
+          padding:5px 7px;margin-top:6px;font-size:8.5px;color:#4A3E3D;font-weight:600;line-height:1.6;">
+          💡 스티커를 굿즈로<br>드래그해서 배치!<br>클릭 후 이동·크기 조절
+        </div>
+        <button onclick="dgClearPocket()" style="width:100%;margin-top:6px;padding:5px;
+          background:white;color:#7C6E6D;border:1px solid #8B7E7D;border-radius:6px;
+          font-size:9px;font-weight:700;cursor:pointer;">🗑 보관함 비우기</button>
       </div>
     </div>
+
+    <hr style="border:none;border-top:2px dashed #8B7E7D;margin:10px 0;">
+    <div style="display:flex;gap:8px;">
+      <button onclick="dgCloseModal()" style="flex:1;padding:0.65rem;background:#C084FC;color:white;
+        border:2px solid #4A3E3D;font-weight:900;font-size:0.85rem;border-radius:12px;
+        box-shadow:3px 3px 0px #4A3E3D;cursor:pointer;">💌 완성 ♡</button>
+      <button onclick="dgCloseModal()" style="padding:0.65rem 1rem;background:white;color:#4A3E3D;
+        border:2px solid #4A3E3D;font-weight:700;font-size:0.85rem;border-radius:12px;
+        box-shadow:2px 2px 0px #4A3E3D;cursor:pointer;">돌아가기</button>
+    </div>
+  </div>
 </div>
 """
 
@@ -1453,20 +1456,44 @@ function setStyleCard(el, style) {
   el.style.background = '#FCFAF6';
 }
 
-var _dgGoodsType = 'phone';
-var _dgTypes = ['phone','griptok','mug','keyring'];
-var _dgTags = {phone:'프리미엄 무광 폰케이스', griptok:'동글 아크릴 그립톡', mug:'머그 인쇄 세라믹컵', keyring:'디럭스 아크릴 키링'};
+// ── Goods Studio ──────────────────────────────────────────────────────────────
+var _dgSt = {
+  type:'phone', color:'#FDE2E4', removeBg:false,
+  stickers:[], pocket:[], selId:null,
+  cropRect:null, cropDrag:false, cropStart:null,
+  pocketDragIdx:null,
+  goodsDrag:false, goodsDragId:null, goodsDragOx:0, goodsDragOy:0,
+  nextId:0, imgTs:0, mainImg:null
+};
+
+var _dgCfg = {
+  phone:   {cw:190, ch:340, ax:22, ay:60, aw:146, ah:220},
+  griptok: {cw:220, ch:220, ax:35, ay:35, aw:150, ah:150},
+  mug:     {cw:250, ch:260, ax:22, ay:55, aw:168, ah:170},
+  keyring: {cw:190, ch:250, ax:24, ay:56, aw:142, ah:168},
+  tshirt:  {cw:260, ch:260, ax:55, ay:76, aw:150, ah:148}
+};
+
+function _dgPos(canvas, e) {
+  var r = canvas.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/r.width*canvas.width, y:(e.clientY-r.top)/r.height*canvas.height};
+}
 
 function dgOpenModal() {
   var m = document.getElementById('dg-modal');
-  if (m) {
-    m.style.display = 'flex';
-    var src = '/current-image?_=' + Date.now();
-    _dgTypes.forEach(function(t) {
-      var el = document.getElementById('dg-img-' + t);
-      if (el) el.src = src;
-    });
-  }
+  if (!m) return;
+  m.style.display = 'flex';
+  _dgSt.stickers = []; _dgSt.selId = null; _dgSt.mainImg = null;
+  _dgSt.imgTs = Date.now();
+  var ctrl = document.getElementById('dg-sticker-ctrl');
+  if (ctrl) ctrl.style.display = 'none';
+  setTimeout(function() {
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() { _dgSt.mainImg = img; _dgInitCrop(); _dgRender(); };
+    img.onerror = function() { _dgInitCrop(); _dgRender(); };
+    img.src = '/current-image?t=' + _dgSt.imgTs;
+  }, 150);
 }
 
 function dgCloseModal() {
@@ -1474,45 +1501,252 @@ function dgCloseModal() {
   if (m) m.style.display = 'none';
 }
 
-function dgSetType(type) {
-  _dgGoodsType = type;
-  _dgTypes.forEach(function(t) {
-    var w = document.getElementById('dg-w-' + t);
-    var b = document.getElementById('dg-bt-' + t);
-    if (w) w.style.display = (t === type) ? 'flex' : 'none';
-    if (b) {
-      if (t === type) {
-        b.style.border = '2px solid #4A3E3D';
-        b.style.background = '#E9D5FF';
-        b.style.boxShadow = '2px 2px 0px #4A3E3D';
-      } else {
-        b.style.border = '2px solid #8B7E7D';
-        b.style.background = 'white';
-        b.style.boxShadow = 'none';
+function dgSetType(t) {
+  _dgSt.type = t;
+  ['phone','griptok','mug','keyring','tshirt'].forEach(function(x) {
+    var b = document.getElementById('dg-bt-' + x);
+    if (!b) return;
+    b.style.border = x===t ? '2px solid #4A3E3D' : '2px solid #8B7E7D';
+    b.style.background = x===t ? '#E9D5FF' : 'white';
+    b.style.boxShadow = x===t ? '2px 2px 0px #4A3E3D' : 'none';
+  });
+  _dgRender();
+}
+
+function dgColor(c) { _dgSt.color = c; _dgRender(); }
+
+function dgToggleBg(on) {
+  _dgSt.removeBg = on;
+  var tr = document.getElementById('dg-bg-track');
+  var kn = document.getElementById('dg-bg-knob');
+  if (tr) tr.style.background = on ? '#C084FC' : '#D1D5DB';
+  if (kn) kn.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+  _dgRender();
+}
+
+// ── Sticker Cropper ────────────────────────────────────────────────────────────
+function _dgInitCrop() {
+  var cc = document.getElementById('dg-crop-canvas');
+  var cs = document.getElementById('dg-crop-sel');
+  if (!cc || !cs) return;
+  var sz = cc.parentElement.offsetWidth || 220;
+  cc.width = sz; cc.height = sz; cs.width = sz; cs.height = sz;
+  if (_dgSt.mainImg) {
+    var img = _dgSt.mainImg, ctx = cc.getContext('2d');
+    var sc = Math.min(sz/img.width, sz/img.height);
+    ctx.clearRect(0,0,sz,sz);
+    ctx.drawImage(img, (sz-img.width*sc)/2, (sz-img.height*sc)/2, img.width*sc, img.height*sc);
+  }
+  if (cs._dgBound) return;
+  cs._dgBound = true;
+  function cp(e) {
+    var r=cs.getBoundingClientRect(), t=e.touches?e.touches[0]:e;
+    return {x:(t.clientX-r.left)/r.width*cs.width, y:(t.clientY-r.top)/r.height*cs.height};
+  }
+  cs.onmousedown = function(e) { _dgSt.cropDrag=true; _dgSt.cropStart=cp(e); _dgSt.cropRect=null; };
+  cs.onmousemove = function(e) {
+    if (!_dgSt.cropDrag) return;
+    var p=cp(e), s=_dgSt.cropStart;
+    _dgSt.cropRect={x:Math.min(s.x,p.x),y:Math.min(s.y,p.y),w:Math.abs(p.x-s.x),h:Math.abs(p.y-s.y)};
+    _dgDrawSel();
+  };
+  cs.onmouseup = cs.onmouseleave = function() { _dgSt.cropDrag=false; };
+}
+
+function _dgDrawSel() {
+  var cs=document.getElementById('dg-crop-sel');
+  if (!cs) return;
+  var ctx=cs.getContext('2d'), r=_dgSt.cropRect;
+  ctx.clearRect(0,0,cs.width,cs.height);
+  if (!r) return;
+  ctx.fillStyle='rgba(192,132,252,0.18)'; ctx.fillRect(r.x,r.y,r.w,r.h);
+  ctx.strokeStyle='#C084FC'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.strokeRect(r.x,r.y,r.w,r.h); ctx.setLineDash([]);
+}
+
+function dgPresetCrop(nx,ny,nw,nh) {
+  var cs=document.getElementById('dg-crop-sel');
+  if (!cs) return;
+  _dgSt.cropRect={x:nx*cs.width,y:ny*cs.height,w:nw*cs.width,h:nh*cs.height};
+  _dgDrawSel();
+}
+
+function dgAddToPocket() {
+  var cc=document.getElementById('dg-crop-canvas');
+  if (!cc) return;
+  var r=_dgSt.cropRect||{x:0,y:0,w:cc.width,h:cc.height};
+  var pw=Math.max(4,Math.round(r.w)), ph=Math.max(4,Math.round(r.h));
+  if (pw<4||ph<4) { r={x:0,y:0,w:cc.width,h:cc.height}; pw=cc.width; ph=cc.height; }
+  var tmp=document.createElement('canvas');
+  tmp.width=pw; tmp.height=ph;
+  tmp.getContext('2d').drawImage(cc,r.x,r.y,r.w,r.h,0,0,pw,ph);
+  _dgSt.pocket.push(tmp.toDataURL('image/png'));
+  _dgSt.cropRect=null; _dgDrawSel();
+  _dgUpdatePocket();
+}
+
+function _dgUpdatePocket() {
+  var el=document.getElementById('dg-pocket');
+  var emp=document.getElementById('dg-pocket-empty');
+  if (!el) return;
+  if (emp) emp.style.display=_dgSt.pocket.length?'none':'block';
+  Array.from(el.children).forEach(function(c){ if(c.id!=='dg-pocket-empty') el.removeChild(c); });
+  _dgSt.pocket.forEach(function(du,idx) {
+    var div=document.createElement('div');
+    div.style.cssText='position:relative;border:1.5px solid #C084FC;border-radius:6px;overflow:hidden;aspect-ratio:1/1;background:white;cursor:grab;';
+    div.draggable=true;
+    div.ondragstart=function(e){ _dgSt.pocketDragIdx=idx; e.dataTransfer.effectAllowed='copy'; };
+    var img=document.createElement('img');
+    img.src=du; img.style.cssText='width:100%;height:100%;object-fit:contain;pointer-events:none;';
+    var del=document.createElement('button');
+    del.textContent='×';
+    del.style.cssText='position:absolute;top:1px;right:1px;background:rgba(74,62,61,0.85);color:white;border:none;border-radius:3px;width:15px;height:15px;font-size:9px;cursor:pointer;padding:0;line-height:1;';
+    del.onclick=function(e){ e.stopPropagation(); _dgSt.pocket.splice(idx,1); _dgUpdatePocket(); };
+    var sav=document.createElement('button');
+    sav.textContent='↓';
+    sav.style.cssText='position:absolute;bottom:1px;right:1px;background:rgba(192,132,252,0.9);color:white;border:none;border-radius:3px;width:15px;height:15px;font-size:9px;cursor:pointer;padding:0;line-height:1;';
+    sav.onclick=function(e){
+      e.stopPropagation();
+      var a=document.createElement('a'); a.href=du; a.download='sticker_'+idx+'.png'; a.click();
+    };
+    div.appendChild(img); div.appendChild(del); div.appendChild(sav);
+    el.appendChild(div);
+  });
+}
+
+function dgClearPocket() { _dgSt.pocket=[]; _dgUpdatePocket(); }
+
+// ── Goods Canvas Rendering ─────────────────────────────────────────────────────
+function _dgRR(ctx,x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function _dgShape(ctx,t,col) {
+  var c=_dgCfg[t], w=c.cw, h=c.ch; ctx.save();
+  if (t==='phone') {
+    _dgRR(ctx,6,6,w-12,h-12,22); ctx.fillStyle='#1E1B1B'; ctx.fill();
+    _dgRR(ctx,11,11,w-22,h-22,18); ctx.fillStyle=col; ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,0.06)'; ctx.fillRect(11,11,w-22,16);
+    _dgRR(ctx,16,16,26,26,5); ctx.fillStyle='#1E1B1B'; ctx.fill();
+  } else if (t==='griptok') {
+    var R=Math.min(w,h)/2-6;
+    ctx.beginPath(); ctx.arc(w/2,h/2,R,0,Math.PI*2); ctx.fillStyle='#4A3E3D'; ctx.fill();
+    ctx.beginPath(); ctx.arc(w/2,h/2,R-4,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+  } else if (t==='mug') {
+    _dgRR(ctx,14,26,w-56,h-44,9); ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle='#4A3E3D'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(w-30,h/2+4,24,-1.2,1.2); ctx.strokeStyle='#4A3E3D'; ctx.lineWidth=7; ctx.stroke();
+    _dgRR(ctx,14,26,w-56,14,4); ctx.fillStyle='#4A3E3D'; ctx.fill();
+  } else if (t==='keyring') {
+    _dgRR(ctx,14,48,w-28,h-62,12); ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill();
+    ctx.strokeStyle='#4A3E3D'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(w/2,25,13,0,Math.PI*2); ctx.strokeStyle='#94A3B8'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w/2,12); ctx.lineTo(w/2,48); ctx.strokeStyle='#94A3B8'; ctx.lineWidth=2.5; ctx.stroke();
+  } else if (t==='tshirt') {
+    ctx.beginPath();
+    ctx.moveTo(62,16); ctx.lineTo(18,16); ctx.lineTo(2,58); ctx.lineTo(42,72);
+    ctx.lineTo(42,h-14); ctx.lineTo(w-42,h-14); ctx.lineTo(w-42,72);
+    ctx.lineTo(w-2,58); ctx.lineTo(w-18,16); ctx.lineTo(w-62,16);
+    ctx.quadraticCurveTo(w/2,48,62,16);
+    ctx.fillStyle=col; ctx.fill(); ctx.strokeStyle='#4A3E3D'; ctx.lineWidth=2.5; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function _dgBgRemove(src) {
+  var tmp=document.createElement('canvas');
+  tmp.width=src.width; tmp.height=src.height;
+  var ctx=tmp.getContext('2d'); ctx.drawImage(src,0,0);
+  var id=ctx.getImageData(0,0,tmp.width,tmp.height), d=id.data;
+  for (var i=0;i<d.length;i+=4) { if(d[i]>228&&d[i+1]>228&&d[i+2]>228) d[i+3]=0; }
+  ctx.putImageData(id,0,0); return tmp;
+}
+
+function _dgRender() {
+  var canvas=document.getElementById('dg-goods-canvas');
+  if (!canvas) return;
+  var t=_dgSt.type, cfg=_dgCfg[t];
+  canvas.width=cfg.cw; canvas.height=cfg.ch;
+  var ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,cfg.cw,cfg.ch);
+  _dgShape(ctx,t,_dgSt.color);
+  if (_dgSt.mainImg) {
+    ctx.drawImage(_dgSt.removeBg?_dgBgRemove(_dgSt.mainImg):_dgSt.mainImg, cfg.ax,cfg.ay,cfg.aw,cfg.ah);
+  }
+  _dgSt.stickers.forEach(function(st) {
+    if (!st._img) return;
+    var sz=(st.scale/100)*Math.min(cfg.cw,cfg.ch);
+    ctx.save(); ctx.translate(st.cx,st.cy);
+    ctx.drawImage(st._img,-sz/2,-sz/2,sz,sz);
+    if (_dgSt.selId===st.id) {
+      ctx.strokeStyle='#C084FC'; ctx.lineWidth=2; ctx.setLineDash([3,2]);
+      ctx.strokeRect(-sz/2-3,-sz/2-3,sz+6,sz+6); ctx.setLineDash([]);
+    }
+    ctx.restore();
+  });
+  _dgSetupGoods(canvas);
+}
+
+function _dgSetupGoods(canvas) {
+  if (canvas._dgBound) return;
+  canvas._dgBound = true;
+  canvas.ondragover = function(e) { e.preventDefault(); };
+  canvas.ondrop = function(e) {
+    e.preventDefault();
+    if (_dgSt.pocketDragIdx===null) return;
+    var p=_dgPos(canvas,e), du=_dgSt.pocket[_dgSt.pocketDragIdx];
+    var st={id:_dgSt.nextId++,dataUrl:du,cx:p.x,cy:p.y,scale:30,_img:null};
+    var im=new Image(); im.onload=function(){st._img=im;_dgRender();}; im.src=du;
+    _dgSt.stickers.push(st); _dgSt.pocketDragIdx=null;
+  };
+  canvas.onmousedown = function(e) {
+    var cfg=_dgCfg[_dgSt.type], p=_dgPos(canvas,e);
+    _dgSt.selId=null; _dgSt.goodsDrag=false;
+    for (var i=_dgSt.stickers.length-1;i>=0;i--) {
+      var st=_dgSt.stickers[i], sz=(st.scale/100)*Math.min(cfg.cw,cfg.ch);
+      if (Math.abs(p.x-st.cx)<sz/2&&Math.abs(p.y-st.cy)<sz/2) {
+        _dgSt.selId=st.id; _dgSt.goodsDrag=true;
+        _dgSt.goodsDragId=st.id; _dgSt.goodsDragOx=p.x-st.cx; _dgSt.goodsDragOy=p.y-st.cy;
+        var ctrl=document.getElementById('dg-sticker-ctrl');
+        if (ctrl) { ctrl.style.display='block'; document.getElementById('dg-st-scale').value=st.scale; }
+        break;
       }
     }
-  });
-  var tag = document.getElementById('dg-tag');
-  if (tag) tag.textContent = _dgTags[type];
+    if (!_dgSt.selId) { var ctrl=document.getElementById('dg-sticker-ctrl'); if(ctrl) ctrl.style.display='none'; }
+    _dgRender();
+  };
+  canvas.onmousemove = function(e) {
+    if (!_dgSt.goodsDrag) return;
+    var p=_dgPos(canvas,e);
+    _dgSt.stickers.forEach(function(s){if(s.id===_dgSt.goodsDragId){s.cx=p.x-_dgSt.goodsDragOx;s.cy=p.y-_dgSt.goodsDragOy;}});
+    _dgRender();
+  };
+  canvas.onmouseup = canvas.onmouseleave = function() { _dgSt.goodsDrag=false; };
 }
 
-function dgTransform() {
-  var s = document.getElementById('dg-sl-scale').value;
-  var y = document.getElementById('dg-sl-y').value;
-  var x = document.getElementById('dg-sl-x').value;
-  document.getElementById('dg-lbl-scale').textContent = s + '%';
-  document.getElementById('dg-lbl-y').textContent = y + 'px';
-  document.getElementById('dg-lbl-x').textContent = x + 'px';
-  var tf = 'scale(' + (s/100) + ') translate(' + x + 'px,' + y + 'px)';
-  _dgTypes.forEach(function(t) {
-    var el = document.getElementById('dg-img-' + t);
-    if (el) el.style.transform = tf;
-  });
+function dgScaleSticker(v) {
+  _dgSt.stickers.forEach(function(s){if(s.id===_dgSt.selId)s.scale=parseInt(v);});
+  _dgRender();
 }
 
-function dgColor(c) {
-  var w = document.getElementById('dg-w-' + _dgGoodsType);
-  if (w) w.style.background = c;
+function dgDeleteSticker() {
+  _dgSt.stickers=_dgSt.stickers.filter(function(s){return s.id!==_dgSt.selId;});
+  _dgSt.selId=null;
+  var ctrl=document.getElementById('dg-sticker-ctrl'); if(ctrl) ctrl.style.display='none';
+  _dgRender();
+}
+
+function dgExportGoods() {
+  var c=document.getElementById('dg-goods-canvas');
+  if (!c) return;
+  var a=document.createElement('a');
+  a.href=c.toDataURL('image/png');
+  a.download='goods_'+_dgSt.type+'_'+Date.now()+'.png';
+  a.click();
 }
 
 function toggleStyleRef() {
