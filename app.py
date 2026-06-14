@@ -1058,6 +1058,31 @@ details, .accordion {
 #mode-radio-group, #quality-radio-group {
     position: fixed !important; top: -9999px !important; left: 0 !important;
 }
+
+/* Override Gradio CSS variables that cause crimson/dark background */
+:root, html {
+    --block-background-fill: white !important;
+    --background-fill-primary: white !important;
+    --background-fill-secondary: #F8F5F0 !important;
+    --color-accent: #C084FC !important;
+    --primary-500: #A855F7 !important;
+    --primary-600: #9333EA !important;
+    --secondary-500: #A855F7 !important;
+    --secondary-600: #9333EA !important;
+}
+/* Fix crimson/dark block on image components */
+.gradio-container label.block,
+.gradio-container .block,
+.gradio-container [data-testid="image"],
+.gradio-container [data-testid="image"] *,
+.gradio-container [data-testid="image"] > div,
+.gradio-container [data-testid="image"] .wrap,
+.gradio-container [data-testid="image"] .empty,
+#dg-image-out,
+#dg-image-out * {
+    background: white !important;
+    background-color: white !important;
+}
 """
 
 
@@ -1122,21 +1147,35 @@ _QUALITY_BUTTONS_HTML = """
   <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
     font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;box-shadow:2px 2px 0px #4A3E3D;">
     3단계: 드로잉 퀄리티</span>
-  <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
-    border:2px solid #4A3E3D;" id="quality-tabs">
-    <button type="button" onclick="setQuality(this,0)"
-      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
-      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
-      Low</button>
-    <button type="button" onclick="setQuality(this,1)"
-      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
-      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
-      Medium</button>
-    <button type="button" onclick="setQuality(this,2)"
-      style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
-      font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
-      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
-      High</button>
+  <div style="display:flex;align-items:center;gap:6px;">
+    <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
+      border:2px solid #4A3E3D;" id="quality-tabs">
+      <button type="button" onclick="setQuality(this,0)"
+        style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+        font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+        Low</button>
+      <button type="button" onclick="setQuality(this,1)"
+        style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+        font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+        Medium</button>
+      <button type="button" onclick="setQuality(this,2)"
+        style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
+        font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+        box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+        High</button>
+    </div>
+    <div class="dg-help-wrap" style="position:relative;margin:0;">
+      <button class="dg-help-icon" aria-label="생성 팁">💡</button>
+      <div class="dg-help-pop">
+        <div class="dg-help-title">💡 낙서 작화 마스터 꿀팁!</div>
+        <ul class="dg-help-list">
+          <li>얼굴이 정면에 가깝고 선명할수록 사랑스러운 낙서가 나옵니다.</li>
+          <li>어둡거나 흔들린 사진보다 밝고 선명한 실내/자연광 컷이 좋습니다.</li>
+          <li>Full Character Sheet는 생성마다 결과가 달라질 수 있어요.</li>
+          <li>파스텔 수채화 스타일은 부드러운 다꾸 표현에 가장 예쁘게 어울립니다.</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 """
@@ -1508,7 +1547,6 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             )
             gr.HTML(_MODE_BUTTONS_HTML)
             gr.HTML(_QUALITY_BUTTONS_HTML)
-            gr.HTML(_HELP_HTML)
             generate_btn = gr.Button(
                 "✨  낙서 시트 그리기  ♡",
                 variant="primary",
@@ -1543,6 +1581,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
                 label="",
                 height=400,
                 show_label=False,
+                elem_id="dg-image-out",
             )
 
     # ── Goods modal (appears after generation) ────────────────────────────────
