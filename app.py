@@ -1488,6 +1488,7 @@ function dgOpenModal() {
   var ctrl = document.getElementById('dg-sticker-ctrl');
   if (ctrl) ctrl.style.display = 'none';
   setTimeout(function() {
+    _dgSetupGoods();  // attach canvas events once, before any render
     var img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = function() { _dgSt.mainImg = img; _dgInitCrop(); _dgRender(); };
@@ -1670,7 +1671,10 @@ function _dgRender() {
   var canvas=document.getElementById('dg-goods-canvas');
   if (!canvas) return;
   var t=_dgSt.type, cfg=_dgCfg[t];
-  canvas.width=cfg.cw; canvas.height=cfg.ch;
+  // Only resize when dimensions actually change — avoids resetting canvas state on every frame
+  if (canvas.width!==cfg.cw || canvas.height!==cfg.ch) {
+    canvas.width=cfg.cw; canvas.height=cfg.ch;
+  }
   var ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,cfg.cw,cfg.ch);
   _dgShape(ctx,t,_dgSt.color);
@@ -1686,12 +1690,12 @@ function _dgRender() {
     }
     ctx.restore();
   });
-  _dgSetupGoods(canvas);
 }
 
-function _dgSetupGoods(canvas) {
-  if (canvas._dgBound) return;
-  canvas._dgBound = true;
+function _dgSetupGoods() {
+  var canvas=document.getElementById('dg-goods-canvas');
+  if (!canvas) return;
+  // Always (re)attach — called once per modal open, not inside render loop
   canvas.ondragover = function(e) { e.preventDefault(); };
   canvas.ondrop = function(e) {
     e.preventDefault();
