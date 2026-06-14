@@ -1041,56 +1041,14 @@ details, .accordion {
     margin-bottom: 0.5rem !important;
 }
 
-/* ── Radio buttons → sketch-style toggle buttons ─────────────────────────── */
-
-/* Hide raw radio circle */
-input[type="radio"] {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    opacity: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+/* Hide Gradio radio groups — replaced by custom HTML buttons */
+#mode-radio-group,
+#quality-radio-group {
     position: absolute !important;
-}
-
-/* Any label wrapping a radio → sketch button */
-label:has(input[type="radio"]) {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 4px !important;
-    padding: 6px 14px !important;
-    border: 2px solid #4A3E3D !important;
-    border-radius: 8px !important;
-    background: white !important;
-    cursor: pointer !important;
-    transition: all 0.15s ease !important;
-    box-shadow: 1px 1px 0px #4A3E3D !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    color: #4A3E3D !important;
-    margin: 2px !important;
-}
-
-/* Selected → purple active state */
-label:has(input[type="radio"]:checked) {
-    background: #E9D5FF !important;
-    box-shadow: 2px 2px 0px #4A3E3D !important;
-    transform: translate(-1px, -1px) !important;
-}
-
-/* Hover on non-selected */
-label:has(input[type="radio"]:not(:checked)):hover {
-    background: #FAF0FF !important;
-}
-
-/* Span text inside radio labels */
-label:has(input[type="radio"]) span {
-    color: #4A3E3D !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
 }
 """
 
@@ -1196,31 +1154,31 @@ _MODE_BUTTONS_HTML = """
       box-shadow:2px 2px 0px #4A3E3D;">2단계: 드로잉 레이아웃 콘셉트</span>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="gen-mode-grid">
-    <button type="button" onclick="setGenMode(this,'Full Character Sheet')"
+    <button type="button" onclick="setGenMode(this,0)"
       style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:#E9D5FF;
       color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
       align-items:center;justify-content:center;gap:4px;
       box-shadow:2px 2px 0px #4A3E3D;transform:translate(-1px,-1px);transition:all 0.15s;">
       🌸 풀 캐릭터 시트</button>
-    <button type="button" onclick="setGenMode(this,'Portrait Doodle')"
+    <button type="button" onclick="setGenMode(this,1)"
       style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
       color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
       align-items:center;justify-content:center;gap:4px;
       box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
       🖼️ 포트레이트 낙서</button>
-    <button type="button" onclick="setGenMode(this,'Upper Body Character')"
+    <button type="button" onclick="setGenMode(this,2)"
       style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
       color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
       align-items:center;justify-content:center;gap:4px;
       box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
       🧜‍♀️ 상반신 캐릭터</button>
-    <button type="button" onclick="setGenMode(this,'Chibi Sticker')"
+    <button type="button" onclick="setGenMode(this,3)"
       style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
       color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
       align-items:center;justify-content:center;gap:4px;
       box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
       🍀 치비 스티커</button>
-    <button type="button" onclick="setGenMode(this,'Simple Clean Portrait')"
+    <button type="button" onclick="setGenMode(this,4)"
       style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
       color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
       align-items:center;justify-content:center;gap:4px;grid-column:span 2;
@@ -1230,7 +1188,7 @@ _MODE_BUTTONS_HTML = """
 </div>
 <script>
 (function(){
-  function setGenMode(btn, mode) {
+  window.setGenMode = function(btn, idx) {
     document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
       b.style.background = 'white';
       b.style.boxShadow = '1px 1px 0px #4A3E3D';
@@ -1239,10 +1197,9 @@ _MODE_BUTTONS_HTML = """
     btn.style.background = '#E9D5FF';
     btn.style.boxShadow = '2px 2px 0px #4A3E3D';
     btn.style.transform = 'translate(-1px,-1px)';
-    var el = document.querySelector('#mode-hidden textarea');
-    if (el) { el.value = mode; el.dispatchEvent(new Event('input', {bubbles:true})); }
-  }
-  window.setGenMode = setGenMode;
+    var radios = document.querySelectorAll('#mode-radio-group input[type="radio"]');
+    if (radios[idx]) radios[idx].click();
+  };
 })();
 </script>
 """
@@ -1254,15 +1211,15 @@ _QUALITY_BUTTONS_HTML = """
     box-shadow:2px 2px 0px #4A3E3D;">3단계: 드로잉 퀄리티</span>
   <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
     border:2px solid #4A3E3D;" id="quality-tabs">
-    <button type="button" onclick="setQuality(this,'low')"
+    <button type="button" onclick="setQuality(this,0)"
       style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
       font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
       Low</button>
-    <button type="button" onclick="setQuality(this,'medium')"
+    <button type="button" onclick="setQuality(this,1)"
       style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
       font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
       Medium</button>
-    <button type="button" onclick="setQuality(this,'high')"
+    <button type="button" onclick="setQuality(this,2)"
       style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
       font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
       box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
@@ -1271,7 +1228,7 @@ _QUALITY_BUTTONS_HTML = """
 </div>
 <script>
 (function(){
-  function setQuality(btn, q) {
+  window.setQuality = function(btn, idx) {
     document.querySelectorAll('#quality-tabs button').forEach(function(b) {
       b.style.background = 'transparent';
       b.style.border = 'none';
@@ -1282,10 +1239,9 @@ _QUALITY_BUTTONS_HTML = """
     btn.style.border = '1px solid #4A3E3D';
     btn.style.boxShadow = '1px 1px 0px #4A3E3D';
     btn.style.color = '#4A3E3D';
-    var el = document.querySelector('#quality-hidden textarea');
-    if (el) { el.value = q; el.dispatchEvent(new Event('input', {bubbles:true})); }
-  }
-  window.setQuality = setQuality;
+    var radios = document.querySelectorAll('#quality-radio-group input[type="radio"]');
+    if (radios[idx]) radios[idx].click();
+  };
 })();
 </script>
 """
@@ -1536,15 +1492,29 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 label="캐릭터 또는 인물 사진",
                 height=280,
             )
-            mode_selector = gr.Textbox(
+            mode_selector = gr.Radio(
+                choices=[
+                    ("🌸 풀 캐릭터 시트", "Full Character Sheet"),
+                    ("🖼️ 포트레이트 낙서", "Portrait Doodle"),
+                    ("🧜‍♀️ 상반신 캐릭터", "Upper Body Character"),
+                    ("🍀 치비 스티커", "Chibi Sticker"),
+                    ("✨ 심플 클린 포트레이트", "Simple Clean Portrait"),
+                ],
                 value="Full Character Sheet",
-                visible=False,
-                elem_id="mode-hidden",
+                label="",
+                show_label=False,
+                elem_id="mode-radio-group",
             )
-            quality_selector = gr.Textbox(
+            quality_selector = gr.Radio(
+                choices=[
+                    ("Low", "low"),
+                    ("Medium", "medium"),
+                    ("High", "high"),
+                ],
                 value="high",
-                visible=False,
-                elem_id="quality-hidden",
+                label="",
+                show_label=False,
+                elem_id="quality-radio-group",
             )
             gr.HTML(_MODE_BUTTONS_HTML)
             gr.HTML(_QUALITY_BUTTONS_HTML)
