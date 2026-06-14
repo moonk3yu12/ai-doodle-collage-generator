@@ -1188,6 +1188,108 @@ _HELP_HTML = """
 </script>
 """
 
+_MODE_BUTTONS_HTML = """
+<div style="margin-top:8px;">
+  <div style="margin-bottom:6px;">
+    <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
+      font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;
+      box-shadow:2px 2px 0px #4A3E3D;">2단계: 드로잉 레이아웃 콘셉트</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="gen-mode-grid">
+    <button type="button" onclick="setGenMode(this,'Full Character Sheet')"
+      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:#E9D5FF;
+      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:4px;
+      box-shadow:2px 2px 0px #4A3E3D;transform:translate(-1px,-1px);transition:all 0.15s;">
+      🌸 풀 캐릭터 시트</button>
+    <button type="button" onclick="setGenMode(this,'Portrait Doodle')"
+      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
+      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:4px;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      🖼️ 포트레이트 낙서</button>
+    <button type="button" onclick="setGenMode(this,'Upper Body Character')"
+      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
+      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:4px;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      🧜‍♀️ 상반신 캐릭터</button>
+    <button type="button" onclick="setGenMode(this,'Chibi Sticker')"
+      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
+      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:4px;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      🍀 치비 스티커</button>
+    <button type="button" onclick="setGenMode(this,'Simple Clean Portrait')"
+      style="padding:7px 10px;border-radius:8px;border:2px solid #4A3E3D;background:white;
+      color:#4A3E3D;font-weight:700;font-size:11px;cursor:pointer;display:flex;
+      align-items:center;justify-content:center;gap:4px;grid-column:span 2;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      ✨ 심플 클린 포트레이트</button>
+  </div>
+</div>
+<script>
+(function(){
+  function setGenMode(btn, mode) {
+    document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
+      b.style.background = 'white';
+      b.style.boxShadow = '1px 1px 0px #4A3E3D';
+      b.style.transform = 'none';
+    });
+    btn.style.background = '#E9D5FF';
+    btn.style.boxShadow = '2px 2px 0px #4A3E3D';
+    btn.style.transform = 'translate(-1px,-1px)';
+    var el = document.querySelector('#mode-hidden textarea');
+    if (el) { el.value = mode; el.dispatchEvent(new Event('input', {bubbles:true})); }
+  }
+  window.setGenMode = setGenMode;
+})();
+</script>
+"""
+
+_QUALITY_BUTTONS_HTML = """
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+  <span style="background:#FEE2E2;border:2px solid #4A3E3D;color:#4A3E3D;font-size:10px;
+    font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;
+    box-shadow:2px 2px 0px #4A3E3D;">3단계: 드로잉 퀄리티</span>
+  <div style="display:flex;gap:3px;background:#FAF9F5;padding:4px;border-radius:8px;
+    border:2px solid #4A3E3D;" id="quality-tabs">
+    <button type="button" onclick="setQuality(this,'low')"
+      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+      Low</button>
+    <button type="button" onclick="setQuality(this,'medium')"
+      style="padding:4px 14px;border-radius:5px;border:none;background:transparent;
+      font-size:10px;font-weight:900;color:#7C6E6D;cursor:pointer;transition:all 0.15s;">
+      Medium</button>
+    <button type="button" onclick="setQuality(this,'high')"
+      style="padding:4px 14px;border-radius:5px;border:1px solid #4A3E3D;background:white;
+      font-size:10px;font-weight:900;color:#4A3E3D;cursor:pointer;
+      box-shadow:1px 1px 0px #4A3E3D;transition:all 0.15s;">
+      High</button>
+  </div>
+</div>
+<script>
+(function(){
+  function setQuality(btn, q) {
+    document.querySelectorAll('#quality-tabs button').forEach(function(b) {
+      b.style.background = 'transparent';
+      b.style.border = 'none';
+      b.style.boxShadow = 'none';
+      b.style.color = '#7C6E6D';
+    });
+    btn.style.background = 'white';
+    btn.style.border = '1px solid #4A3E3D';
+    btn.style.boxShadow = '1px 1px 0px #4A3E3D';
+    btn.style.color = '#4A3E3D';
+    var el = document.querySelector('#quality-hidden textarea');
+    if (el) { el.value = q; el.dispatchEvent(new Event('input', {bubbles:true})); }
+  }
+  window.setQuality = setQuality;
+})();
+</script>
+"""
+
 _GOODS_MODAL_HTML = """
 <div>
   <div style="text-align:center;padding:0.5rem 0 0.25rem;">
@@ -1434,26 +1536,18 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator") as demo:
                 label="캐릭터 또는 인물 사진",
                 height=280,
             )
-            mode_selector = gr.Radio(
-                choices=[
-                    ("🎨 풀 캐릭터 시트", "Full Character Sheet"),
-                    ("🖼️ 포트레이트 낙서", "Portrait Doodle"),
-                    ("👗 상반신 캐릭터", "Upper Body Character"),
-                    ("🌟 치비 스티커", "Chibi Sticker"),
-                    ("✨ 심플 클린 포트레이트", "Simple Clean Portrait"),
-                ],
+            mode_selector = gr.Textbox(
                 value="Full Character Sheet",
-                label="🎭 생성 모드",
+                visible=False,
+                elem_id="mode-hidden",
             )
-            quality_selector = gr.Radio(
-                choices=[
-                    ("💸 Low", "low"),
-                    ("⚡ Medium", "medium"),
-                    ("✨ High", "high"),
-                ],
-                value="medium",
-                label="🖼️ 이미지 퀄리티",
+            quality_selector = gr.Textbox(
+                value="high",
+                visible=False,
+                elem_id="quality-hidden",
             )
+            gr.HTML(_MODE_BUTTONS_HTML)
+            gr.HTML(_QUALITY_BUTTONS_HTML)
             gr.HTML(_HELP_HTML)
             generate_btn = gr.Button(
                 "✨  낙서 시트 만들기  ♡",
