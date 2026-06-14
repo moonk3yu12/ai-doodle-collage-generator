@@ -827,7 +827,7 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
         sheet.save(pathlib.Path("/tmp/.current_goods.png"))
-        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True)
+        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)
 
     except gr.Error:
         raise
@@ -887,11 +887,17 @@ div[data-testid="image"] .icon-wrap svg {
     fill: #8B7E7D !important;
 }
 #dg-output-empty {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 60px 20px; pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    width: 100%;
+    background: #FDFBF7;
+    border: 2px dashed #8B7E7D;
+    border-radius: 12px;
+    padding: 40px 20px;
 }
-#dg-output-empty.hidden { display: none; }
 
 /* Header */
 #app-header { text-align: center; padding: 1.5rem 0 0.25rem; }
@@ -1073,25 +1079,6 @@ details, .accordion {
     display: none !important;
 }
 
-/* Empty state — absolute overlay on top of image output */
-#dg-output-empty {
-    position: absolute !important;
-    top: 60px !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 420px !important;
-    background: #FDFBF7 !important;
-    border: 2px dashed #8B7E7D !important;
-    border-radius: 12px !important;
-    z-index: 5 !important;
-    pointer-events: none;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 20px !important;
-}
-#dg-output-empty.hidden { display: none !important; }
 
 /* Action buttons row inside right panel */
 #dg-action-row { display: block !important; }
@@ -1522,28 +1509,24 @@ function toggleStyleRef() {
 function dgSaveImage() {
   var img = document.querySelector('#dg-image-out img');
   if (!img || !img.src) return;
-  var a = document.createElement('a');
-  a.href = img.src;
-  a.download = 'doodle_character_' + Date.now() + '.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  fetch(img.src)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'doodle_' + Date.now() + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
 }
 
 function dgResetImage() {
   var btn = document.getElementById('dg-reset-hidden');
   if (btn) btn.click();
 }
-
-// Poll every 300ms to show/hide empty state based on whether image has loaded
-setInterval(function() {
-  var overlay = document.getElementById('dg-output-empty');
-  if (!overlay) return;
-  var img = document.querySelector('#dg-image-out img') ||
-            document.querySelector('#right-panel div[data-testid="image"] img');
-  var hasImage = !!(img && img.naturalWidth > 0);
-  overlay.classList.toggle('hidden', hasImage);
-}, 300);
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') dgCloseModal();
@@ -1630,8 +1613,9 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     🎨 완성된 낙서 스케치북</span>
   <span style="background:#C084FC;color:white;font-size:9px;font-weight:700;
     padding:2px 10px;border-radius:999px;border:1px solid #4A3E3D;box-shadow:1px 1px 0px #4A3E3D;">AI Output Canvas</span>
-</div>
-<div id="dg-output-empty">
+</div>""")
+            with gr.Row(visible=True) as empty_state_row:
+                gr.HTML("""<div id="dg-output-empty">
   <div style="width:48px;height:48px;background:white;border:2px solid #4A3E3D;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-size:22px;
     box-shadow:2px 2px 0px #4A3E3D;margin-bottom:12px;">🎨</div>
@@ -1639,13 +1623,14 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
   <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.7;font-weight:600;">
     왼쪽 보드에 원본 사진을 넣고,<br>"낙서 시트 그리기" 버튼을 꼭 눌러주세요.</div>
 </div>""")
-            image_output = gr.Image(
-                type="pil",
-                label="",
-                height=400,
-                show_label=False,
-                elem_id="dg-image-out",
-            )
+            with gr.Row(visible=False) as image_row:
+                image_output = gr.Image(
+                    type="pil",
+                    label="",
+                    height=400,
+                    show_label=False,
+                    elem_id="dg-image-out",
+                )
             reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
                 gr.HTML(_ACTION_BUTTONS_HTML)
@@ -1819,13 +1804,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     generate_btn.click(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, image_row],
     )
 
     reset_btn.click(
-        fn=lambda: (None, "", "", "", "", gr.update(visible=False)),
+        fn=lambda: (None, "", "", "", "", gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)),
         inputs=None,
-        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row],
+        outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, image_row],
     )
 
     style_ref_btn.click(
