@@ -827,8 +827,13 @@ def run_pipeline(image: Image.Image, mode: str, quality: str, progress=gr.Progre
         style_ref_display = _style_cache if _style_cache else "(style reference not loaded)"
 
         sheet.save(pathlib.Path("/tmp/.current_goods.png"))
-        # goods_link_row=show, empty_state_row=hide, loading_row=hide
-        return sheet, analysis, prompt, token_summary, style_ref_display, gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)
+        return (
+            gr.update(value=sheet, elem_classes=[]),  # image_output: show with image
+            analysis, prompt, token_summary, style_ref_display,
+            gr.update(visible=True),   # goods_link_row
+            gr.update(visible=False),  # empty_state_row
+            gr.update(visible=False),  # loading_row
+        )
 
     except gr.Error:
         raise
@@ -1075,14 +1080,9 @@ details, .accordion {
     position: fixed !important; top: -9999px !important; left: 0 !important;
 }
 
-/* Collapse image component when no image is loaded yet */
-#dg-image-out:not(:has(img)) {
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    overflow: hidden !important;
-    margin: 0 !important;
+/* Hide image output until an image is generated */
+.dg-image-hidden {
+    display: none !important;
 }
 /* Hide output image toolbar buttons (fullscreen, download, share icons) */
 #dg-image-out button,
@@ -1657,6 +1657,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
                 show_label=False,
                 elem_id="dg-image-out",
                 interactive=False,
+                elem_classes=["dg-image-hidden"],
             )
             reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
@@ -1841,7 +1842,13 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     )
 
     reset_btn.click(
-        fn=lambda: (None, "", "", "", "", gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)),
+        fn=lambda: (
+            gr.update(value=None, elem_classes=["dg-image-hidden"]),  # image_output: hide
+            "", "", "", "",
+            gr.update(visible=False),  # goods_link_row
+            gr.update(visible=True),   # empty_state_row
+            gr.update(visible=False),  # loading_row
+        ),
         inputs=None,
         outputs=[image_output, analysis_out, prompt_out, token_out, style_ref_out, goods_link_row, empty_state_row, loading_row],
     )
