@@ -1485,7 +1485,7 @@ var _dgSt = {
   lassoPts:[], lassoDrag:false, lassoAnimId:null, lassoOff:0,
   pocketDragIdx:null,
   goodsDrag:false, goodsDragId:null, goodsDragOx:0, goodsDragOy:0,
-  nextId:0, imgTs:0, mainImg:null,
+  nextId:1, imgTs:0, mainImg:null,
   showGuide:true
 };
 
@@ -1838,7 +1838,7 @@ function _dgSetupGoods() {
         break;
       }
     }
-    if (!_dgSt.selId) { var ctrl=document.getElementById('dg-sticker-ctrl'); if(ctrl) ctrl.style.display='none'; }
+    if (_dgSt.selId===null) { var ctrl=document.getElementById('dg-sticker-ctrl'); if(ctrl) ctrl.style.display='none'; }
     _dgRender();
   };
   canvas.onmousemove = function(e) {
