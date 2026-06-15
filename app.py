@@ -1315,7 +1315,15 @@ _GOODS_MODAL_HTML = """
           <canvas id="dg-crop-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
           <canvas id="dg-crop-sel" style="position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;"></canvas>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;">
+        <div style="display:flex;gap:4px;margin-top:6px;margin-bottom:6px;">
+          <button id="dg-crop-rect" onclick="dgSetCropMode('rect')"
+            style="flex:1;padding:5px;border-radius:6px;border:2px solid #4A3E3D;background:#E9D5FF;
+            font-size:11px;font-weight:800;color:#4A3E3D;cursor:pointer;">⬜ 사각</button>
+          <button id="dg-crop-lasso" onclick="dgSetCropMode('lasso')"
+            style="flex:1;padding:5px;border-radius:6px;border:1px solid #8B7E7D;background:white;
+            font-size:11px;font-weight:800;color:#4A3E3D;cursor:pointer;">🌀 올가미</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
           <button onclick="dgPresetCrop(0,0,1,0.42)" style="padding:5px;border-radius:6px;
             border:1px solid #4A3E3D;background:#FEF3C7;font-size:11px;font-weight:700;cursor:pointer;">🔝 상단</button>
           <button onclick="dgPresetCrop(0,0.3,1,0.42)" style="padding:5px;border-radius:6px;
@@ -1360,6 +1368,18 @@ _GOODS_MODAL_HTML = """
             <button onclick="dgColor('#FFFFFF')" style="width:22px;height:22px;border-radius:50%;background:#FFFFFF;border:2px solid #8B7E7D;cursor:pointer;" title="화이트"></button>
             <button onclick="dgColor('#1E1B1B')" style="width:22px;height:22px;border-radius:50%;background:#1E1B1B;border:2px solid #8B7E7D;cursor:pointer;" title="블랙"></button>
           </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;">
+          <span style="font-size:11px;font-weight:700;color:#4A3E3D;">📐 인쇄 가이드</span>
+          <label style="position:relative;display:inline-block;width:38px;height:20px;cursor:pointer;">
+            <input type="checkbox" id="dg-guide-toggle" checked
+              style="opacity:0;width:0;height:0;position:absolute;" onchange="dgToggleGuide(this.checked)">
+            <div id="dg-guide-track"
+              style="position:absolute;inset:0;background:#86EFAC;border-radius:20px;border:1.5px solid #4A3E3D;transition:background 0.2s;">
+              <div id="dg-guide-knob" style="position:absolute;top:1px;left:19px;width:14px;height:14px;
+                background:white;border-radius:50%;transition:left 0.2s;pointer-events:none;"></div>
+            </div>
+          </label>
         </div>
         <button onclick="dgExportGoods()" style="width:100%;margin-top:8px;padding:8px;
           background:#2D2727;color:white;border:2px solid #4A3E3D;border-radius:8px;
@@ -1460,10 +1480,13 @@ function setStyleCard(el, style) {
 var _dgSt = {
   type:'phone', color:'#FDE2E4', removeBg:false,
   stickers:[], pocket:[], selId:null,
+  cropMode:'rect',
   cropRect:null, cropDrag:false, cropStart:null,
+  lassoPts:[], lassoDrag:false, lassoAnimId:null, lassoOff:0,
   pocketDragIdx:null,
   goodsDrag:false, goodsDragId:null, goodsDragOx:0, goodsDragOy:0,
-  nextId:0, imgTs:0, mainImg:null
+  nextId:0, imgTs:0, mainImg:null,
+  showGuide:true
 };
 
 var _dgCfg = {
@@ -1544,14 +1567,69 @@ function _dgInitCrop() {
     var r=cs.getBoundingClientRect(), t=e.touches?e.touches[0]:e;
     return {x:(t.clientX-r.left)/r.width*cs.width, y:(t.clientY-r.top)/r.height*cs.height};
   }
-  cs.onmousedown = function(e) { _dgSt.cropDrag=true; _dgSt.cropStart=cp(e); _dgSt.cropRect=null; };
-  cs.onmousemove = function(e) {
-    if (!_dgSt.cropDrag) return;
-    var p=cp(e), s=_dgSt.cropStart;
-    _dgSt.cropRect={x:Math.min(s.x,p.x),y:Math.min(s.y,p.y),w:Math.abs(p.x-s.x),h:Math.abs(p.y-s.y)};
-    _dgDrawSel();
-  };
-  cs.onmouseup = cs.onmouseleave = function() { _dgSt.cropDrag=false; };
+  function onDown(e) {
+    var p=cp(e);
+    if (_dgSt.cropMode==='lasso') {
+      _dgSt.lassoDrag=true; _dgSt.lassoPts=[p]; _dgSt.cropRect=null;
+      _dgStartLassoAnim();
+    } else {
+      _dgSt.cropDrag=true; _dgSt.cropStart=p; _dgSt.cropRect=null;
+      _dgSt.lassoPts=[];
+    }
+  }
+  function onMove(e) {
+    var p=cp(e);
+    if (_dgSt.cropMode==='lasso' && _dgSt.lassoDrag) {
+      _dgSt.lassoPts.push(p);
+    } else if (_dgSt.cropMode==='rect' && _dgSt.cropDrag) {
+      var s=_dgSt.cropStart;
+      _dgSt.cropRect={x:Math.min(s.x,p.x),y:Math.min(s.y,p.y),w:Math.abs(p.x-s.x),h:Math.abs(p.y-s.y)};
+      _dgDrawSel();
+    }
+  }
+  function onUp() { _dgSt.cropDrag=false; _dgSt.lassoDrag=false; }
+  cs.onmousedown=onDown; cs.onmousemove=onMove; cs.onmouseup=onUp; cs.onmouseleave=onUp;
+  cs.addEventListener('touchstart',function(e){e.preventDefault();onDown(e);},{passive:false});
+  cs.addEventListener('touchmove', function(e){e.preventDefault();onMove(e);},{passive:false});
+  cs.addEventListener('touchend',  function(e){e.preventDefault();onUp();},{passive:false});
+}
+
+function dgSetCropMode(mode) {
+  _dgSt.cropMode = mode;
+  var rb = document.getElementById('dg-crop-rect'), lb = document.getElementById('dg-crop-lasso');
+  if (rb) { rb.style.background=mode==='rect'?'#E9D5FF':'white'; rb.style.border=mode==='rect'?'2px solid #4A3E3D':'1px solid #8B7E7D'; }
+  if (lb) { lb.style.background=mode==='lasso'?'#E9D5FF':'white'; lb.style.border=mode==='lasso'?'2px solid #4A3E3D':'1px solid #8B7E7D'; }
+  _dgSt.cropRect=null; _dgSt.lassoPts=[];
+  var cs=document.getElementById('dg-crop-sel');
+  if (cs) cs.getContext('2d').clearRect(0,0,cs.width,cs.height);
+  if (mode==='lasso') _dgStartLassoAnim();
+  else if (_dgSt.lassoAnimId) { cancelAnimationFrame(_dgSt.lassoAnimId); _dgSt.lassoAnimId=null; }
+}
+
+function _dgStartLassoAnim() {
+  if (_dgSt.lassoAnimId) cancelAnimationFrame(_dgSt.lassoAnimId);
+  function step() {
+    _dgSt.lassoOff = (_dgSt.lassoOff+0.5)%9;
+    _dgDrawLasso();
+    _dgSt.lassoAnimId = requestAnimationFrame(step);
+  }
+  _dgSt.lassoAnimId = requestAnimationFrame(step);
+}
+
+function _dgDrawLasso() {
+  var cs=document.getElementById('dg-crop-sel');
+  if (!cs) return;
+  var ctx=cs.getContext('2d');
+  ctx.clearRect(0,0,cs.width,cs.height);
+  if (_dgSt.lassoPts.length<2) return;
+  ctx.beginPath();
+  ctx.moveTo(_dgSt.lassoPts[0].x, _dgSt.lassoPts[0].y);
+  _dgSt.lassoPts.forEach(function(p){ctx.lineTo(p.x,p.y);});
+  if (!_dgSt.lassoDrag) ctx.closePath();
+  ctx.fillStyle='rgba(236,72,153,0.15)'; ctx.fill();
+  ctx.strokeStyle='#EC4899'; ctx.lineWidth=2;
+  ctx.setLineDash([6,3]); ctx.lineDashOffset=-_dgSt.lassoOff;
+  ctx.stroke(); ctx.setLineDash([]);
 }
 
 function _dgDrawSel() {
@@ -1575,14 +1653,30 @@ function dgPresetCrop(nx,ny,nw,nh) {
 function dgAddToPocket() {
   var cc=document.getElementById('dg-crop-canvas');
   if (!cc) return;
-  var r=_dgSt.cropRect||{x:0,y:0,w:cc.width,h:cc.height};
-  var pw=Math.max(4,Math.round(r.w)), ph=Math.max(4,Math.round(r.h));
-  if (pw<4||ph<4) { r={x:0,y:0,w:cc.width,h:cc.height}; pw=cc.width; ph=cc.height; }
-  var tmp=document.createElement('canvas');
-  tmp.width=pw; tmp.height=ph;
-  tmp.getContext('2d').drawImage(cc,r.x,r.y,r.w,r.h,0,0,pw,ph);
+  var tmp, pw, ph;
+  if (_dgSt.cropMode==='lasso' && _dgSt.lassoPts.length>5) {
+    var pts=_dgSt.lassoPts;
+    var xs=pts.map(function(p){return p.x;}), ys=pts.map(function(p){return p.y;});
+    var minX=Math.max(0,Math.min.apply(null,xs)), minY=Math.max(0,Math.min.apply(null,ys));
+    var maxX=Math.min(cc.width,Math.max.apply(null,xs)), maxY=Math.min(cc.height,Math.max.apply(null,ys));
+    pw=Math.round(maxX-minX); ph=Math.round(maxY-minY);
+    if (pw<4||ph<4) return;
+    tmp=document.createElement('canvas'); tmp.width=pw; tmp.height=ph;
+    var ctx2=tmp.getContext('2d');
+    ctx2.beginPath();
+    ctx2.moveTo(pts[0].x-minX, pts[0].y-minY);
+    pts.forEach(function(p){ctx2.lineTo(p.x-minX, p.y-minY);});
+    ctx2.closePath(); ctx2.clip();
+    ctx2.drawImage(cc, minX, minY, pw, ph, 0, 0, pw, ph);
+  } else {
+    var r=_dgSt.cropRect||{x:0,y:0,w:cc.width,h:cc.height};
+    pw=Math.max(4,Math.round(r.w)); ph=Math.max(4,Math.round(r.h));
+    if (pw<4||ph<4) { r={x:0,y:0,w:cc.width,h:cc.height}; pw=cc.width; ph=cc.height; }
+    tmp=document.createElement('canvas'); tmp.width=pw; tmp.height=ph;
+    tmp.getContext('2d').drawImage(cc,r.x,r.y,r.w,r.h,0,0,pw,ph);
+  }
   _dgSt.pocket.push(tmp.toDataURL('image/png'));
-  _dgSt.cropRect=null; _dgDrawSel();
+  _dgSt.cropRect=null; _dgSt.lassoPts=[]; _dgDrawSel();
   _dgUpdatePocket();
 }
 
@@ -1667,11 +1761,36 @@ function _dgBgRemove(src) {
   ctx.putImageData(id,0,0); return tmp;
 }
 
+function _dgDrawGuides(ctx, cfg) {
+  var ax=cfg.ax, ay=cfg.ay, aw=cfg.aw, ah=cfg.ah;
+  ctx.save();
+  ctx.strokeStyle='rgba(239,68,68,0.75)'; ctx.lineWidth=1;
+  ctx.setLineDash([4,2]); ctx.strokeRect(ax-4,ay-4,aw+8,ah+8); ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(59,130,246,0.75)';
+  ctx.setLineDash([4,2]); ctx.strokeRect(ax+6,ay+6,aw-12,ah-12); ctx.setLineDash([]);
+  ctx.font='7px sans-serif';
+  ctx.fillStyle='rgba(239,68,68,0.85)'; ctx.fillText('재단선',ax-3,ay-6);
+  ctx.fillStyle='rgba(59,130,246,0.85)'; ctx.fillText('안전선',ax+8,ay+17);
+  if (_dgSt.type==='keyring') {
+    ctx.strokeStyle='rgba(239,68,68,0.75)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cfg.cw/2,ay-14,7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='rgba(239,68,68,0.85)'; ctx.fillText('고리홀',cfg.cw/2-9,ay-23);
+  }
+  ctx.restore();
+}
+
+function dgToggleGuide(on) {
+  _dgSt.showGuide=on;
+  var tr=document.getElementById('dg-guide-track'), kn=document.getElementById('dg-guide-knob');
+  if (tr) tr.style.background=on?'#86EFAC':'#D1D5DB';
+  if (kn) kn.style.left=on?'19px':'1px';
+  _dgRender();
+}
+
 function _dgRender() {
   var canvas=document.getElementById('dg-goods-canvas');
   if (!canvas) return;
   var t=_dgSt.type, cfg=_dgCfg[t];
-  // Only resize when dimensions actually change — avoids resetting canvas state on every frame
   if (canvas.width!==cfg.cw || canvas.height!==cfg.ch) {
     canvas.width=cfg.cw; canvas.height=cfg.ch;
   }
@@ -1690,6 +1809,7 @@ function _dgRender() {
     }
     ctx.restore();
   });
+  if (_dgSt.showGuide) _dgDrawGuides(ctx, cfg);
 }
 
 function _dgSetupGoods() {
@@ -1728,6 +1848,10 @@ function _dgSetupGoods() {
     _dgRender();
   };
   canvas.onmouseup = canvas.onmouseleave = function() { _dgSt.goodsDrag=false; };
+  function _t2e(e) { var t=e.touches[0]||e.changedTouches[0]; return {clientX:t.clientX,clientY:t.clientY}; }
+  canvas.addEventListener('touchstart',function(e){e.preventDefault();canvas.onmousedown(_t2e(e));},{passive:false});
+  canvas.addEventListener('touchmove', function(e){e.preventDefault();canvas.onmousemove(_t2e(e));},{passive:false});
+  canvas.addEventListener('touchend',  function(e){e.preventDefault();_dgSt.goodsDrag=false;},{passive:false});
 }
 
 function dgScaleSticker(v) {
