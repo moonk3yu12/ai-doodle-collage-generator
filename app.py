@@ -1102,6 +1102,47 @@ details, .accordion {
 #dg-action-row { display: block !important; }
 #dg-action-row > div { width: 100% !important; }
 
+/* ── Gradio 기본 프로그레스 바 → 파스텔 다꾸 스타일 ─────── */
+.progress-bar-wrap {
+    background: #F3E8FF !important;
+    border: 2px solid #C084FC !important;
+    border-radius: 999px !important;
+    height: 10px !important;
+    overflow: hidden !important;
+    margin: 6px 0 2px !important;
+    box-shadow: 2px 2px 0 #C084FC !important;
+}
+.progress-bar-wrap .progress-bar,
+div.progress-bar {
+    background: linear-gradient(90deg, #C084FC 0%, #F9A8D4 55%, #FDE68A 100%) !important;
+    border-radius: 999px !important;
+    height: 100% !important;
+    transition: width 0.4s ease !important;
+}
+.progress-level,
+.progress-level-inner {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    color: #7C6E6D !important;
+    font-family: 'Nunito', sans-serif !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 2px 0 !important;
+}
+.eta-bar {
+    background: #F3E8FF !important;
+    border-radius: 4px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    color: #7C6E6D !important;
+    padding: 1px 6px !important;
+}
+.generating {
+    border: none !important;
+    background: transparent !important;
+    animation: none !important;
+}
+
 /* Override Gradio CSS variables that cause crimson/dark background */
 :root, html {
     --block-background-fill: white !important;
@@ -2002,10 +2043,29 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             with gr.Row(visible=False) as loading_row:
                 gr.HTML("""<div id="dg-loading">
   <div class="dg-spin">✏️</div>
-  <div style="font-weight:800;font-size:15px;color:#7C6E6D;margin-bottom:8px;">AI가 낙서를 그리는 중...</div>
-  <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.9;font-weight:600;">
+  <div style="font-weight:800;font-size:15px;color:#7C6E6D;margin-bottom:6px;">AI가 낙서를 그리는 중...</div>
+  <div style="font-size:12px;color:#8B7E7D;text-align:center;line-height:1.9;font-weight:600;margin-bottom:10px;">
     캐릭터 분석 → 프롬프트 빌드 → 이미지 생성<br>약 30~60초 걸려요 ♡ 잠깐만요!</div>
-</div>""")
+  <div style="width:80%;max-width:260px;">
+    <div style="background:#F3E8FF;border:2px solid #C084FC;border-radius:999px;height:10px;
+      box-shadow:2px 2px 0 #C084FC;overflow:hidden;">
+      <div style="height:100%;border-radius:999px;
+        background:linear-gradient(90deg,#C084FC,#F9A8D4,#FDE68A);
+        animation:dg-bar 2.4s ease-in-out infinite;background-size:200% 100%;">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:700;color:#C084FC;">
+      <span>✨ 생성중</span><span>♡ 잠깐만요</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes dg-bar {
+  0%   { background-position: 100% 0; opacity:.7; }
+  50%  { background-position: 0% 0;   opacity:1; }
+  100% { background-position: 100% 0; opacity:.7; }
+}
+</style>""")
             image_display = gr.HTML("", elem_id="dg-image-display")
             reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
