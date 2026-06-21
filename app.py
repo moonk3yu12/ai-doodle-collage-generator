@@ -1898,8 +1898,10 @@ function dgSaveImage() {
 }
 
 function dgResetImage() {
-  var btn = document.getElementById('dg-reset-hidden');
-  if (btn) btn.click();
+  var wrap = document.getElementById('dg-reset-hidden');
+  if (!wrap) return;
+  var btn = wrap.querySelector('button') || wrap;
+  btn.click();
 }
 
 document.addEventListener('keydown', function(e) {
@@ -2178,9 +2180,9 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
     # Step 1: instant UI switch to loading state
     # Step 2: run pipeline (image_output is always in DOM — Gradio won't skip it)
     generate_btn.click(
-        fn=lambda: (gr.update(visible=False), gr.update(visible=True)),
+        fn=lambda: ("", gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)),
         inputs=[],
-        outputs=[empty_state_row, loading_row],
+        outputs=[image_display, empty_state_row, loading_row, goods_link_row],
     ).then(
         fn=run_pipeline,
         inputs=[image_input, mode_selector, quality_selector],
