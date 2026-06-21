@@ -1102,6 +1102,14 @@ details, .accordion {
 #dg-action-row { display: block !important; }
 #dg-action-row > div { width: 100% !important; }
 
+/* Reset button — visually hidden but clickable by JS */
+#dg-reset-hidden {
+    position: fixed !important;
+    top: -9999px !important; left: -9999px !important;
+    width: 1px !important; height: 1px !important;
+    opacity: 0 !important; pointer-events: all !important;
+}
+
 /* ── Gradio 기본 프로그레스 바 → 파스텔 다꾸 스타일 ─────── */
 .progress-bar-wrap {
     background: #F3E8FF !important;
@@ -1476,6 +1484,14 @@ function dgClickRadio(groupId, idx) {
   }
 }
 
+var _dgTips = [
+  '💡 <strong>Tip:</strong> 정면 사진일수록 잘 나와요!<br>애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ',
+  '💡 <strong>Tip:</strong> 얼굴이 크고 선명한 사진을 사용하세요!<br>표정이 잘 보이는 근거리 사진이 잘 나와요 ♡',
+  '💡 <strong>Tip:</strong> 상반신이 잘 보이는 사진을 사용하세요!<br>의상 디테일이 잘 표현됩니다 ✨',
+  '🍀 <strong>치비 스티커 추천:</strong> 메이플스토리 캐릭터에 최적화된 모드예요!<br>게임 스크린샷을 그대로 올려보세요 — 치비로 완성 🎮✨',
+  '💡 <strong>Tip:</strong> 깔끔한 단독 포트레이트를 원할 때 사용하세요!<br>심플하고 정돈된 결과물이 나와요 🎨',
+];
+
 function setGenMode(btn, idx) {
   document.querySelectorAll('#gen-mode-grid button').forEach(function(b) {
     b.style.background = 'white';
@@ -1490,6 +1506,8 @@ function setGenMode(btn, idx) {
   btn.style.boxShadow = '3px 3px 0px #4A3E3D';
   btn.style.transform = 'translate(-1px,-1px)';
   dgClickRadio('mode-radio-group', idx);
+  var tip = document.getElementById('dg-tip-box');
+  if (tip && _dgTips[idx]) tip.innerHTML = _dgTips[idx];
 }
 
 function setQuality(btn, idx) {
@@ -1941,8 +1959,8 @@ function dgSaveImage() {
 function dgResetImage() {
   var wrap = document.getElementById('dg-reset-hidden');
   if (!wrap) return;
-  var btn = wrap.querySelector('button') || wrap;
-  btn.click();
+  var btn = wrap.querySelector('button');
+  if (btn) btn.click();
 }
 
 document.addEventListener('keydown', function(e) {
@@ -2016,11 +2034,11 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
                 variant="primary",
                 elem_id="generate-btn",
             )
-            gr.Markdown(
-                "💡 **Tip:** 정면 사진일수록 잘 나와요!  \n"
-                "애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ",
-                elem_classes="tip-box",
-            )
+            gr.HTML("""
+<div class="tip-box" id="dg-tip-box">
+  💡 <strong>Tip:</strong> 정면 사진일수록 잘 나와요!<br>
+  애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ
+</div>""")
 
         with gr.Column(scale=1, elem_id="right-panel"):
             gr.HTML("""<div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
@@ -2067,7 +2085,7 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
 }
 </style>""")
             image_display = gr.HTML("", elem_id="dg-image-display")
-            reset_btn = gr.Button("↺", visible=False, elem_id="dg-reset-hidden")
+            reset_btn = gr.Button("↺", visible=True, elem_id="dg-reset-hidden")
             with gr.Row(visible=False) as goods_link_row:
                 gr.HTML(_ACTION_BUTTONS_HTML)
 
