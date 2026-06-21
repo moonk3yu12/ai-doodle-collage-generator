@@ -2037,7 +2037,8 @@ with gr.Blocks(title="AI Doodle Character Sheet Generator", js=_CUSTOM_JS) as de
             gr.HTML("""
 <div class="tip-box" id="dg-tip-box">
   💡 <strong>Tip:</strong> 정면 사진일수록 잘 나와요!<br>
-  애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ
+  애니 캐릭터, 게임 캐릭터, 실제 사람 모두 OK ʕ•ᴥ•ʔ<br>
+  🍀 <strong>치비 스티커 추천:</strong> 메이플스토리 캐릭터 스크린샷을 올려보세요!
 </div>""")
 
         with gr.Column(scale=1, elem_id="right-panel"):
